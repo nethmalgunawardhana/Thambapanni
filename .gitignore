@@ -36,3 +36,14 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+
+# Python Virtual Environment
+.venv
+.idea
+
+# Flask Files
+__pycache__
+
+# Gemini API File
+API.json
