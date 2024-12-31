@@ -16,8 +16,8 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, className }) => (
 );
 
 const App: React.FC = () => {
-  const backgroundImage: ImageSourcePropType = require('./assets/palm-tree-bg.jpg');
-  const logoImage: ImageSourcePropType = require('./assets/logo.png');
+const backgroundImage: ImageSourcePropType = { uri: 'https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg' };
+const logoImage: ImageSourcePropType = { uri: 'https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg' };
 
   return (
     <ImageBackground source={backgroundImage} className="flex-1">
