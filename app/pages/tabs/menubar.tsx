@@ -128,9 +128,10 @@ const styles = StyleSheet.create({
     right: 0,
     elevation: 0,
     backgroundColor: '#4F46E5',
-    borderRadius: 15,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
     height: 90,
-    paddingBottom: 10,
+    paddingBottom: 3,
   },
   customTabBarButton: {
     top: -30,
