@@ -1,106 +1,83 @@
 import React, { useState } from 'react';
-import { View, Text, ImageBackground, TouchableOpacity, StyleSheet, TextInput, Image } from 'react-native';
+import { View, Text, ImageBackground, TouchableOpacity, ImageSourcePropType, StyleSheet, TextInput, KeyboardTypeOptions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
+
 interface Props {
   navigation: NativeStackNavigationProp<any>;
 }
-
 interface InputFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
+  keyboardType?: KeyboardTypeOptions;
 }
-
-const InputField: React.FC<InputFieldProps> = ({ placeholder, value, onChangeText, secureTextEntry }) => (
-  <TextInput
-    style={styles.input}
-    placeholder={placeholder}
-    placeholderTextColor="#6366f1"
-    value={value}
-    onChangeText={onChangeText}
-    secureTextEntry={secureTextEntry}
-  />
-);
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    // Handle login logic
-    console.log({ email, password });
-
-  };
-
-  const handleGoogleSignIn = () => {
-    // Handle Google Sign in
-    console.log('Google sign in');
-  };
-
-  const handleFacebookSignIn = () => {
-    // Handle Facebook Sign in
-    console.log('Facebook sign in');
-  };
+  const backgroundImage: ImageSourcePropType = require('../../../assets/images/login.png');
 
   return (
-    <ImageBackground 
-      source={{ uri: 'https://i.ibb.co/PtCNs20/13.png' }} 
-      style={styles.background}
-    >
+    <ImageBackground source={backgroundImage} style={styles.background}>
       <StatusBar style="light" />
       <View style={styles.overlay}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>{'<'}</Text>
+            <Text style={styles.backButton}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Let's get you</Text>
+          <Text style={styles.headerTitle}>Welcome Back</Text>
         </View>
 
         <View style={styles.formContainer}>
-          <InputField
+          <TextInput
+            
+            style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#666"
             value={email}
             onChangeText={setEmail}
           />
           
-          <InputField
+          <TextInput
+            style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#666"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
           />
 
-          <TouchableOpacity onPress={() => navigation.navigate('Email')}>
-            <Text style={styles.forgotPassword}>Forget password?</Text>
-          </TouchableOpacity>
+          <View style={styles.linkContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.link}>Don't have an account?</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => navigation.navigate('Email')}>
+              <Text style={styles.link}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity 
             style={styles.loginButton}
-            onPress={()=>navigation.navigate('MenuBar')}
+            onPress={() => navigation.navigate('MenuBar')}
           >
-            <Text style={styles.loginButtonText}>Login</Text>
+            <Text style={styles.loginButtonText}>Sign In</Text>
           </TouchableOpacity>
 
-          <Text style={styles.orText}>or</Text>
+          <Text style={styles.orText}>or continue with</Text>
 
-          <TouchableOpacity 
-            style={styles.underButton}
-            onPress={handleGoogleSignIn}
-          >
-            <FontAwesome name="google" size={24} color="#db4a39" style={{ paddingRight: 10 }}/>
-            <Text style={styles.socialButtonText}>Sign in with Google</Text>
-          </TouchableOpacity>
+          <View style={styles.socialButtonsContainer}>
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="google" size={24} color="#db4a39" />
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.underButton}
-            onPress={handleFacebookSignIn}
-          >
-            <FontAwesome name="facebook" size={24} color="#3b5998" style={{ paddingRight: 15,paddingLeft: 15 }} />
-            <Text style={styles.socialButtonText}>Sign in with Facebook</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="facebook" size={24} color="#3b5998" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ImageBackground>
@@ -110,90 +87,108 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    marginBottom: 30,
+    paddingHorizontal: 24,
+    marginBottom: 40,
   },
   backButton: {
-    color: 'white',
-    fontSize: 24,
-    marginRight: 10,
+    color: '#FFFFFF',
+    fontSize: 28,
+    marginRight: 15,
+    fontWeight: 'bold',
   },
   headerTitle: {
-    color: 'white',
-    fontSize: 24,
+    color: '#FFFFFF',
+    fontSize: 28,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingTop: 80,
   },
   input: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     fontSize: 16,
+    color: '#1f2937',
   },
-  forgotPassword: {
-    color: 'white',
-    textAlign: 'left',
-    marginBottom: 20,
+  linkContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  link: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
   },
   loginButton: {
-    backgroundColor: 'rgb(249, 115, 22)', // orange-500
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: '#f97316',
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 4,
+    shadowColor: '#f97316',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
   },
   loginButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   orText: {
-    color: 'black',
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginVertical: 15,
+    marginVertical: 20,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  socialButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 30,
   },
   socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-  },
-  underButton: {  
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(190, 221, 2,0.6)',
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginVertical: 10,
-    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 10,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
-  },
-  
-  socialIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 10,
-  },
-  socialButtonText: {
-    color: 'black',
-    fontSize: 16,
-  },
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  }
 });
 
 export default LoginScreen;

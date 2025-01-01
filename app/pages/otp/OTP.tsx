@@ -8,6 +8,7 @@ import {
   ImageSourcePropType,
   StyleSheet,
   TextInput,
+  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -23,51 +24,53 @@ interface ButtonProps {
 }
 
 const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+  <TouchableOpacity 
+    style={[styles.button, style]} 
+    onPress={onPress}
+    activeOpacity={0.8}
+  >
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
 
 const Otp: React.FC<Props> = ({ navigation }) => {
-  const backgroundImage: ImageSourcePropType = {
-    uri: "https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg",
-  };
-  const logoImage: ImageSourcePropType = {
-    uri: "https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg",
-  };
-
+  const backgroundImage: ImageSourcePropType = require('../../../assets/images/otp.png');
+    
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
       <StatusBar style="light" />
       <View style={styles.overlay}>
-        <View
-          style={[
-            styles.semiTransparentBlock,
-            {
-              flex: 0.75, // Takes up 50% of the parent height
-              marginVertical: "25%", // Pushes the block to the middle
-            },
-          ]}
-        >
+        <View style={styles.semiTransparentBlock}>
           <View style={styles.contentContainer}>
-            <Text style={{ fontSize: 20, color: '#000000', textAlign: 'center' }}>
-              We have send you a 6 digit code to your email address
+            <Text style={styles.headerText}>
+              We have sent you a 6 digit code to your email address
             </Text>
-            <View style={{ height: 50 }} />
+            
             <TextInput
-              style={[styles.input, styles.marginBottom]}
-              placeholder="OTP"
-              placeholderTextColor="#4F46E5"
+              style={styles.input}
+              placeholder="Enter OTP"
+              placeholderTextColor="rgba(79, 70, 229, 0.6)"
               keyboardType="number-pad"
               autoCapitalize="none"
               autoCorrect={false}
+              maxLength={6}
             />
-            <Text style={{ fontSize: 20, color: '#000000' }} onPress={() => navigation.navigate('Email')}>
-              Not this email?
-              {'\n'}
-              {'\n'}
-            </Text>
-            <CustomButton title="Continue" onPress={() => navigation.navigate('Password')}/>
+            
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('Email')}
+              style={styles.linkContainer}
+            >
+              <Text style={styles.linkText}>Not this email?</Text>
+            </TouchableOpacity>
+
+            <CustomButton 
+              title="Continue" 
+              onPress={() => navigation.navigate('Password')}
+            />
+            
+            <TouchableOpacity style={styles.resendContainer}>
+              <Text style={styles.resendText}>Resend Code</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -75,70 +78,104 @@ const Otp: React.FC<Props> = ({ navigation }) => {
   );
 };
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.3)",
+    justifyContent: 'center',
   },
   semiTransparentBlock: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginTop: 40,
-  },
-  logoWrapper: {
-    backgroundColor: "rgb(186, 230, 253)", // sky-200 equivalent
-    borderRadius: 50,
-    padding: 16,
-    width: 96,
-    height: 96,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: 64,
-    height: 64,
+    marginHorizontal: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderRadius: 20,
+    paddingVertical: 32,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   contentContainer: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: width * 0.06,
   },
-  titleText: {
-    color: "white",
-    fontSize: 36,
-    fontWeight: "bold",
+  headerText: {
+    fontSize: 18,
+    color: "#374151",
+    marginBottom: 32,
     textAlign: "center",
-    marginBottom: 80,
+    fontWeight: "500",
+    lineHeight: 24,
+  },
+  input: {
+    height: 56,
+    backgroundColor: "#F9FAFB",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 20,
+    color: "#1F2937",
+    marginBottom: 16,
+    textAlign: 'center',
+    letterSpacing: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
   button: {
-    backgroundColor: "rgba(234, 88, 12, 1)",
-    borderRadius: 8,
+    backgroundColor: "rgb(249, 115, 22)",
+    borderRadius: 12,
     paddingVertical: 16,
+    marginTop: 24,
+    shadowColor: "#4F46E5",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
     textAlign: "center",
-    color: "#000000",
-    fontSize: 20,
+    color: "#FFFFFF",
+    fontSize: 17,
     fontWeight: "600",
+    letterSpacing: 0.3,
   },
-  input: {
-    height: 40,
-    backgroundColor: "rgba(207, 231, 229, 0.8)",
-    borderColor: "rgba(207, 231, 229, 0.8)",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    color: "white",
-    fontSize: 20,
+  linkContainer: {
+    alignItems: 'center',
+    marginTop: 8,
   },
-  marginBottom: {
-    marginBottom: 16,
+  linkText: {
+    color: "#4F46E5",
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  resendContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  resendText: {
+    color: "#6B7280",
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
 
