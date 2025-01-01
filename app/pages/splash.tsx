@@ -58,6 +58,8 @@ const App: React.FC<Props> = ({ navigation }) => {
   );
 };
 
+// ...existing code...
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -67,47 +69,73 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Slightly darker overlay
+    paddingTop: 60, // Account for status bar
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 150,
+    marginTop: 80,
+    
+    
+},
+logoWrapper: {
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  borderRadius: 80,
+  width: 160,
+  height: 160,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 2,
+  borderColor: 'rgba(255, 255, 255, 0.2)',
+  shadowColor: '#000',
+  shadowOffset: {
+      width: 0,
+      height: 6,
   },
-  logoWrapper: {
-    backgroundColor: 'rgb(186, 230, 253)', // sky-200 equivalent
-    borderRadius: 50,
-    padding: 2,
-    width: 96,
-    height: 96,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 70,
-    height: 70,
-  },
+  shadowOpacity: 0.35,
+  shadowRadius: 8,
+  elevation: 12,
+},
+logo: {
+  width: '100%',
+  height: '100%',
+  borderRadius: 80,
+},
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 32,
+    justifyContent: 'flex-end', // Push content to bottom
+    paddingHorizontal: 24,
+    paddingBottom: 50,
   },
   titleText: {
     color: 'white',
-    fontSize: 36,
+    fontSize: 42,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 80,
+    marginBottom: 60,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   button: {
-    backgroundColor: 'rgb(249, 115, 22)', // orange-500 equivalent
-    borderRadius: 8,
-    paddingVertical: 16,
+    backgroundColor: 'rgb(249, 115, 22)',
+    borderRadius: 12,
+    paddingVertical: 18,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonText: {
     textAlign: 'center',
     color: 'white',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   marginBottom: {
     marginBottom: 16,

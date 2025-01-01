@@ -7,7 +7,7 @@ import LoginScreen from './pages/auth/login';
 import Email from './pages/otp/Enteremail';
 import Otp from  './pages/otp/OTP';
 import Password from './pages/otp/Password';
-import MenuBar from './pages/tabs/menubar';
+import MenuBar from './pages/Main/menubar';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
