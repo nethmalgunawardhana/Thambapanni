@@ -32,6 +32,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const handleLogin = () => {
     // Handle login logic
     console.log({ email, password });
+
   };
 
   const handleGoogleSignIn = () => {
@@ -78,7 +79,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
           <TouchableOpacity 
             style={styles.loginButton}
-            onPress={handleLogin}
+            onPress={()=>navigation.navigate('MenuBar')}
           >
             <Text style={styles.loginButtonText}>Login</Text>
           </TouchableOpacity>
