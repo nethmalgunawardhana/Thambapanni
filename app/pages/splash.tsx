@@ -20,8 +20,8 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
 );
 
 const App: React.FC<Props> = ({ navigation }) => {
-  const backgroundImage: ImageSourcePropType = { uri: 'https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg' };
-  const logoImage: ImageSourcePropType = { uri: 'https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg' };
+  const backgroundImage: ImageSourcePropType = require('../../assets/images/splash.png');
+  const logoImage: ImageSourcePropType = require('../../assets/images/icon.png');
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
@@ -61,6 +61,9 @@ const App: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,
@@ -68,20 +71,20 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 150,
   },
   logoWrapper: {
     backgroundColor: 'rgb(186, 230, 253)', // sky-200 equivalent
     borderRadius: 50,
-    padding: 16,
+    padding: 2,
     width: 96,
     height: 96,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
-    width: 64,
-    height: 64,
+    width: 70,
+    height: 70,
   },
   contentContainer: {
     flex: 1,
