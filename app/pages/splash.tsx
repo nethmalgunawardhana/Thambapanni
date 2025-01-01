@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     backgroundColor: 'rgb(186, 230, 253)', // sky-200 equivalent
     borderRadius: 50,
-    padding: 0,
+    padding: 2,
     width: 96,
     height: 96,
     alignItems: 'center',
