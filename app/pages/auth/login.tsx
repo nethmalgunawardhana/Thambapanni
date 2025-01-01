@@ -1,105 +1,185 @@
 import React, { useState } from 'react';
-import { View, Text, ImageBackground, TouchableOpacity, ImageSourcePropType, StyleSheet, TextInput, KeyboardTypeOptions } from 'react-native';
+import { 
+  View, 
+  Text, 
+  ImageBackground, 
+  TouchableOpacity, 
+  ImageSourcePropType, 
+  StyleSheet, 
+  TextInput, 
+  KeyboardTypeOptions,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 interface Props {
   navigation: NativeStackNavigationProp<any>;
 }
+
 interface InputFieldProps {
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
+
+const InputField: React.FC<InputFieldProps> = ({ 
+  placeholder, 
+  value, 
+  onChangeText, 
+  secureTextEntry, 
+  keyboardType,
+  autoCapitalize = 'none'
+}) => (
+  <TextInput
+    style={styles.input}
+    placeholder={placeholder}
+    placeholderTextColor="#6366f1"
+    value={value}
+    onChangeText={onChangeText}
+    secureTextEntry={secureTextEntry}
+    keyboardType={keyboardType}
+    autoCapitalize={autoCapitalize}
+    autoCorrect={false}
+  />
+);
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const backgroundImage: ImageSourcePropType = require('../../../assets/images/login.png');
 
+  const handleLogin = () => {
+    navigation.navigate('MenuBar');
+  };
+
+  const handleSocialLogin = (platform: string) => {
+    // Handle social login
+  };
+
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
       <StatusBar style="light" />
-      <View style={styles.overlay}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Welcome Back</Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          <TextInput
-            
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#666"
-            value={email}
-            onChangeText={setEmail}
-          />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <View style={styles.overlay}>
+         
+            <View style={styles.contentContainer}>
+              <View style={styles.header}>
+                <TouchableOpacity 
+                  onPress={() => navigation.goBack()}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={styles.backButton}>←</Text>
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Welcome Back</Text>
+              </View>
           
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#666"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
-          <View style={styles.linkContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.link}>Don't have an account?</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => navigation.navigate('Email')}>
-              <Text style={styles.link}>Forgot password?</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity 
-            style={styles.loginButton}
-            onPress={() => navigation.navigate('MenuBar')}
-          >
-            <Text style={styles.loginButtonText}>Sign In</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.orText}>or continue with</Text>
-
-          <View style={styles.socialButtonsContainer}>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="google" size={24} color="#db4a39" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="facebook" size={24} color="#3b5998" />
-            </TouchableOpacity>
-          </View>
+                        <ScrollView 
+                      contentContainerStyle={styles.scrollContent}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                      bounces={false}
+                    >
+                        <View style={styles.formContainer}>
+                          <InputField
+                            placeholder="Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                          />
+                          
+                          <InputField
+                            placeholder="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                          />
+          
+                          <View style={styles.linkContainer}>
+                            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                              <Text style={styles.link}>Don't have an account?</Text>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity onPress={() => navigation.navigate('Email')}>
+                              <Text style={styles.link}>Forgot password?</Text>
+                            </TouchableOpacity>
+                          </View>
+          
+                          <TouchableOpacity 
+                            style={styles.loginButton}
+                            onPress={handleLogin}
+                          >
+                            <Text style={styles.loginButtonText}>Sign In</Text>
+                          </TouchableOpacity>
+          
+                          <Text style={styles.orText}>or continue with</Text>
+          
+                          <View style={styles.socialButtonsContainer}>
+                            <TouchableOpacity 
+                              style={styles.socialButton}
+                              onPress={() => handleSocialLogin('Google')}
+                            >
+                              
+                              <FontAwesome name="google" size={24} color="#db4a39" />
+                            </TouchableOpacity>
+          
+                            <TouchableOpacity 
+                              style={styles.socialButton}
+                              onPress={() => handleSocialLogin('Facebook')}
+                            >
+                              <FontAwesome name="facebook" size={24} color="#3b5998" />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                    </ScrollView>
+                      </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   background: {
     flex: 1,
+    resizeMode: 'cover',
     width: '100%',
     height: '100%',
   },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingTop: 50,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    minHeight: SCREEN_HEIGHT,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    marginBottom: 40,
+    marginBottom: 140,
+    paddingTop: Platform.OS === 'ios' ? 50 : 50,
   },
   backButton: {
     color: '#FFFFFF',
@@ -114,9 +194,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 80,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+    paddingBottom: 40,
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -188,7 +269,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
-  }
+  },
 });
 
 export default LoginScreen;
