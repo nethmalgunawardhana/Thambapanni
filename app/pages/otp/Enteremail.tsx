@@ -20,11 +20,10 @@ interface ButtonProps {
   title: string;
   onPress?: () => void;
   style?: object;
-  navigation: NativeStackNavigationProp<any>;
 }
 
-const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style, navigation }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate('Otp')}>
+const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style  }) => (
+  <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
@@ -59,7 +58,8 @@ const Email: React.FC<Props> = ({ navigation }) => {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <CustomButton title="Continue" navigation={navigation} />
+            <CustomButton title="Continue"
+            onPress={() => navigation.navigate('Otp')}  />
            
           </View>
         </View>
