@@ -7,6 +7,7 @@ import LoginScreen from './pages/auth/login';
 import Email from './pages/otp/Enteremail';
 import Otp from  './pages/otp/OTP';
 import Password from './pages/otp/Password';
+import MenuBar from './pages/tabs/menubar';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -18,6 +19,7 @@ const NewStack = () => {
             <Stack.Screen name="Email" component={Email} />
             <Stack.Screen name="Otp" component={Otp} />
             <Stack.Screen name="Password" component={Password} />
+            <Stack.Screen name="MenuBar" component={MenuBar} />
         </Stack.Navigator>
         </NavigationContainer>
     );  
