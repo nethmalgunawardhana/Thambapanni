@@ -4,55 +4,52 @@ import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
-interface ProfileCardProps {
-  fullName: string;
-  country: string;
-  stats: {
-    trips: number;
-    points: string;
-    comments: number;
-  };
-  personalInfo: {
-    address: string;
-    contact: string;
-    email: string;
-    gender: string;
-  };
+interface Stats {
+  trips: number;
+  points: string;
+  comments: number;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
-  fullName = "John Doe",
-  country = "Germany",
-  stats = {
-    trips: 75,
-    points: "4,500",
-    comments: 80,
-  },
-  personalInfo = {
-    address: "1234, Sample Street, Sample City",
-    contact: "+1 234 567 890",
-    email: "john.doe@example.com",
-    gender: "Male",
-  },
-}) => {
+interface PersonalInfo {
+  address: string;
+  contact: string;
+  email: string;
+  gender: string;
+}
+
+const defaultStats: Stats = {
+  trips: 75,
+  points: "4,500",
+  comments: 80,
+};
+
+const defaultPersonalInfo: PersonalInfo = {
+  address: "1234, Sample Street, Sample City",
+  contact: "+1 234 567 890",
+  email: "john.doe@example.com",
+  gender: "Male",
+};
+
+const ProfileCard: React.FC = () => {
   return (
     <View style={styles.container}>
-      {/* Profile Header Section */}
       <View style={styles.profileHeader}>
         <View style={styles.hexagonWrapper}>
-          <Image source={{ uri: "https://your-image-url.com/profile.jpg" }} />
+          <Image
+            source={{ uri: "https://your-image-url.com/profile.jpg" }}
+            style={{ width: "100%", height: "100%" }}
+          />
         </View>
-        <Text style={styles.name}>{fullName}</Text>
+        <Text style={styles.name}>John Doe</Text>
         <View style={styles.countryContainer}>
           <Image
             source={{ uri: "https://flagcdn.com/w20/de.png" }}
             style={styles.flag}
           />
-          <Text style={styles.countryText}>{country}</Text>
+          <Text style={styles.countryText}>Germany</Text>
         </View>
       </View>
 
-      {/* Stats Section */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Ionicons
@@ -60,12 +57,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             color="black"
             style={styles.statIcon}
           />
-          <Text style={styles.statNumber}>{stats.trips}</Text>
+          <Text style={styles.statNumber}>{defaultStats.trips}</Text>
           <Text style={styles.statLabel}>Trips</Text>
         </View>
         <View style={styles.statItem}>
           <Entypo name="star" color="gold" style={styles.statIcon} />
-          <Text style={styles.statNumber}>{stats.points}</Text>
+          <Text style={styles.statNumber}>{defaultStats.points}</Text>
           <Text style={styles.statLabel}>Points</Text>
         </View>
         <View style={styles.statItem}>
@@ -74,33 +71,32 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             color="gray"
             style={styles.statIcon}
           />
-          <Text style={styles.statNumber}>{stats.comments}</Text>
+          <Text style={styles.statNumber}>{defaultStats.comments}</Text>
           <Text style={styles.statLabel}>Comments</Text>
         </View>
       </View>
 
-      {/* Personal Information Section */}
       <View style={styles.personalInfoContainer}>
         <Text style={styles.sectionTitle}>Personal Information</Text>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Full Name</Text>
-          <Text style={styles.infoValue}>{fullName}</Text>
+          <Text style={styles.infoValue}>John Doe</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Address</Text>
-          <Text style={styles.infoValue}>{personalInfo.address}</Text>
+          <Text style={styles.infoValue}>{defaultPersonalInfo.address}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Contact</Text>
-          <Text style={styles.infoValue}>{personalInfo.contact}</Text>
+          <Text style={styles.infoValue}>{defaultPersonalInfo.contact}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Email</Text>
-          <Text style={styles.infoValue}>{personalInfo.email}</Text>
+          <Text style={styles.infoValue}>{defaultPersonalInfo.email}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Gender</Text>
-          <Text style={styles.infoValue}>{personalInfo.gender}</Text>
+          <Text style={styles.infoValue}>{defaultPersonalInfo.gender}</Text>
         </View>
       </View>
     </View>
@@ -128,10 +124,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 8,
   },
-  //   profileImage: {
-  //     width: "100%",
-  //     height: "100%",
-  //   },
   name: {
     fontSize: 18,
     fontWeight: "bold",
@@ -193,4 +185,5 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 });
+
 export default ProfileCard;
