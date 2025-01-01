@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   detailsButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#34D399',
     padding: 8,
     borderRadius: 6,
     alignItems: 'center',
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   hireButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#34D399',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

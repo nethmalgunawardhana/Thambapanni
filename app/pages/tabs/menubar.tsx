@@ -54,7 +54,7 @@ const MenuBar: React.FC = () => {
             <Ionicons 
               name="home-outline" 
               size={24} 
-              color={focused ? '#FF9500' : 'black'} 
+              color={focused ? '#FF9500' : 'white'} 
             />
           ),
         }} 
@@ -68,7 +68,7 @@ const MenuBar: React.FC = () => {
             <Ionicons 
               name="search-outline" 
               size={24} 
-              color={focused ? '#FF9500' : 'black'} 
+              color={focused ? '#FF9500' : 'white'} 
             />
           ),
         }} 
@@ -81,7 +81,7 @@ const MenuBar: React.FC = () => {
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={styles.customTabBarButton}>
               <View style={styles.customButtonBackground}>
-                <Ionicons name="add" size={40} color="white" />
+                <Ionicons name="add" size={40} color={focused ? '#1E1E1E' : 'white'} />
               </View>
             </View>
           ),
@@ -96,7 +96,7 @@ const MenuBar: React.FC = () => {
             <Ionicons 
               name="bookmark-outline" 
               size={24} 
-              color={focused ? '#FF9500' : 'black'} 
+              color={focused ? '#FF9500' : 'white'} 
             />
           ),
         }} 
@@ -110,7 +110,7 @@ const MenuBar: React.FC = () => {
             <Ionicons 
               name="person-outline" 
               size={24} 
-              color={focused ? '#FF9500' : 'black'} 
+              color={focused ? '#FF9500' : 'white'} 
             />
           ),
         }} 
@@ -119,7 +119,7 @@ const MenuBar: React.FC = () => {
   );
 }
 
-// StyleSheet remains the same as it's already properly typed through React Native
+
 const styles = StyleSheet.create({
   tabBarStyle: {
     position: 'absolute',
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: '#E6F3F5',
+    backgroundColor: '#4F46E5',
     borderRadius: 15,
     height: 90,
     paddingBottom: 10,
