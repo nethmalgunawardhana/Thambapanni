@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   scrollContent: {
-    paddingBottom: 90, // Add bottom padding to prevent MenuBar overlap
+    paddingBottom: 90, //  padding to prevent MenuBar overlap
   },
   tripCard: {
     backgroundColor: '#fff',
