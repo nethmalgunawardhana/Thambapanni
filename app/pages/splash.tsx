@@ -45,10 +45,12 @@ const App: React.FC<Props> = ({ navigation }) => {
           <CustomButton 
             title="Create an Account" 
             style={styles.marginBottom}
+            onPress={() => navigation.navigate('Register')}
           />
           
           <CustomButton 
             title="Already have an account"
+            onPress={() => navigation.navigate('Login')}
           />
         </View>
       </View>

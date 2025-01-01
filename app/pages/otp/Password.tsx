@@ -28,7 +28,7 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
   </TouchableOpacity>
 );
 
-const App: React.FC<Props> = ({ navigation }) => {
+const Password: React.FC<Props> = ({ navigation }) => {
   const backgroundImage: ImageSourcePropType = {
     uri: "https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg",
   };
@@ -50,16 +50,27 @@ const App: React.FC<Props> = ({ navigation }) => {
           ]}
         >
           <View style={styles.contentContainer}>
+            <Text style={{ fontSize: 20, color: '#000000', textAlign: 'center' }}>
+              Please enter your new password
+            </Text>
+            <View style={{ height: 50 }} />
             <TextInput
               style={[styles.input, styles.marginBottom]}
-              placeholder="Enter your email"
+              placeholder="Password"
               placeholderTextColor="#4F46E5"
-              keyboardType="email-address"
+              keyboardType="default"
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <View style={{ height: 50 }} />
-            <CustomButton title="Continue" />
+            <TextInput
+              style={[styles.input, styles.marginBottom]}
+              placeholder="Confirm Password"
+              placeholderTextColor="#4F46E5"
+              keyboardType="default"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <CustomButton title="Reset" onPress={()=>navigation.navigate('Login')}/>
           </View>
         </View>
       </View>
@@ -112,12 +123,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(234, 88, 12, 1)",
     borderRadius: 8,
     paddingVertical: 16,
-    fontSize: 20,
   },
   buttonText: {
     textAlign: "center",
     color: "#000000",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "600",
   },
   input: {
@@ -135,4 +145,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Password;
