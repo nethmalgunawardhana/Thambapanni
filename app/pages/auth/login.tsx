@@ -72,7 +72,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             secureTextEntry
           />
 
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Email')}>
             <Text style={styles.forgotPassword}>Forget password?</Text>
           </TouchableOpacity>
 
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   forgotPassword: {
-    color: 'black',
+    color: 'white',
     textAlign: 'left',
     marginBottom: 20,
   },

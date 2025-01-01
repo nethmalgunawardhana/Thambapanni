@@ -28,7 +28,7 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
   </TouchableOpacity>
 );
 
-const App: React.FC<Props> = ({ navigation }) => {
+const Otp: React.FC<Props> = ({ navigation }) => {
   const backgroundImage: ImageSourcePropType = {
     uri: "https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg",
   };
@@ -51,26 +51,23 @@ const App: React.FC<Props> = ({ navigation }) => {
         >
           <View style={styles.contentContainer}>
             <Text style={{ fontSize: 20, color: '#000000', textAlign: 'center' }}>
-              Please enter your new password
+              We have send you a 6 digit code to your email address
             </Text>
             <View style={{ height: 50 }} />
             <TextInput
               style={[styles.input, styles.marginBottom]}
-              placeholder="Password"
+              placeholder="OTP"
               placeholderTextColor="#4F46E5"
-              keyboardType="default"
+              keyboardType="number-pad"
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <TextInput
-              style={[styles.input, styles.marginBottom]}
-              placeholder="Confirm Password"
-              placeholderTextColor="#4F46E5"
-              keyboardType="default"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <CustomButton title="Reset" />
+            <Text style={{ fontSize: 20, color: '#000000' }} onPress={() => navigation.navigate('Email')}>
+              Not this email?
+              {'\n'}
+              {'\n'}
+            </Text>
+            <CustomButton title="Continue" onPress={() => navigation.navigate('Password')}/>
           </View>
         </View>
       </View>
@@ -145,4 +142,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Otp;

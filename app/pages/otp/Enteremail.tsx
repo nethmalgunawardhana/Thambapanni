@@ -20,15 +20,16 @@ interface ButtonProps {
   title: string;
   onPress?: () => void;
   style?: object;
+  navigation: NativeStackNavigationProp<any>;
 }
 
-const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style, navigation }) => (
+  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate('Otp')}>
     <Text style={styles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
 
-const App: React.FC<Props> = ({ navigation }) => {
+const Email: React.FC<Props> = ({ navigation }) => {
   const backgroundImage: ImageSourcePropType = {
     uri: "https://www.annees-de-pelerinage.com/wp-content/uploads/2019/03/elephants.jpg",
   };
@@ -50,24 +51,16 @@ const App: React.FC<Props> = ({ navigation }) => {
           ]}
         >
           <View style={styles.contentContainer}>
-            <Text style={{ fontSize: 20, color: '#000000', textAlign: 'center' }}>
-              We have send you a 6 digit code to your email address
-            </Text>
-            <View style={{ height: 50 }} />
             <TextInput
               style={[styles.input, styles.marginBottom]}
-              placeholder="OTP"
+              placeholder="Enter your email"
               placeholderTextColor="#4F46E5"
-              keyboardType="number-pad"
+              keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <Text style={{ fontSize: 20, color: '#000000' }}>
-              Not this email?
-              {'\n'}
-              {'\n'}
-            </Text>
-            <CustomButton title="Continue" />
+            <CustomButton title="Continue" navigation={navigation} />
+           
           </View>
         </View>
       </View>
@@ -120,11 +113,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(234, 88, 12, 1)",
     borderRadius: 8,
     paddingVertical: 16,
+    fontSize: 20,
   },
   buttonText: {
     textAlign: "center",
     color: "#000000",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
   },
   input: {
@@ -142,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Email;
