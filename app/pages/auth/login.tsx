@@ -11,11 +11,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Dimensions
+  Dimensions,
+  Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
+import { loginWithEmailPassword, loginWithGoogle, loginWithFacebook } from '../../../authService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -56,15 +58,43 @@ const InputField: React.FC<InputFieldProps> = ({
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const backgroundImage: ImageSourcePropType = require('../../../assets/images/login.png');
 
-  const handleLogin = () => {
-    navigation.navigate('MenuBar');
+  
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await loginWithEmailPassword(email, password);
+      navigation.navigate('MenuBar');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSocialLogin = (platform: string) => {
-    // Handle social login
+  const handleSocialLogin = async (platform: string) => {
+    try {
+      setLoading(true);
+      if (platform === 'Google') {
+        await loginWithGoogle();
+      } else if (platform === 'Facebook') {
+        await loginWithFacebook();
+      }
+      navigation.navigate('MenuBar');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
