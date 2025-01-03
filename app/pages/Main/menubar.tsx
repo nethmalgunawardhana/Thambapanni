@@ -8,6 +8,7 @@ import PlanningTripScreen from './PlanningTrip';
 import TopGuides from './guides';
 import ProfileCard from './profile';
 
+
 // Type definitions
 type RootStackParamList = {
   Home: undefined;
