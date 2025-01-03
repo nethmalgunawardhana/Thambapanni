@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Dashboard from './dashboard';
+import PlanningTripScreen from './PlanningTrip';
 
 // Type definitions
 type RootStackParamList = {
@@ -76,7 +77,7 @@ const MenuBar: React.FC = () => {
       
       <Tab.Screen
         name="PlanningTrip"
-        component={PlanningTrip}
+        component={PlanningTripScreen}
         options={{
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={styles.customTabBarButton}>

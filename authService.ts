@@ -31,7 +31,7 @@ interface AuthResponse {
 // Constants
 const AUTH_STATE_KEY = '@auth_state';
 const JWT_TOKEN_KEY = '@jwt_token';
-const API_URL = 'http://192.168.8.102:3000/api';
+const API_URL = 'http://192.168.8.101:3000/api';
 const isBrowser = typeof window !== 'undefined';
 
 // Firebase configuration
