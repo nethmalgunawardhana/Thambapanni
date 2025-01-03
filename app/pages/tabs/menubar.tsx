@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Dashboard from "./dashboard";
 import ProfileCard from "./profile";
+import TopGuides from "./guide";
 
 // Type definitions
 type RootStackParamList = {
@@ -32,7 +33,7 @@ const PlaceholderScreen: React.FC<PlaceholderScreenProps> = ({
   </View>
 );
 
-const TopGuides: React.FC = () => <PlaceholderScreen screenName="Search" />;
+const TopGuide: React.FC = () => <PlaceholderScreen screenName="Search" />;
 const PlanningTrip: React.FC = () => (
   <PlaceholderScreen screenName="Planning Trip" />
 );
