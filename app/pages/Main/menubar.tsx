@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Dashboard from './dashboard';
 import PlanningTripScreen from './PlanningTrip';
+import TopGuides from './guides';
+import ProfileCard from './profile';
 
 // Type definitions
 type RootStackParamList = {
@@ -30,7 +32,7 @@ const PlaceholderScreen: React.FC<PlaceholderScreenProps> = ({ screenName }) => 
   </View>
 );
 
-const TopGuides: React.FC = () => <PlaceholderScreen screenName="Search" />;
+const TopGuide: React.FC = () => <PlaceholderScreen screenName="Search" />;
 const PlanningTrip: React.FC = () => <PlaceholderScreen screenName="Planning Trip" />;
 const SesonalTrends: React.FC = () => <PlaceholderScreen screenName="Bookmarks" />;
 const ProfileScreen: React.FC = () => <PlaceholderScreen screenName="Profile" />;
@@ -105,7 +107,7 @@ const MenuBar: React.FC = () => {
       
       <Tab.Screen 
         name="Profile" 
-        component={ProfileScreen} 
+        component={ProfileCard} 
         options={{
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <Ionicons 
