@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React from 'react';
+=======
+import React from "react";
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
 import {
   View,
   Text,
@@ -7,8 +11,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+<<<<<<< HEAD
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+=======
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
 
 interface GuideCardProps {
   name: string;
@@ -34,7 +43,11 @@ const GuideCard: React.FC<GuideCardProps> = ({
   <View style={styles.guideCard}>
     <View style={styles.guideInfo}>
       <Image
+<<<<<<< HEAD
         source={{ uri: 'https://your-image-url.com/profile.jpg' }}
+=======
+        source={{ uri: "https://your-image-url.com/profile.jpg" }}
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
         style={styles.guideImage}
       />
       <View style={styles.guideDetails}>
@@ -52,9 +65,15 @@ const GuideCard: React.FC<GuideCardProps> = ({
             {[...Array(5)].map((_, index) => (
               <Ionicons
                 key={index}
+<<<<<<< HEAD
                 name={index < rating ? 'star' : 'star-outline'}
                 size={16}
                 color='#FFD700'
+=======
+                name={index < rating ? "star" : "star-outline"}
+                size={16}
+                color="#FFD700"
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
               />
             ))}
           </View>
@@ -64,7 +83,11 @@ const GuideCard: React.FC<GuideCardProps> = ({
           <Text style={styles.priceText}>{pricePerHour}$ per Hour</Text>
           <TouchableOpacity style={styles.hireButton}>
             <Text style={styles.hireButtonText}>HIRE NOW</Text>
+<<<<<<< HEAD
             <Ionicons name='arrow-forward' size={20} color='white' />
+=======
+            <Ionicons name="arrow-forward" size={20} color="white" />
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
           </TouchableOpacity>
         </View>
       </View>
@@ -75,6 +98,7 @@ const GuideCard: React.FC<GuideCardProps> = ({
 const TopGuides: React.FC = () => {
   const guides: GuideCardProps[] = [
     {
+<<<<<<< HEAD
       name: 'M. SAMEERA PERERA',
       language: 'English',
       baseLocation: 'Jaffna',
@@ -82,6 +106,15 @@ const TopGuides: React.FC = () => {
       totalTrips: 15,
       telephone: '+94 77 4688 714',
       pricePerHour: '7',
+=======
+      name: "M. SAMEERA PERERA",
+      language: "English",
+      baseLocation: "Jaffna",
+      age: 28,
+      totalTrips: 15,
+      telephone: "+94 77 4688 714",
+      pricePerHour: "7",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
       rating: 5,
     },
     // Add more guides as needed
@@ -95,6 +128,7 @@ const TopGuides: React.FC = () => {
         <View style={styles.searchRow}>
           <TextInput
             style={styles.input}
+<<<<<<< HEAD
             placeholder='Guide Name'
             placeholderTextColor='#666'
           />
@@ -102,11 +136,21 @@ const TopGuides: React.FC = () => {
             style={styles.input}
             placeholder='Base Location'
             placeholderTextColor='#666'
+=======
+            placeholder="Guide Name"
+            placeholderTextColor="#666"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Base Location"
+            placeholderTextColor="#666"
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
           />
         </View>
         <View style={styles.searchRow}>
           <TextInput
             style={styles.input}
+<<<<<<< HEAD
             placeholder='Language'
             placeholderTextColor='#666'
           />
@@ -114,6 +158,15 @@ const TopGuides: React.FC = () => {
             style={styles.input}
             placeholder='Date'
             placeholderTextColor='#666'
+=======
+            placeholder="Language"
+            placeholderTextColor="#666"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Date"
+            placeholderTextColor="#666"
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
           />
         </View>
         <TouchableOpacity style={styles.searchButton}>
@@ -134,6 +187,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+<<<<<<< HEAD
     backgroundColor: '#fff',
   },
   title: {
@@ -143,21 +197,42 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     backgroundColor: '#e6fff0',
+=======
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  searchContainer: {
+    backgroundColor: "#e6fff0",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
   },
   searchRow: {
+<<<<<<< HEAD
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
   input: {
     backgroundColor: '#fff',
+=======
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  input: {
+    backgroundColor: "#fff",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     borderRadius: 8,
     padding: 8,
     flex: 0.48,
     borderWidth: 1,
+<<<<<<< HEAD
     borderColor: '#ddd',
   },
   searchButton: {
@@ -169,20 +244,44 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+=======
+    borderColor: "#ddd",
+  },
+  searchButton: {
+    backgroundColor: "#00BFA6",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  searchButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
   },
   guidesList: {
     flex: 1,
   },
   guideCard: {
+<<<<<<< HEAD
     backgroundColor: '#fff',
+=======
+    backgroundColor: "#fff",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
+<<<<<<< HEAD
     borderColor: '#e6fff0',
   },
   guideInfo: {
     flexDirection: 'row',
+=======
+    borderColor: "#e6fff0",
+  },
+  guideInfo: {
+    flexDirection: "row",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
   },
   guideImage: {
     width: 80,
@@ -195,21 +294,38 @@ const styles = StyleSheet.create({
   },
   guideName: {
     fontSize: 18,
+<<<<<<< HEAD
     fontWeight: 'bold',
     marginBottom: 4,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+=======
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     marginBottom: 4,
   },
   infoText: {
     fontSize: 12,
+<<<<<<< HEAD
     color: '#666',
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+=======
+    color: "#666",
+  },
+  statsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     marginBottom: 4,
   },
   tripText: {
@@ -217,13 +333,18 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   ratingContainer: {
+<<<<<<< HEAD
     flexDirection: 'row',
+=======
+    flexDirection: "row",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
   },
   phoneText: {
     fontSize: 14,
     marginBottom: 8,
   },
   priceRow: {
+<<<<<<< HEAD
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -244,6 +365,28 @@ const styles = StyleSheet.create({
   hireButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+=======
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  priceText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#00BFA6",
+  },
+  hireButton: {
+    backgroundColor: "#00BFA6",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  hireButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+>>>>>>> 6ae95a48eb2f640c25e6d2c8573f31a7d0f17167
     marginRight: 8,
   },
 });
