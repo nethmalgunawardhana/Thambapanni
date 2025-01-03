@@ -12,12 +12,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
-import { loginWithEmailPassword, loginWithGoogle, loginWithFacebook } from '../../../authService';
+import { login, loginWithGoogle, loginWithFacebook } from '../../../authService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -61,7 +62,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const backgroundImage: ImageSourcePropType = require('../../../assets/images/login.png');
 
-  
+  // Handle email/password login
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -70,31 +71,39 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
     try {
       setLoading(true);
-      await loginWithEmailPassword(email, password);
+      await login(email, password);
       navigation.navigate('MenuBar');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Login Error', error instanceof Error ? error.message : 'Failed to login');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialLogin = async (platform: string) => {
+  // Handle social login (Google/Facebook)
+  const handleSocialLogin = async (platform: 'Google' | 'Facebook') => {
     try {
       setLoading(true);
       if (platform === 'Google') {
+        if (Platform.OS !== 'web') {
+          Alert.alert('Error', 'Google login is only available in web browser environments');
+          return;
+        }
         await loginWithGoogle();
-      } else if (platform === 'Facebook') {
+      } else {
+        if (Platform.OS !== 'web') {
+          Alert.alert('Error', 'Facebook login is only available in web browser environments');
+          return;
+        }
         await loginWithFacebook();
       }
       navigation.navigate('MenuBar');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Social Login Error', error instanceof Error ? error.message : 'Failed to login');
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
@@ -104,77 +113,86 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         style={styles.container}
       >
         <View style={styles.overlay}>
-         
-            <View style={styles.contentContainer}>
-              <View style={styles.header}>
+          <View style={styles.contentContainer}>
+            <View style={styles.header}>
+              <TouchableOpacity 
+                onPress={() => navigation.goBack()}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.backButton}>←</Text>
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Welcome Back</Text>
+            </View>
+
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              <View style={styles.formContainer}>
+                <InputField
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                />
+                
+                <InputField
+                  placeholder="Password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+
+                <View style={styles.linkContainer}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.link}>Don't have an account?</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity onPress={() => navigation.navigate('Email')}>
+                    <Text style={styles.link}>Forgot password?</Text>
+                  </TouchableOpacity>
+                </View>
+
                 <TouchableOpacity 
-                  onPress={() => navigation.goBack()}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+                  onPress={handleLogin}
+                  disabled={loading}
                 >
-                  <Text style={styles.backButton}>←</Text>
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.loginButtonText}>Sign In</Text>
+                  )}
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Welcome Back</Text>
+
+                {Platform.OS === 'web' && (
+                  <>
+                    <Text style={styles.orText}>or continue with</Text>
+
+                    <View style={styles.socialButtonsContainer}>
+                      <TouchableOpacity 
+                        style={styles.socialButton}
+                        onPress={() => handleSocialLogin('Google')}
+                        disabled={loading}
+                      >
+                        <FontAwesome name="google" size={24} color="#db4a39" />
+                      </TouchableOpacity>
+
+                      <TouchableOpacity 
+                        style={styles.socialButton}
+                        onPress={() => handleSocialLogin('Facebook')}
+                        disabled={loading}
+                      >
+                        <FontAwesome name="facebook" size={24} color="#3b5998" />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
               </View>
-          
-                        <ScrollView 
-                      contentContainerStyle={styles.scrollContent}
-                      keyboardShouldPersistTaps="handled"
-                      showsVerticalScrollIndicator={false}
-                      bounces={false}
-                    >
-                        <View style={styles.formContainer}>
-                          <InputField
-                            placeholder="Email"
-                            value={email}
-                            onChangeText={setEmail}
-                            keyboardType="email-address"
-                          />
-                          
-                          <InputField
-                            placeholder="Password"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                          />
-          
-                          <View style={styles.linkContainer}>
-                            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                              <Text style={styles.link}>Don't have an account?</Text>
-                            </TouchableOpacity>
-                            
-                            <TouchableOpacity onPress={() => navigation.navigate('Email')}>
-                              <Text style={styles.link}>Forgot password?</Text>
-                            </TouchableOpacity>
-                          </View>
-          
-                          <TouchableOpacity 
-                            style={styles.loginButton}
-                            onPress={handleLogin}
-                          >
-                            <Text style={styles.loginButtonText}>Sign In</Text>
-                          </TouchableOpacity>
-          
-                          <Text style={styles.orText}>or continue with</Text>
-          
-                          <View style={styles.socialButtonsContainer}>
-                            <TouchableOpacity 
-                              style={styles.socialButton}
-                              onPress={() => handleSocialLogin('Google')}
-                            >
-                              
-                              <FontAwesome name="google" size={24} color="#db4a39" />
-                            </TouchableOpacity>
-          
-                            <TouchableOpacity 
-                              style={styles.socialButton}
-                              onPress={() => handleSocialLogin('Facebook')}
-                            >
-                              <FontAwesome name="facebook" size={24} color="#3b5998" />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                    </ScrollView>
-                      </View>
+            </ScrollView>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </ImageBackground>
@@ -203,7 +221,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    
   },
   header: {
     flexDirection: 'row',
@@ -299,6 +316,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
 });
 

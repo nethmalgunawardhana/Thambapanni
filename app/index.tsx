@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import NewStack from "./Navigator";
+import NewStack from "./Navigation";
 
 export default function Index() {
   return (

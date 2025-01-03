@@ -1,4 +1,4 @@
-import React, { useState,useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { authService } from '../../../authService';
+import { register, UserData } from '../../../authService';
+
 interface Props {
   navigation: NativeStackNavigationProp<any>;
 }
@@ -27,7 +28,14 @@ interface InputFieldProps {
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
+  error?: string;
 }
+
+interface FormData extends UserData {
+  password: string;
+  confirmPassword: string;
+}
+
 interface ValidationErrors {
   firstName?: string;
   lastName?: string;
@@ -39,49 +47,52 @@ interface ValidationErrors {
   confirmPassword?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ placeholder, value, onChangeText, secureTextEntry, keyboardType }) => (
-  <TextInput
-    style={styles.input}
-    placeholder={placeholder}
-    placeholderTextColor="#6366f1"
-    value={value}
-    onChangeText={onChangeText}
-    secureTextEntry={secureTextEntry}
-    keyboardType={keyboardType}
-  />
+const InputField: React.FC<InputFieldProps> = ({ 
+  placeholder, 
+  value, 
+  onChangeText, 
+  secureTextEntry, 
+  keyboardType,
+  error 
+}) => (
+  <View style={styles.inputContainer}>
+    <TextInput
+      style={[styles.input, error && styles.inputError]}
+      placeholder={placeholder}
+      placeholderTextColor="#6366f1"
+      value={value}
+      onChangeText={onChangeText}
+      secureTextEntry={secureTextEntry}
+      keyboardType={keyboardType}
+    />
+    {error && <Text style={styles.errorText}>{error}</Text>}
+  </View>
 );
 
 const Register: React.FC<Props> = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [nationality, setNationality] = useState('');
-  const [gender, setGender] = useState('');
-  const [date, setDate] = useState<Date | null>(null);
-  const [showPicker, setShowPicker] = useState(false);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
     nationality: '',
     gender: '',
-    dateOfBirth: null as Date | null,
+    dateOfBirth: new Date(),
     password: '',
     confirmPassword: ''
   });
   
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-    setShowPicker(false);
-  };
+  const [showPicker, setShowPicker] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
-  // Form validation
+
+  const updateFormData = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when field is updated
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
   const validateForm = useCallback((): boolean => {
     const newErrors: ValidationErrors = {};
     
@@ -125,62 +136,39 @@ const Register: React.FC<Props> = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
- // Handle registration
- const handleRegister = async () => {
-  try {
-    if (!validateForm()) {
-      return;
+  const handleRegister = async () => {
+    try {
+      if (!validateForm()) {
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Extract registration data
+      const { confirmPassword, password, ...userData } = formData;
+      
+      // Register using the imported register function
+      await register(userData, password);
+
+      Alert.alert(
+        'Success',
+        'Account created successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]
+      );
+    } catch (error) {
+      Alert.alert(
+        'Registration Error',
+        error instanceof Error ? error.message : 'Failed to create account'
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(true);
-
-    // Register with Firebase
-    const { user } = await authService.signUpWithEmail(
-      formData.email,
-      formData.password
-    );
-
-    // Send additional user data to backend
-    const response = await fetch('http://your-api-url/api/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        uid: user.uid,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        nationality: formData.nationality,
-        gender: formData.gender,
-        dateOfBirth: formData.dateOfBirth,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to save user data');
-    }
-
-    Alert.alert(
-      'Success',
-      'Account created successfully!',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('Login'),
-        },
-      ]
-    );
-  } catch (error) {
-    Alert.alert(
-      'Registration Error',
-      error instanceof Error ? error.message : 'Failed to create account'
-    );
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <ImageBackground 
@@ -199,58 +187,72 @@ const Register: React.FC<Props> = ({ navigation }) => {
         <ScrollView style={styles.formContainer}>
           <InputField
             placeholder="First Name"
-            value={firstName}
-            onChangeText={setFirstName}
+            value={formData.firstName}
+            onChangeText={(text) => updateFormData('firstName', text)}
+            error={errors.firstName}
           />
 
           <InputField
             placeholder="Last Name"
-            value={lastName}
-            onChangeText={setLastName}
+            value={formData.lastName}
+            onChangeText={(text) => updateFormData('lastName', text)}
+            error={errors.lastName}
           />
 
           <InputField
             placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
+            value={formData.email}
+            onChangeText={(text) => updateFormData('email', text)}
             keyboardType="email-address"
+            error={errors.email}
           />
 
           <InputField
             placeholder="Nationality"
-            value={nationality}
-            onChangeText={setNationality}
+            value={formData.nationality}
+            onChangeText={(text) => updateFormData('nationality', text)}
+            error={errors.nationality}
           />
 
-          <View style={styles.inputgender}>  
-            <Picker
-              selectedValue={gender}
-              onValueChange={(itemValue) => setGender(itemValue)}
-              style={styles.picker}
-              
-            >
-              <Picker.Item label="Select Gender" value="" color="#999" />
-              <Picker.Item label="Male" value="male" />
-              <Picker.Item label="Female" value="female" />
-              <Picker.Item label="Other" value="other" />
-            </Picker>
+          <View style={styles.inputContainer}>
+            <View style={[styles.inputGender, errors.gender && styles.inputError]}>
+              <Picker
+                selectedValue={formData.gender}
+                onValueChange={(value) => updateFormData('gender', value)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Select Gender" value="" color="#999" />
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
+                <Picker.Item label="Other" value="other" />
+              </Picker>
+            </View>
+            {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
           </View>
 
-          <TouchableOpacity 
-            onPress={() => setShowPicker(true)}
-            style={styles.input}
-          >
-            <Text style={date ? styles.dateText : styles.placeholderText}>
-              {date ? date.toDateString() : 'Date of Birth'}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity 
+              onPress={() => setShowPicker(true)}
+              style={[styles.input, errors.dateOfBirth && styles.inputError]}
+            >
+              <Text style={formData.dateOfBirth ? styles.dateText : styles.placeholderText}>
+                {formData.dateOfBirth ? formData.dateOfBirth.toDateString() : 'Date of Birth'}
+              </Text>
+            </TouchableOpacity>
+            {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth}</Text>}
+          </View>
 
           {showPicker && (
             <DateTimePicker
-              value={date || new Date()}
+              value={formData.dateOfBirth}
               mode="date"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
+              onChange={(event, selectedDate) => {
+                setShowPicker(false);
+                if (selectedDate) {
+                  updateFormData('dateOfBirth', selectedDate);
+                }
+              }}
               maximumDate={new Date()}
               minimumDate={new Date(1940, 0, 1)}
             />
@@ -258,29 +260,31 @@ const Register: React.FC<Props> = ({ navigation }) => {
 
           <InputField
             placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
+            value={formData.password}
+            onChangeText={(text) => updateFormData('password', text)}
             secureTextEntry
+            error={errors.password}
           />
 
           <InputField
             placeholder="Confirm Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            value={formData.confirmPassword}
+            onChangeText={(text) => updateFormData('confirmPassword', text)}
             secureTextEntry
+            error={errors.confirmPassword}
           />
 
-<TouchableOpacity 
-        style={[styles.button, isLoading && styles.buttonDisabled]}
-        onPress={handleRegister}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.buttonText}>Create Account</Text>
-        )}
-      </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]}
+            onPress={handleRegister}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.buttonText}>Create Account</Text>
+            )}
+          </TouchableOpacity>
 
           <View style={styles.loginLinkContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
@@ -295,6 +299,19 @@ const Register: React.FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+  },
+  inputContainer: {
+    marginBottom: 15,
+    width: '100%',
+  },
+  inputError: {
+    borderColor: 'red',
+    borderWidth: 1,
+  },
   background: {
     flex: 1,
     resizeMode: 'cover',
@@ -334,10 +351,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#333',
   },
-  inputgender: {
+  inputGender: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
-    
     marginBottom: 15,
     color: '#0000FF',
   },
@@ -347,7 +363,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
-    
+    color: '#333',
   },
   placeholderText: {
     fontSize: 16,
