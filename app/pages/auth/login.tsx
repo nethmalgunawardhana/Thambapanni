@@ -18,7 +18,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
-import { login, loginWithGoogle, loginWithFacebook } from '../../../authService';
+import { login, loginWithGoogle, loginWithFacebook } from '../../../services/auth/loginService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 

@@ -1,10 +1,11 @@
-import React from "react";
+import React,{ useState } from "react";
 import {
   View,
   Text,
   ImageBackground,
   TouchableOpacity,
   Image,
+  Alert,
   ImageSourcePropType,
   StyleSheet,
   TextInput,
@@ -12,6 +13,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { sendOtp } from "../../../services/otp/sendotpService";
 
 interface Props {
   navigation: NativeStackNavigationProp<any>;
@@ -35,7 +37,21 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
 
 const Email: React.FC<Props> = ({ navigation }) => {
   const backgroundImage: ImageSourcePropType = require('../../../assets/images/otp.png');
-    
+  const [email, setEmail] = useState('');
+  const handleSendOtp = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email');
+      return;
+    }
+
+    try {
+      await sendOtp(email);
+      Alert.alert('Success', 'OTP sent to your email');
+      navigation.navigate('Otp', { email });
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to send OTP');
+    }
+  };
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
       <StatusBar style="light" />
@@ -49,13 +65,15 @@ const Email: React.FC<Props> = ({ navigation }) => {
               placeholder="Enter your email"
               placeholderTextColor="rgba(79, 70, 229, 0.6)"
               keyboardType="email-address"
+              value={email}
+               onChangeText={setEmail}
               autoCapitalize="none"
               autoCorrect={false}
             />
             
             <CustomButton 
               title="Continue" 
-              onPress={() => navigation.navigate('Otp')}
+              onPress={handleSendOtp}
             />
           </View>
         </View>
