@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ImageBackground,
   TouchableOpacity,
-  Image,
-  ImageSourcePropType,
   StyleSheet,
   TextInput,
   Dimensions,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
+import { verifyOtp } from "../../../services/otp/verifyotpService"; // Ensure this function exists
+import { sendOtp } from "../../../services/otp/sendotpService";
 interface Props {
   navigation: NativeStackNavigationProp<any>;
+  route: any;
 }
 
 interface ButtonProps {
@@ -24,8 +25,8 @@ interface ButtonProps {
 }
 
 const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
-  <TouchableOpacity 
-    style={[styles.button, style]} 
+  <TouchableOpacity
+    style={[styles.button, style]}
     onPress={onPress}
     activeOpacity={0.8}
   >
@@ -33,19 +34,60 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
   </TouchableOpacity>
 );
 
-const Otp: React.FC<Props> = ({ navigation }) => {
-  const backgroundImage: ImageSourcePropType = require('../../../assets/images/otp.png');
-    
+const Otp: React.FC<Props> = ({ navigation, route }) => {
+  const { email } = route.params; // Get email from the previous screen
+  const [otp, setOtp] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      Alert.alert("Error", "Please enter the OTP");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Call the backend API to verify OTP
+      await verifyOtp(email, otp); // Replace this with your verifyOtp service function
+
+      Alert.alert("Success", "OTP verified successfully!");
+      navigation.navigate("Password", { email, otp }); // Navigate to the Password screen
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to verify OTP");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      setIsSubmitting(true);
+
+      // Call resend OTP function
+      await sendOtp(email); // Ensure resendOtp function exists in authService
+
+      Alert.alert("Success", "OTP resent to your email!");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to resend OTP");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <ImageBackground source={backgroundImage} style={styles.background}>
+    <ImageBackground
+      source={require("../../../assets/images/otp.png")}
+      style={styles.background}
+    >
       <StatusBar style="light" />
       <View style={styles.overlay}>
         <View style={styles.semiTransparentBlock}>
           <View style={styles.contentContainer}>
             <Text style={styles.headerText}>
-              We have sent you a 6 digit code to your email address
+              We have sent you a 6-digit code to your email address
             </Text>
-            
+
             <TextInput
               style={styles.input}
               placeholder="Enter OTP"
@@ -54,22 +96,31 @@ const Otp: React.FC<Props> = ({ navigation }) => {
               autoCapitalize="none"
               autoCorrect={false}
               maxLength={6}
+              value={otp}
+              onChangeText={setOtp}
             />
-            
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('Email')}
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Email")}
               style={styles.linkContainer}
             >
               <Text style={styles.linkText}>Not this email?</Text>
             </TouchableOpacity>
 
-            <CustomButton 
-              title="Continue" 
-              onPress={() => navigation.navigate('Password')}
+            <CustomButton
+              title={isSubmitting ? "Verifying..." : "Continue"}
+              onPress={handleVerifyOtp}
+              style={isSubmitting ? styles.disabledButton : null}
             />
-            
-            <TouchableOpacity style={styles.resendContainer}>
-              <Text style={styles.resendText}>Resend Code</Text>
+
+            <TouchableOpacity
+              style={styles.resendContainer}
+              onPress={handleResendOtp}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.resendText}>
+                {isSubmitting ? "Resending..." : "Resend Code"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -78,19 +129,19 @@ const Otp: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    resizeMode: 'cover',
-    width: '100%',
-    height: '100%',
+    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
   },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   semiTransparentBlock: {
     marginHorizontal: 20,
@@ -127,7 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#1F2937",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
     letterSpacing: 8,
     shadowColor: "#000",
     shadowOffset: {
@@ -160,7 +211,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   linkContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   linkText: {
@@ -169,13 +220,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   resendContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
   },
   resendText: {
     color: "#6B7280",
     fontSize: 14,
     fontWeight: "500",
+  },
+  disabledButton: {
+    backgroundColor: "#cccccc",
   },
 });
 

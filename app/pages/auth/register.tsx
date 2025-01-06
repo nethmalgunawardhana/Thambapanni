@@ -16,7 +16,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { register, UserData } from '../../../authService';
+import { register, UserData } from '../../../services/auth/registerService';
 
 interface Props {
   navigation: NativeStackNavigationProp<any>;
