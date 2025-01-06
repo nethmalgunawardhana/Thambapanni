@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Trip {
   name: string;
@@ -20,6 +22,82 @@ interface Guide {
   languages: string[];
   image: string;
 }
+interface ProfileData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  nationality: string;
+  gender: string;
+  profilePhoto?: string;
+}
+
+const UserProfile = () => {
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axios.get('https://thambapanni-backend.vercel.app/user/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setProfile(response.data.data); // Access the data property from the response
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
+  if (loading) {
+    return (
+      <View style={styles.profileContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <View style={styles.profileContainer}>
+        <Text>No profile data available</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.profileContainer}>
+      <View style={styles.profilePhotoContainer}>
+        {profile.profilePhoto ? (
+          <Image
+            source={{ uri: profile.profilePhoto }}
+            style={styles.profilePhoto}
+          />
+        ) : (
+          <View style={[styles.profilePhoto, styles.placeholderPhoto]}>
+            <Text style={styles.placeholderText}>
+              {profile.firstName?.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.profileInfo}>
+        <Text style={styles.welcomeText}>
+          Hi {profile.firstName} {profile.lastName}
+        </Text>
+        <Text style={styles.emailText}>{profile.email}</Text>
+      </View>
+    </View>
+  );
+};
+
 
 const TripCard: React.FC<{ trip: Trip; upcoming?: boolean }> = ({ trip, upcoming }) => (
   <View style={styles.tripCard}>
@@ -130,35 +208,33 @@ export default function Dashboard() {
   ];
 
   return (
-    
-       <ScrollView style={styles.container}  contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Hi Harris...</Text>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Ionicons name="settings-outline" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.header}>
+        <UserProfile />
+        <TouchableOpacity style={styles.settingsButton}>
+          <Ionicons name="settings-outline" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current Trip</Text>
-          <TripCard trip={currentTrip} />
-        </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Current Trip</Text>
+        <TripCard trip={currentTrip} />
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming trips</Text>
-          <TripCard trip={upcomingTrip} upcoming />
-        </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Upcoming trips</Text>
+        <TripCard trip={upcomingTrip} upcoming />
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hire a Guide</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {guides.map((guide, index) => (
-              <GuideCard key={index} guide={guide} />
-            ))}
-          </ScrollView>
-        </View>
-      </ScrollView>
-    
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Hire a Guide</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {guides.map((guide, index) => (
+            <GuideCard key={index} guide={guide} />
+          ))}
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -312,5 +388,41 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '500',
     marginRight: 4,
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  profilePhotoContainer: {
+    marginRight: 12,
+  },
+  profilePhoto: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  placeholderPhoto: {
+    backgroundColor: '#34D399',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  emailText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
   },
 });
