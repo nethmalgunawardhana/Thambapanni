@@ -18,7 +18,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
-import { login, loginWithGoogle, loginWithFacebook } from '../../../services/auth/loginService';
+import { login} from '../../../services/auth/loginService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -72,7 +72,17 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     try {
       setLoading(true);
       await login(email, password);
-      navigation.navigate('MenuBar');
+      Alert.alert(
+              'Success',
+              ' Signed in successfully!',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.navigate('MenuBar'),
+                },
+              ]
+            );
+     
     } catch (error) {
       Alert.alert('Login Error', error instanceof Error ? error.message : 'Failed to login');
     } finally {
