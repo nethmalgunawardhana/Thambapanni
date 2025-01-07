@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import React, { useState, useEffect,useCallback } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, DeviceEventEmitter } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,11 +35,9 @@ const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
+ 
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       const response = await axios.get('https://thambapanni-backend.vercel.app/user/profile', {
@@ -54,7 +52,21 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    fetchUserProfile();
+
+    // Listen for profile update events using DeviceEventEmitter
+    const subscription = DeviceEventEmitter.addListener(
+      'profileUpdated',
+      fetchUserProfile
+    );
+
+    // Cleanup subscription
+    return () => {
+      subscription.remove();
+    };
+  }, [fetchUserProfile]);
  
   if (loading) {
     return (
