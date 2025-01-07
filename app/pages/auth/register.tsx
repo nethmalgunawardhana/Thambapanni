@@ -10,7 +10,7 @@ import {
   TextInput,
   KeyboardTypeOptions,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -47,19 +47,22 @@ interface ValidationErrors {
   confirmPassword?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ 
-  placeholder, 
-  value, 
-  onChangeText, 
-  secureTextEntry, 
+// Consistent placeholder color
+const placeholderColor = '#0000FF';
+
+const InputField: React.FC<InputFieldProps> = ({
+  placeholder,
+  value,
+  onChangeText,
+  secureTextEntry,
   keyboardType,
-  error 
+  error,
 }) => (
   <View style={styles.inputContainer}>
     <TextInput
       style={[styles.input, error && styles.inputError]}
       placeholder={placeholder}
-      placeholderTextColor="#6366f1"
+      placeholderTextColor={placeholderColor}
       value={value}
       onChangeText={onChangeText}
       secureTextEntry={secureTextEntry}
@@ -76,62 +79,62 @@ const Register: React.FC<Props> = ({ navigation }) => {
     email: '',
     nationality: '',
     gender: '',
-    dateOfBirth: new Date(),
+    dateOfBirth: null, // Changed to null
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
-  
+
   const [showPicker, setShowPicker] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when field is updated
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const validateForm = useCallback((): boolean => {
     const newErrors: ValidationErrors = {};
-    
+
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     }
-    
+
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Last name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.nationality.trim()) {
       newErrors.nationality = 'Nationality is required';
     }
-    
+
     if (!formData.gender) {
       newErrors.gender = 'Please select a gender';
     }
-    
+
     if (!formData.dateOfBirth) {
       newErrors.dateOfBirth = 'Date of birth is required';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -146,20 +149,16 @@ const Register: React.FC<Props> = ({ navigation }) => {
 
       // Extract registration data
       const { confirmPassword, password, ...userData } = formData;
-      
+
       // Register using the imported register function
       await register(userData, password);
 
-      Alert.alert(
-        'Success',
-        'Account created successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]
-      );
+      Alert.alert('Success', 'Account created successfully!', [
+        {
+          text: 'OK',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
     } catch (error) {
       Alert.alert(
         'Registration Error',
@@ -171,8 +170,8 @@ const Register: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground 
-      source={require('../../../assets/images/register.png')} 
+    <ImageBackground
+      source={require('../../../assets/images/register.png')}
       style={styles.background}
     >
       <StatusBar style="light" />
@@ -214,37 +213,53 @@ const Register: React.FC<Props> = ({ navigation }) => {
             error={errors.nationality}
           />
 
-          <View style={styles.inputContainer}>
-            <View style={[styles.inputGender, errors.gender && styles.inputError]}>
-              <Picker
-                selectedValue={formData.gender}
-                onValueChange={(value) => updateFormData('gender', value)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Select Gender" value="" color="#999" />
-                <Picker.Item label="Male" value="male" />
-                <Picker.Item label="Female" value="female" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
-            </View>
-            {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
-          </View>
+<View style={styles.inputContainer}>
+  <View style={[styles.inputGender, errors.gender && styles.inputError]}>
+    <Picker
+      selectedValue={formData.gender}
+      onValueChange={(value) => updateFormData('gender', value)}
+      
+    >
+      <Picker.Item
+        label="Select Gender"
+        value=""
+        color={formData.gender ? '#0000FF' : '#0000FF'} // Placeholder color when no value is selected
+      />
+      <Picker.Item label="Male" value="male" color="#333" />
+      <Picker.Item label="Female" value="female" color="#333" />
+      <Picker.Item label="Other" value="other" color="#333" />
+    </Picker>
+  </View>
+  {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
+</View>
+
+
 
           <View style={styles.inputContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowPicker(true)}
               style={[styles.input, errors.dateOfBirth && styles.inputError]}
             >
-              <Text style={formData.dateOfBirth ? styles.dateText : styles.placeholderText}>
-                {formData.dateOfBirth ? formData.dateOfBirth.toDateString() : 'Date of Birth'}
+              <Text
+                style={
+                  formData.dateOfBirth
+                    ? styles.dateText
+                    : [styles.placeholderText, { color: placeholderColor }]
+                }
+              >
+                {formData.dateOfBirth
+                  ? new Date(formData.dateOfBirth).toDateString()
+                  : 'Birthday'}
               </Text>
             </TouchableOpacity>
-            {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth}</Text>}
+            {errors.dateOfBirth && (
+              <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
+            )}
           </View>
 
           {showPicker && (
             <DateTimePicker
-              value={formData.dateOfBirth}
+              value={formData.dateOfBirth || new Date()} // Default to current date if null
               mode="date"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               onChange={(event, selectedDate) => {
@@ -274,7 +289,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
             error={errors.confirmPassword}
           />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={handleRegister}
             disabled={isLoading}
@@ -305,7 +320,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   inputContainer: {
-    marginBottom: 15,
+    marginBottom: 5,
     width: '100%',
   },
   inputError: {
@@ -358,7 +373,7 @@ const styles = StyleSheet.create({
     color: '#0000FF',
   },
   picker: {
-    color: '#333',
+    color: '#0000FF',
     flex: 1,
   },
   dateText: {
@@ -367,7 +382,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    color: '#999',
+    color: placeholderColor,
   },
   button: {
     backgroundColor: '#f97316',
