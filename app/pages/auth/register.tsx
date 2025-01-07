@@ -223,7 +223,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
       <Picker.Item
         label="Select Gender"
         value=""
-        color={formData.gender ? '#0000FF' : '#0000FF'} // Placeholder color when no value is selected
+        color='#0000FF' // Placeholder color when no value is selected
       />
       <Picker.Item label="Male" value="male" color="#333" />
       <Picker.Item label="Female" value="female" color="#333" />
