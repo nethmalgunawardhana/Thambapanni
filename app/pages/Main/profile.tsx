@@ -115,7 +115,7 @@ const ProfileScreen = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [2, 2],
         quality: 1,
       });
 
@@ -163,19 +163,20 @@ const ProfileScreen = () => {
   const renderStats = () => (
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
-        <Ionicons name="person-outline" size={24} color="black" />
+        <Ionicons style={styles.itemStyle} name="person-outline" size={42} color="black" />
         <Text style={styles.statNumber}>{profileData.stats?.trips || 0}</Text>
         <Text style={styles.statLabel}>Trips</Text>
       </View>
       <View style={styles.statItem}>
-        <Entypo name="star" size={24} color="gold" />
+        <Entypo style={styles.itemStyle} name="star" size={42} color="gold" />
         <Text style={styles.statNumber}>{profileData.stats?.points || 0}</Text>
         <Text style={styles.statLabel}>Points</Text>
       </View>
       <View style={styles.statItem}>
         <MaterialCommunityIcons
+          style={styles.itemStyle}
           name="comment-text-multiple-outline"
-          size={24}
+          size={42}
           color="gray"
         />
         <Text style={styles.statNumber}>{profileData.stats?.comments || 0}</Text>
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     height: 80,
     backgroundColor: '#fff',
     borderRadius: 40,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: '#40bfff',
     overflow: 'hidden',
     marginBottom: 8,
@@ -384,10 +385,15 @@ const styles = StyleSheet.create({
   statItem: {
     alignItems: 'center',
   },
-  statIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
+  itemStyle: {
+    width: 100,
+    height: 100,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#40bfff',
+    overflow: 'hidden',
+    marginBottom: 8,
+    
   },
   statNumber: {
     fontSize: 16,
