@@ -110,21 +110,28 @@ const ProfileScreen = () => {
       Alert.alert('Permission Required', 'Please allow access to your photo library');
       return;
     }
-
+  
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
+        selectionLimit: 1,
+        presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
+        base64: false,
       });
-
+  
       if (!result.canceled && result.assets[0].uri) {
         const formData = new FormData();
         const response = await fetch(result.assets[0].uri);
         const blob = await response.blob();
-        formData.append('profilePhoto', blob, 'profile-photo.jpg');
-
+        
+        // Create a file name with timestamp to avoid cache issues
+        const fileName = `profile-photo-${Date.now()}.jpg`;
+        
+        formData.append('profilePhoto', blob, fileName);
+  
         try {
           const { data } = await api.post('/user/upload-photo', formData, {
             headers: {
@@ -137,6 +144,7 @@ const ProfileScreen = () => {
               ...prev,
               profilePhoto: data.photoUrl
             }));
+            Alert.alert('Success', 'Profile photo updated successfully');
           } else {
             Alert.alert('Error', 'Failed to upload image to server');
           }
