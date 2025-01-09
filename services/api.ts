@@ -4,6 +4,7 @@ export const API_URL = 'https://thambapanni-backend.vercel.app'; // Replace with
 
 export const apiClient = axios.create({
   baseURL: API_URL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },

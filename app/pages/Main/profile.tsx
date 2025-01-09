@@ -1,82 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert,DeviceEventEmitter } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  DeviceEventEmitter,
+  RefreshControl,
+  ScrollView,
+  ImageSourcePropType,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import {
+  fetchUserProfile,
+  updateUserProfile,
+  uploadProfilePhoto,
+} from '../../../services/profile/profileservices';
+import { ProfileData, Stats } from '../../../services/profile/types/profile';
 
-const api = axios.create({
-  baseURL: 'https://thambapanni-backend.vercel.app',
-  timeout: 10000, // 10 second timeout
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-const defaultStats = {
+interface ProfileState extends ProfileData {
+  stats: Stats;
+}
+
+const defaultStats: Stats = {
   trips: 0,
   points: 0,
   comments: 0,
 };
-api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('authToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
 
-const ProfileScreen = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    nationality: '',
-    gender: '',
-    dateOfBirth: '',
-    profilePhoto: null,
-    stats: defaultStats,
-  });
-  const [loading, setLoading] = useState(true);
+const defaultProfileData: ProfileState = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  nationality: '',
+  gender: '',
+  dateOfBirth: '',
+  profilePhoto: null,
+  stats: defaultStats,
+};
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
+const ProfileScreen: React.FC = () => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [profileData, setProfileData] = useState<ProfileState>(defaultProfileData);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  const fetchUserProfile = async () => {
+  const loadProfile = async (): Promise<void> => {
     try {
-      const { data } = await api.get('/user/profile');
-      
-      if (data.success) {
-        // Ensure stats object exists with default values if not provided
-        const stats = data.data.stats || defaultStats;
-        setProfileData({
-          ...data.data,
-          stats: {
-            trips: stats.trips || 0,
-            points: stats.points || 0,
-            comments: stats.comments || 0,
-          }
-        });
-      } else {
-        Alert.alert('Error', 'Failed to fetch profile data');
-      }
-    } catch (error) {
+      const data = await fetchUserProfile();
+      setProfileData(data);
+    } catch (error: any) {
       console.error('Profile fetch error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to fetch profile data';
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleUpdateProfile = async () => {
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const onRefresh = React.useCallback((): void => {
+    setRefreshing(true);
+    loadProfile();
+  }, []);
+
+  const handleUpdateProfile = async (): Promise<void> => {
     try {
-      const dataToUpdate = {
+      const dataToUpdate: Partial<ProfileData> = {
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         email: profileData.email,
@@ -86,24 +85,19 @@ const ProfileScreen = () => {
         profilePhoto: profileData.profilePhoto,
       };
 
-      const { data } = await api.put('/user/profile-update', dataToUpdate);
-      
-      if (data.success) {
-        Alert.alert('Success', 'Profile updated successfully');
-        DeviceEventEmitter.emit('profileUpdated');
-        setIsEditing(false);
-        fetchUserProfile();
-      } else {
-        Alert.alert('Error', data.message || 'Failed to update profile');
-      }
-    } catch (error) {
+      const response = await updateUserProfile(dataToUpdate);
+      Alert.alert('Success', 'Profile updated successfully');
+      DeviceEventEmitter.emit('profileUpdated');
+      setIsEditing(false);
+      loadProfile();
+    } catch (error: any) {
       console.error('Profile update error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update profile. Please try again.';
       Alert.alert('Error', errorMessage);
     }
   };
 
-  const handleImagePick = async () => {
+  const handleImagePick = async (): Promise<void> => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (permissionResult.granted === false) {
@@ -126,49 +120,29 @@ const ProfileScreen = () => {
         const formData = new FormData();
         const response = await fetch(result.assets[0].uri);
         const blob = await response.blob();
-        
-        // Create a file name with timestamp to avoid cache issues
         const fileName = `profile-photo-${Date.now()}.jpg`;
-        
         formData.append('profilePhoto', blob, fileName);
   
         try {
-          const { data } = await api.post('/user/upload-photo', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          
-          if (data.success) {
-            setProfileData(prev => ({
-              ...prev,
-              profilePhoto: data.photoUrl
-            }));
-            Alert.alert('Success', 'Profile photo updated successfully');
-          } else {
-            Alert.alert('Error', 'Failed to upload image to server');
-          }
-        } catch (error) {
+          const data = await uploadProfilePhoto(formData);
+          setProfileData(prev => ({
+            ...prev,
+            profilePhoto: data.photoUrl
+          }));
+          Alert.alert('Success', 'Profile photo updated successfully');
+        } catch (error: any) {
           console.error('Image upload error:', error);
           const errorMessage = error.response?.data?.message || 'Failed to upload image';
           Alert.alert('Error', errorMessage);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Image pick error:', error);
       Alert.alert('Error', 'Failed to pick image');
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  const renderStats = () => (
+  const renderStats = (): JSX.Element => (
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
         <Ionicons name="person-outline" size={24} color="black" />
@@ -192,135 +166,156 @@ const ProfileScreen = () => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  const defaultAvatar: ImageSourcePropType = require('../../../assets/images/default-avatar.png');
+
   return (
-    <View style={styles.container}>
-      <View style={styles.profileHeader}>
-        <TouchableOpacity 
-          style={styles.hexagonWrapper}
-          onPress={isEditing ? handleImagePick : undefined}
-        >
-          <Image
-            source={
-              profileData.profilePhoto 
-                ? { uri: profileData.profilePhoto }
-                : require('../../../assets/images/default-avatar.png')
-            }
-            style={styles.profileImage}
-          />
-          {isEditing && (
-            <View style={styles.editOverlay}>
-              <Text style={styles.editText}>Edit</Text>
+    <ScrollView
+      style={styles.scrollContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View style={styles.container}>
+        <View style={styles.profileHeader}>
+          <TouchableOpacity 
+            style={styles.hexagonWrapper}
+            onPress={isEditing ? handleImagePick : undefined}
+          >
+            <Image
+              source={
+                profileData.profilePhoto 
+                  ? { uri: profileData.profilePhoto }
+                  : defaultAvatar
+              }
+              style={styles.profileImage}
+            />
+            {isEditing && (
+              <View style={styles.editOverlay}>
+                <Text style={styles.editText}>Edit</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          
+          {isEditing ? (
+            <View style={styles.nameInputContainer}>
+              <TextInput
+                style={styles.input}
+                value={profileData.firstName}
+                onChangeText={(text: string) => setProfileData(prev => ({ ...prev, firstName: text }))}
+                placeholder="First Name"
+              />
+              <TextInput
+                style={styles.input}
+                value={profileData.lastName}
+                onChangeText={(text: string) => setProfileData(prev => ({ ...prev, lastName: text }))}
+                placeholder="Last Name"
+              />
+            </View>
+          ) : (
+            <Text style={styles.name}>{`${profileData.firstName} ${profileData.lastName}`}</Text>
+          )}
+
+          {profileData.nationality && (
+            <View style={styles.countryContainer}>
+              <Image
+                source={{ uri: `https://flagcdn.com/w20/${profileData.nationality?.toLowerCase()}.png` }}
+                style={styles.flag}
+              />
+              <Text style={styles.countryText}>{profileData.nationality}</Text>
             </View>
           )}
-        </TouchableOpacity>
-        
-        {isEditing ? (
-          <View style={styles.nameInputContainer}>
-            <TextInput
-              style={styles.input}
-              value={profileData.firstName}
-              onChangeText={(text) => setProfileData(prev => ({ ...prev, firstName: text }))}
-              placeholder="First Name"
-            />
-            <TextInput
-              style={styles.input}
-              value={profileData.lastName}
-              onChangeText={(text) => setProfileData(prev => ({ ...prev, lastName: text }))}
-              placeholder="Last Name"
-            />
-          </View>
-        ) : (
-          <Text style={styles.name}>{`${profileData.firstName} ${profileData.lastName}`}</Text>
-        )}
-
-        {profileData.nationality && (
-          <View style={styles.countryContainer}>
-            <Image
-              source={{ uri: `https://flagcdn.com/w20/${profileData.nationality?.toLowerCase()}.png` }}
-              style={styles.flag}
-            />
-            <Text style={styles.countryText}>{profileData.nationality}</Text>
-          </View>
-        )}
-      </View>
-
-      {renderStats()}
-
-      <View style={styles.personalInfoContainer}>
-        <View style={styles.headerRow}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
-          <TouchableOpacity 
-            onPress={() => isEditing ? handleUpdateProfile() : setIsEditing(true)}
-          >
-            <Text style={styles.editButton}>
-              {isEditing ? 'Save' : 'Edit'}
-            </Text>
-          </TouchableOpacity>
         </View>
 
-        {isEditing ? (
-          <View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <TextInput
-                style={styles.input}
-                value={profileData.email}
-                onChangeText={(text) => setProfileData(prev => ({ ...prev, email: text }))}
-                keyboardType="email-address"
-              />
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Nationality</Text>
-              <TextInput
-                style={styles.input}
-                value={profileData.nationality}
-                onChangeText={(text) => setProfileData(prev => ({ ...prev, nationality: text }))}
-              />
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Gender</Text>
-              <TextInput
-                style={styles.input}
-                value={profileData.gender}
-                onChangeText={(text) => setProfileData(prev => ({ ...prev, gender: text }))}
-              />
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Date of Birth</Text>
-              <TextInput
-                style={styles.input}
-                value={profileData.dateOfBirth}
-                onChangeText={(text) => setProfileData(prev => ({ ...prev, dateOfBirth: text }))}
-                placeholder="YYYY-MM-DD"
-              />
-            </View>
+        {renderStats()}
+
+        <View style={styles.personalInfoContainer}>
+          <View style={styles.headerRow}>
+            <Text style={styles.sectionTitle}>Personal Information</Text>
+            <TouchableOpacity 
+              onPress={() => isEditing ? handleUpdateProfile() : setIsEditing(true)}
+            >
+              <Text style={styles.editButton}>
+                {isEditing ? 'Save' : 'Edit'}
+              </Text>
+            </TouchableOpacity>
           </View>
-        ) : (
-          <View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{profileData.email}</Text>
+
+          {isEditing ? (
+            <View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  value={profileData.email}
+                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, email: text }))}
+                  keyboardType="email-address"
+                />
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Nationality</Text>
+                <TextInput
+                  style={styles.input}
+                  value={profileData.nationality}
+                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, nationality: text }))}
+                />
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Gender</Text>
+                <TextInput
+                  style={styles.input}
+                  value={profileData.gender}
+                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, gender: text }))}
+                />
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Date of Birth</Text>
+                <TextInput
+                  style={styles.input}
+                  value={profileData.dateOfBirth}
+                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, dateOfBirth: text }))}
+                  placeholder="YYYY-MM-DD"
+                />
+              </View>
             </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Nationality</Text>
-              <Text style={styles.infoValue}>{profileData.nationality}</Text>
+          ) : (
+            <View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoValue}>{profileData.email}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Nationality</Text>
+                <Text style={styles.infoValue}>{profileData.nationality}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Gender</Text>
+                <Text style={styles.infoValue}>{profileData.gender}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Date of Birth</Text>
+                <Text style={styles.infoValue}>{profileData.dateOfBirth}</Text>
+              </View>
             </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Gender</Text>
-              <Text style={styles.infoValue}>{profileData.gender}</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Date of Birth</Text>
-              <Text style={styles.infoValue}>{profileData.dateOfBirth}</Text>
-            </View>
-          </View>
-        )}
+          )}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     backgroundColor: '#e6fff0',
     borderRadius: 12,
@@ -392,11 +387,6 @@ const styles = StyleSheet.create({
   statItem: {
     alignItems: 'center',
   },
-  statIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-  },
   statNumber: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -409,6 +399,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerRow: {
     flexDirection: 'row',
@@ -419,23 +417,55 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
   },
   editButton: {
     color: '#40bfff',
     fontSize: 14,
+    fontWeight: '500',
   },
   infoItem: {
     marginBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 8,
   },
   infoLabel: {
     fontSize: 12,
     color: '#666',
     marginBottom: 4,
+    textTransform: 'uppercase',
   },
   infoValue: {
     fontSize: 14,
-    color: '#000',
+    color: '#333',
+    fontWeight: '500',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  errorContainer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#ff4444',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  retryButton: {
+    padding: 8,
+    backgroundColor: '#40bfff',
+    borderRadius: 4,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+  }
 });
 
 export default ProfileScreen;
