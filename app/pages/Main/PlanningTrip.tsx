@@ -13,8 +13,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
-
+import { DestinationGallery } from '../components/DestinationGallery';
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
@@ -40,15 +39,15 @@ const PlanningTripScreen = () => {
   const [categoryType, setCategoryType] = useState<CategoryType>("");
   const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-
+  const [savedDestinationNames, setSavedDestinationNames] = useState<string[]>([]);
   const trendingImages = [trending1, trending2, trending3];
 
-  const destinationImages: Record<DestinationType, any> = {
-    Hiking: require("../../../assets/images/hiking1.png"),
-    Nature: require("../../../assets/images/nature1.png"),
-    Historical: require("../../../assets/images/historical1.png"),
-    Beach: require("../../../assets/images/beach1.png"),
-  };
+  // const destinationImages: Record<DestinationType, any> = {
+  //   Hiking: require("../../../assets/images/hiking1.png"),
+  //   Nature: require("../../../assets/images/nature1.png"),
+  //   Historical: require("../../../assets/images/historical1.png"),
+  //   Beach: require("../../../assets/images/beach1.png"),
+  // };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -77,6 +76,14 @@ const PlanningTripScreen = () => {
         ? prev.filter((d) => d !== destination)
         : [...prev, destination]
     );
+  };
+  const handleSaveDestination = (destinationName: string) => {
+    setSavedDestinationNames((prev) => {
+      if (!prev.includes(destinationName)) {
+        return [...prev, destinationName];
+      }
+      return prev;
+    });
   };
 
   return (
@@ -120,27 +127,38 @@ const PlanningTripScreen = () => {
             </>
           )}
 
-          <View style={styles.planTripSection}>
+<View style={styles.planTripSection}>
             <Text style={styles.planTripTitle}>Plan a new trip</Text>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Selected Destinations</Text>
+              <View style={styles.savedDestinationsContainer}>
+                {savedDestinationNames.map((name, index) => (
+                  <View key={index} style={styles.savedDestinationTag}>
+                    <Text style={styles.savedDestinationText}>{name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Select Destinations</Text>
               <View style={styles.destinationsContainer}>
-                {(Object.keys(destinationImages) as DestinationType[]).map(
+                {["Hiking", "Nature", "Historical", "Beach"].map(
                   (destination) => (
                     <TouchableOpacity
                       key={destination}
                       style={[
                         styles.destinationButton,
-                        selectedDestinations.includes(destination) &&
+                        selectedDestinations.includes(destination as DestinationType) &&
                           styles.selectedDestination,
                       ]}
-                      onPress={() => toggleDestination(destination)}
+                      onPress={() => toggleDestination(destination as DestinationType)}
                     >
                       <Text
                         style={[
                           styles.destinationText,
-                          selectedDestinations.includes(destination) &&
+                          selectedDestinations.includes(destination as DestinationType) &&
                             styles.selectedDestinationText,
                         ]}
                       >
@@ -152,20 +170,13 @@ const PlanningTripScreen = () => {
               </View>
             </View>
 
-            {!keyboardVisible && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.destinationCarousel}
-              >
-                {selectedDestinations.map((destination) => (
-                  <Image
-                    key={destination}
-                    source={destinationImages[destination]}
-                    style={styles.destinationImage}
-                  />
-                ))}
-              </ScrollView>
+            {!keyboardVisible && selectedDestinations.length > 0 && (
+              <View style={styles.destinationGalleryContainer}>
+                <DestinationGallery 
+                  destinationType={selectedDestinations[0]}
+                  onSaveDestination={handleSaveDestination}
+                />
+              </View>
             )}
 
             <View style={styles.inputContainer}>
@@ -251,6 +262,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 16,
+  },
+  savedDestinationsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  savedDestinationTag: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+  },
+  savedDestinationText: {
+    color: '#2E7D32',
+    fontSize: 14,
+    fontWeight: '500',
   },
   trendingTripCard: {
     marginHorizontal: 16,
@@ -373,6 +403,10 @@ const styles = StyleSheet.create({
   },
   selectedCategoryText: {
     color: "#FFF",
+  },
+  destinationGalleryContainer: {
+    marginVertical: 16,
+    height: 160, 
   },
 });
 
