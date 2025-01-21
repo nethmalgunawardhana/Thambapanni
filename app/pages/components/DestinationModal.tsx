@@ -8,7 +8,7 @@ interface DestinationModalProps {
     name: string;
     description: string;
     imageUrl: string;
-    price: number;
+    
     rating: number;
   } | null;
   onClose: () => void;
@@ -30,7 +30,7 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
           <Image source={{ uri: destination.imageUrl }} style={styles.modalImage} />
           <Text style={styles.title}>{destination.name}</Text>
           <Text style={styles.description}>{destination.description}</Text>
-          <Text style={styles.price}>Price: ${destination.price}</Text>
+        
           <Text style={styles.rating}>Rating: {destination.rating}/5</Text>
           
           <View style={styles.buttonContainer}>

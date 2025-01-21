@@ -6,7 +6,7 @@ interface Destination {
     name: string;
     description: string;
     imageUrl: string;
-    price: number;
+   
     rating: number;
     type: string;
   }
@@ -17,7 +17,7 @@ interface Destination {
       typeof item.name === 'string' &&
       typeof item.description === 'string' &&
       typeof item.imageUrl === 'string' &&
-      typeof item.price === 'number' &&
+      
       typeof item.rating === 'number'
     );
   };

@@ -142,42 +142,48 @@ const PlanningTripScreen = () => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Select Destinations</Text>
-              <View style={styles.destinationsContainer}>
-                {["Hiking", "Nature", "Historical", "Beach"].map(
-                  (destination) => (
-                    <TouchableOpacity
-                      key={destination}
-                      style={[
-                        styles.destinationButton,
-                        selectedDestinations.includes(destination as DestinationType) &&
-                          styles.selectedDestination,
-                      ]}
-                      onPress={() => toggleDestination(destination as DestinationType)}
-                    >
-                      <Text
-                        style={[
-                          styles.destinationText,
-                          selectedDestinations.includes(destination as DestinationType) &&
-                            styles.selectedDestinationText,
-                        ]}
-                      >
-                        {destination}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                )}
-              </View>
-            </View>
+      <Text style={styles.inputLabel}>Select Destinations</Text>
+      <View style={styles.destinationsContainer}>
+        {["Hiking", "Nature", "Historical", "Beach"].map((destination) => (
+          <TouchableOpacity
+            key={destination}
+            style={[
+              styles.destinationButton,
+              selectedDestinations.includes(destination as DestinationType) &&
+                styles.selectedDestination,
+            ]}
+            onPress={() => toggleDestination(destination as DestinationType)}
+          >
+            <Text
+              style={[
+                styles.destinationText,
+                selectedDestinations.includes(destination as DestinationType) &&
+                  styles.selectedDestinationText,
+              ]}
+            >
+              {destination}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-            {!keyboardVisible && selectedDestinations.length > 0 && (
-              <View style={styles.destinationGalleryContainer}>
-                <DestinationGallery 
-                  destinationType={selectedDestinations[0]}
-                  onSaveDestination={handleSaveDestination}
-                />
-              </View>
-            )}
+      {!keyboardVisible && selectedDestinations.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.destinationGalleryContainer}
+        >
+          {selectedDestinations.map((destinationType) => (
+            <View key={destinationType} style={styles.carouselItem}>
+              <DestinationGallery
+                destinationType={destinationType}
+                onSaveDestination={handleSaveDestination}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Category Type</Text>
@@ -408,6 +414,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     height: 160, 
   },
+  carouselItem: { marginRight: 16 },
 });
 
 export default PlanningTripScreen;
