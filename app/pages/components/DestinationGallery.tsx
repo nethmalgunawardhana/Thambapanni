@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { DestinationImage } from './DestinationImage';
-import { DestinationModal } from './DestinationModal';
+import  DestinationImage  from './DestinationImage';
+import DestinationModal  from './DestinationModal';
 import { fetchDestinations} from '../../../services/destinations/images';
 
 interface Destination {
@@ -19,7 +19,7 @@ interface DestinationGalleryProps {
   onSaveDestination: (destinationName: string) => void;
 }
 
-export const DestinationGallery: React.FC<DestinationGalleryProps> = ({ destinationType , onSaveDestination }) => {
+ const DestinationGallery: React.FC<DestinationGalleryProps> = ({ destinationType , onSaveDestination }) => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -82,3 +82,4 @@ const styles = StyleSheet.create({
   },
   
 });
+export default DestinationGallery;

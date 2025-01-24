@@ -13,7 +13,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { DestinationGallery } from '../components/DestinationGallery';
+import  DestinationGallery  from '../components/DestinationGallery';
 import SelectedDestinationPopup from '../components/editselectedDetination';
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
