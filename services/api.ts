@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getAuthToken } from './auth/loginService'
-export const API_URL = 'https://thambapanni-backend.vercel.app'; // Replace with your backend URL
+import { API_URL } from './config';
 
 export const apiClient = axios.create({
   baseURL: API_URL,
