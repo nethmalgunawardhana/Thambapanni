@@ -11,7 +11,7 @@ import MenuBar from './pages/Main/menubar';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
-        <NavigationContainer>
+        
         <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Splash" component={App} />
             <Stack.Screen name="Register" component={RegistrationScreen} />
@@ -21,7 +21,7 @@ const NewStack = () => {
             <Stack.Screen name="Password" component={Password} />
             <Stack.Screen name="MenuBar" component={MenuBar} />
         </Stack.Navigator>
-        </NavigationContainer>
+      
     );  
 }
 export default NewStack;

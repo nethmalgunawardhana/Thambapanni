@@ -6,7 +6,7 @@ interface DestinationImageProps {
   onPress: () => void;
 }
 
-export const DestinationImage: React.FC<DestinationImageProps> = ({ imageUrl, onPress }) => {
+ const DestinationImage: React.FC<DestinationImageProps> = ({ imageUrl, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -23,3 +23,4 @@ const styles = StyleSheet.create({
     
     
 });
+export default DestinationImage;

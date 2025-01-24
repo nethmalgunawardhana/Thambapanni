@@ -15,7 +15,7 @@ interface DestinationModalProps {
   onSave: () => void;
 }
 
-export const DestinationModal: React.FC<DestinationModalProps> = ({
+const DestinationModal: React.FC<DestinationModalProps> = ({
   visible,
   destination,
   onClose,
@@ -111,3 +111,4 @@ const styles = StyleSheet.create({
       },
 
 });
+export default DestinationModal;
