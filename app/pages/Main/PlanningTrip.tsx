@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { DestinationGallery } from '../components/DestinationGallery';
+import SelectedDestinationPopup from '../components/editselectedDetination';
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
@@ -26,6 +27,11 @@ interface CategoryOption {
   value: CategoryType;
   icon: string;
 }
+interface SavedDestination {
+  name: string;
+  type: string;
+}
+
 
 const categoryOptions: CategoryOption[] = [
   { label: "Solo", value: "solo", icon: "person" },
@@ -41,7 +47,9 @@ const PlanningTripScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [savedDestinationNames, setSavedDestinationNames] = useState<string[]>([]);
   const trendingImages = [trending1, trending2, trending3];
-
+  const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
+  const [selectedPopupDestination, setSelectedPopupDestination] = useState<SavedDestination | null>(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   // const destinationImages: Record<DestinationType, any> = {
   //   Hiking: require("../../../assets/images/hiking1.png"),
   //   Nature: require("../../../assets/images/nature1.png"),
@@ -77,13 +85,32 @@ const PlanningTripScreen = () => {
         : [...prev, destination]
     );
   };
-  const handleSaveDestination = (destinationName: string) => {
-    setSavedDestinationNames((prev) => {
-      if (!prev.includes(destinationName)) {
-        return [...prev, destinationName];
+
+  const handleSaveDestination = (destinationName: string, destinationType: DestinationType) => {
+    setSavedDestinations((prev) => {
+      // Only add if not already present
+      if (!prev.find(d => d.name === destinationName)) {
+        return [...prev, {
+          name: destinationName,
+          type: destinationType
+        }];
       }
       return prev;
     });
+  };
+
+  const handleDestinationTagPress = (destination: SavedDestination) => {
+    setSelectedPopupDestination(destination);
+    setIsPopupVisible(true);
+  };
+
+  const handleRemoveDestination = () => {
+    if (selectedPopupDestination) {
+      setSavedDestinations((prev) => 
+        prev.filter((d) => d.name !== selectedPopupDestination.name)
+      );
+    }
+    setIsPopupVisible(false);
   };
 
   return (
@@ -126,20 +153,31 @@ const PlanningTripScreen = () => {
               </View>
             </>
           )}
-
-<View style={styles.planTripSection}>
-            <Text style={styles.planTripTitle}>Plan a new trip</Text>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Selected Destinations</Text>
-              <View style={styles.savedDestinationsContainer}>
-                {savedDestinationNames.map((name, index) => (
-                  <View key={index} style={styles.savedDestinationTag}>
-                    <Text style={styles.savedDestinationText}>{name}</Text>
-                  </View>
-                ))}
+ <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Selected Destinations</Text>
+        <View style={styles.savedDestinationsContainer}>
+          {savedDestinations.map((destination, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleDestinationTagPress(destination)}
+            >
+              <View style={styles.savedDestinationTag}>
+                <Text style={styles.savedDestinationText}>
+                  {destination.name}
+                </Text>
               </View>
-            </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      {selectedPopupDestination && (
+        <SelectedDestinationPopup
+          visible={isPopupVisible}
+          destinationName={selectedPopupDestination.name}
+          destinationType={selectedPopupDestination.type}
+          onClose={() => setIsPopupVisible(false)}
+          onRemove={handleRemoveDestination}
+        />
+      )}
 
             <View style={styles.inputContainer}>
       <Text style={styles.inputLabel}>Select Destinations</Text>
@@ -176,9 +214,9 @@ const PlanningTripScreen = () => {
           {selectedDestinations.map((destinationType) => (
             <View key={destinationType} style={styles.carouselItem}>
               <DestinationGallery
-                destinationType={destinationType}
-                onSaveDestination={handleSaveDestination}
-              />
+                  destinationType={destinationType}
+                  onSaveDestination={(name) => handleSaveDestination(name, destinationType)}
+            />
             </View>
           ))}
         </ScrollView>
@@ -418,3 +456,4 @@ const styles = StyleSheet.create({
 });
 
 export default PlanningTripScreen;
+
