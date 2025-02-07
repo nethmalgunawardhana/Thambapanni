@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { API_URL } from '../api';
+import { API_URL } from '../config';
+
 
 
 // Define the user data type

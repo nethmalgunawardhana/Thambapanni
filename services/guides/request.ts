@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getAuthToken } from '../auth/loginService'; // Adjust the path if needed
-import { API_URL } from '../api';
+import { API_URL } from '../config';
+
 
 
 export const submitGuideApplication = async (formData: FormData) => {
