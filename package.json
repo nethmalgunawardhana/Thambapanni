@@ -1,5 +1,5 @@
 {
-  "name": "thambapanni_app",
+  "name": "thambapanni_v1",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -52,8 +52,7 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "thambapanni_": "file:",
-    "thambapanni_app": "file:"
+    "thambapanni_v1": "file:"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
