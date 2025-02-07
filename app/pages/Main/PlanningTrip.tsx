@@ -11,6 +11,7 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  Alert
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import  DestinationGallery  from '../components/DestinationGallery';
@@ -31,7 +32,9 @@ interface SavedDestination {
   name: string;
   type: string;
 }
-
+interface PlanningTripScreenProps {
+  navigation: any;
+}
 
 const categoryOptions: CategoryOption[] = [
   { label: "Solo", value: "solo", icon: "person" },
@@ -40,7 +43,7 @@ const categoryOptions: CategoryOption[] = [
   { label: "Couple", value: "couple", icon: "heart" },
 ];
 
-const PlanningTripScreen = () => {
+const PlanningTripScreen = ({navigation}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [categoryType, setCategoryType] = useState<CategoryType>("");
   const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
