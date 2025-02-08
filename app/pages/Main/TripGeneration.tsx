@@ -10,7 +10,29 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
 
-// Define navigation types
+// Shared types
+type Activity = {
+  time: string;
+  destination: string;
+  description: string;
+  image: string;
+};
+
+type DayData = {
+  day: number;
+  date: string;
+  activities: Activity[];
+  transportation: string;
+  accommodation: string;
+  estimatedCost: string;
+};
+
+type TripData = {
+  tripTitle: string;
+  days: DayData[];
+};
+
+// Navigation types
 type RootStackParamList = {
   PlanningTrip: undefined;
   TripGeneration: { 
@@ -22,7 +44,7 @@ type RootStackParamList = {
       budgetRange: string;
     }
   };
-  TripPlanResult: { tripPlan: any };
+  TripResult: { success: boolean; tripPlan: TripData };
 };
 
 type TripGenerationScreenRouteProp = RouteProp<RootStackParamList, 'TripGeneration'>;
@@ -34,24 +56,36 @@ type Props = {
 };
 
 const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
-  // Destructure trip details from route params
   const { requestData } = route.params;
 
   useEffect(() => {
     const generatePlan = async () => {
       try {
-        const response = await axios.post(
+        const response = await axios.post<{
+          success: boolean;
+          tripPlan: TripData;
+        }>(
           'https://thambapanni-backend.vercel.app/api/generate-trip-plan',
           requestData,
           {
             headers: { 'Content-Type': 'application/json' }
           }
         );
-        // Simulate some processing time
+
+        console.log('API Response:', response.data);
+        console.log('Trip Plan:', response.data.tripPlan);
+
+        // Simulate processing time
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         if (response.data.success && response.data.tripPlan) {
-          navigation.replace('TripPlanResult', {
+          // Validate the data structure
+          if (!response.data.tripPlan.tripTitle || !Array.isArray(response.data.tripPlan.days)) {
+            throw new Error('Invalid trip plan format');
+          }
+
+          navigation.replace('TripResult', {
+            success: true,
             tripPlan: response.data.tripPlan
           });
         } else {
