@@ -8,6 +8,8 @@ import Email from './pages/otp/Enteremail';
 import Otp from  './pages/otp/OTP';
 import Password from './pages/otp/Password';
 import MenuBar from './pages/Main/menubar';
+import TripResultScreen  from './pages/Main/TripResultScreen'
+import TripGenerationScreen from './pages/Main/TripGeneration';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -20,6 +22,8 @@ const NewStack = () => {
             <Stack.Screen name="Otp" component={Otp} />
             <Stack.Screen name="Password" component={Password} />
             <Stack.Screen name="MenuBar" component={MenuBar} />
+            <Stack.Screen name="TripPlanResult" component={TripResultScreen} />
+            <Stack.Screen name="TripGeneration" component={TripGenerationScreen}/>
         </Stack.Navigator>
       
     );  
