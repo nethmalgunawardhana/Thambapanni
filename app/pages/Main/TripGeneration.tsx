@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
-  StyleSheet 
+  StyleSheet,
+  Alert 
 } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -12,13 +13,14 @@ import LottieView from 'lottie-react-native';
 // Define navigation types
 type RootStackParamList = {
   PlanningTrip: undefined;
-  TripGeneration: {
-    destinationTypes: string[];
-    categoryType: string;
-    savedDestinations: Array<{name: string, type: string}>;
-    tripDays: number;
-    tripMembers: number;
-    budgetRange: number;
+  TripGeneration: { 
+    requestData: {
+      destinations: string[];
+      categoryType: string;
+      days: number;
+      members: number;
+      budgetRange: string;
+    }
   };
   TripPlanResult: { tripPlan: any };
 };
@@ -33,44 +35,45 @@ type Props = {
 
 const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
   // Destructure trip details from route params
-  const { 
-    destinationTypes, 
-    categoryType, 
-    savedDestinations, 
-    tripDays, 
-    tripMembers, 
-    budgetRange 
-  } = route.params;
+  const { requestData } = route.params;
 
   useEffect(() => {
-    // Simulate trip generation (replace with actual API call)
-    const generateTripPlan = async () => {
+    const generatePlan = async () => {
       try {
-        const response = await axios.post('https://thambapanni-backend.vercel.app/api/generate-trip-plan', {
-          destinationTypes, 
-          categoryType, 
-          savedDestinations, 
-          tripDays, 
-          tripMembers, 
-          budgetRange
-        });
-
+        const response = await axios.post(
+          'https://thambapanni-backend.vercel.app/api/generate-trip-plan',
+          requestData,
+          {
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
         // Simulate some processing time
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Navigate to trip plan result
-        navigation.navigate('TripPlanResult', {
-            tripPlan: response.data
+        if (response.data.success && response.data.tripPlan) {
+          navigation.replace('TripPlanResult', {
+            tripPlan: response.data.tripPlan
           });
+        } else {
+          throw new Error('Invalid response format');
+        }
       } catch (error) {
-        console.error('Trip generation failed:', error);
-        // Handle error (could navigate back or show error screen)
-        navigation.goBack();
+        console.error('Error:', error);
+        Alert.alert(
+          'Error',
+          'Failed to generate trip plan. Please try again.',
+          [
+            { 
+              text: 'OK', 
+              onPress: () => navigation.goBack() 
+            }
+          ]
+        );
       }
     };
 
-    generateTripPlan();
-  }, []);
+    generatePlan();
+  }, [navigation, requestData]);
 
   return (
     <View style={styles.container}>

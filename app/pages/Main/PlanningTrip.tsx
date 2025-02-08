@@ -17,12 +17,24 @@ import axios from 'axios';
 import Icon from "react-native-vector-icons/Ionicons";
 import  DestinationGallery  from '../components/DestinationGallery';
 import SelectedDestinationPopup from '../components/editselectedDetination';
+import { StackNavigationProp } from "@react-navigation/stack";
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
 
 type DestinationType = "Hiking" | "Nature" | "Historical" | "Beach";
 type CategoryType = "solo" | "friends" | "family" | "couple" | "";
+
+type RootStackParamList = {
+  PlanningTrip: undefined;
+  TripGeneration: {requestData: {
+    destinations: string[];
+    categoryType: string;
+    days: number;
+    members: number;
+    budgetRange: string;
+  }};
+};
 
 interface CategoryOption {
   label: string;
@@ -34,7 +46,7 @@ interface SavedDestination {
   type: string;
 }
 interface PlanningTripScreenProps {
-  navigation: any;
+  navigation: StackNavigationProp<RootStackParamList, 'PlanningTrip'>;
 }
 
 const categoryOptions: CategoryOption[] = [
@@ -44,7 +56,7 @@ const categoryOptions: CategoryOption[] = [
   { label: "Couple", value: "couple", icon: "heart" },
 ];
 
-const PlanningTripScreen = ({navigation}) => {
+const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [categoryType, setCategoryType] = useState<CategoryType>("");
   const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
@@ -154,48 +166,8 @@ const PlanningTripScreen = ({navigation}) => {
       members: parseInt(tripMembers),
       budgetRange: budgetRange // Keep as string, backend will parse
     };
-  
-    try {
-      console.log('Request Payload:', requestData); // Log the exact payload being sent
-  
-      const response = await axios.post('https://thambapanni-backend.vercel.app/api/generate-trip-plan', requestData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-  
-      console.log('Response:', response.data); // Log the full response
-  
-      // Navigate to trip plan result screen
-      navigation.navigate('TripGeneration', {
-        tripPlan: response.data.tripPlan
-      });
-    } catch (error) {
-      console.error('Full Error:', error);
-      
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
-        console.error('Error Response Headers:', error.response.headers);
-        
-        Alert.alert(
-          'Error', 
-          `Failed to generate trip plan. Status: ${error.response.status}. 
-          ${error.response.data?.message || 'Unknown error occurred'}`
-        );
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('Error Request:', error.request);
-        Alert.alert('Error', 'No response received from server. Please check your internet connection.');
-      } else {
-        // Something happened in setting up the request
-        console.error('Error Message:', error.message);
-        Alert.alert('Error', `Failed to generate trip plan: ${error.message}`);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+   
+    navigation.navigate('TripGeneration', { requestData });
   };
   return (
     <KeyboardAvoidingView
@@ -373,13 +345,9 @@ const PlanningTripScreen = ({navigation}) => {
             <TouchableOpacity 
               style={styles.planTripButton}
               onPress={handleGenerateTripPlan}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Text style={styles.planTripButtonText}>Generating Plan...</Text>
-              ) : (
-                <Text style={styles.planTripButtonText}>Plan My Trip</Text>
-              )}
+             >
+            <Text style={styles.planTripButtonText}>Plan My Trip</Text>
+              
             </TouchableOpacity>
           </View>
           </View>

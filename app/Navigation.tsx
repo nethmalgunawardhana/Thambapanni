@@ -22,7 +22,7 @@ const NewStack = () => {
             <Stack.Screen name="Otp" component={Otp} />
             <Stack.Screen name="Password" component={Password} />
             <Stack.Screen name="MenuBar" component={MenuBar} />
-            <Stack.Screen name="TripResultScreen" component={TripResultScreen} />
+            <Stack.Screen name="TripPlanResult" component={TripResultScreen} />
             <Stack.Screen name="TripGeneration" component={TripGenerationScreen}/>
         </Stack.Navigator>
       
