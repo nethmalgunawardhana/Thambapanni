@@ -43,6 +43,7 @@ const MenuBar: React.FC = () => {
   
   return (
     <Tab.Navigator
+      id={undefined}
       screenOptions={{
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBarStyle,
@@ -131,15 +132,26 @@ const styles = StyleSheet.create({
     right: 0,
     elevation: 0,
     backgroundColor: '#4F46E5',
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    height: 90,
-    paddingBottom: 3,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    height: 70,
+    paddingBottom: 5,
+    borderTopWidth: 0,
   },
   customTabBarButton: {
-    top: -30,
+    position: 'absolute',
+    top: -40,
+    width: 80,
+    height: 80,
+    borderRadius: 40 ,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FF9500',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   customButtonBackground: {
     width: 70,
@@ -165,5 +177,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
+
 
 export default MenuBar;

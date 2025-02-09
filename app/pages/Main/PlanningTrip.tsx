@@ -350,12 +350,16 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
             <Text style={styles.planTripButtonText}>Plan My Trip</Text>
               
             </TouchableOpacity>
-            <TouchableOpacity 
+           
+          </View>
+          <View style={styles.buttonContainer}>
+          <TouchableOpacity 
               style={styles.planTripButton}
               onPress={() => navigation.navigate('TripPlans')}>                
              <Text style={styles.planTripButtonText}>Trip Plans</Text>
             </TouchableOpacity>
           </View>
+          
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
