@@ -9,22 +9,32 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // Types
-type RootStackParamList = {
-  BudgetReport: { tripData: TripData };
+type Activity = {
+  time: string;
+  destination: string;
+  description: string;
+  image: string;
+};
+
+type DayData = {
+  day: number;
+  date: string;
+  activities: Activity[];
+  transportation: string;
+  accommodation: string;
+  estimatedCost: string;
 };
 
 type TripData = {
-  days: any[];
-  totalDestinations: number;
-  totalHotels: number;
-  memberCount: number;
-  costs: {
-    transport: number;
-    accommodations: number;
-    tax: number;
-  };
+  tripTitle: string;
+  days: DayData[];
+};
+
+type RootStackParamList = {
+  BudgetReport: { tripPlan: TripData };
 };
 
 type BudgetReportScreenProps = {
@@ -33,11 +43,20 @@ type BudgetReportScreenProps = {
 };
 
 const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, route }) => {
-  const { tripData } = route.params;
-  const totalPrice = 
-    tripData.costs.transport + 
-    tripData.costs.accommodations + 
-    tripData.costs.tax;
+  const { tripPlan } = route.params;
+
+  // Calculate total estimated cost
+  const totalEstimatedCost = tripPlan.days.reduce((total, day) => {
+    const cost = parseFloat(day.estimatedCost.replace(/[^0-9.]/g, ''));
+    return total + (isNaN(cost) ? 0 : cost);
+  }, 0);
+
+  // Calculate statistics
+  const totalDestinations = tripPlan.days.reduce((total, day) => {
+    return total + day.activities.length;
+  }, 0);
+
+  const totalAccommodations = tripPlan.days.filter(day => day.accommodation).length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,8 +64,8 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Budget Report</Text>
       </View>
@@ -54,46 +73,37 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
       {/* Trip Statistics */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>No of Days</Text>
-          <Text style={styles.statValue}>{tripData.days.length}</Text>
+          <Text style={styles.statLabel}>Duration</Text>
+          <Text style={styles.statValue}>{tripPlan.days.length} Days</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>No of Destinations</Text>
-          <Text style={styles.statValue}>{tripData.totalDestinations}</Text>
+          <Text style={styles.statLabel}>Destinations</Text>
+          <Text style={styles.statValue}>{totalDestinations}</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={styles.statLabel}>No of Hotels</Text>
-          <Text style={styles.statValue}>{tripData.totalHotels}</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Member Count</Text>
-          <Text style={styles.statValue}>{tripData.memberCount}</Text>
+          <Text style={styles.statLabel}>Accommodations</Text>
+          <Text style={styles.statValue}>{totalAccommodations}</Text>
         </View>
       </View>
 
       {/* Cost Breakdown */}
       <View style={styles.costContainer}>
-        <View style={styles.costItem}>
-          <Text style={styles.costLabel}>Transport</Text>
-          <Text style={styles.costValue}>{tripData.costs.transport}</Text>
-        </View>
-        <View style={styles.costItem}>
-          <Text style={styles.costLabel}>Accommodations</Text>
-          <Text style={styles.costValue}>{tripData.costs.accommodations}</Text>
-        </View>
-        <View style={styles.costItem}>
-          <Text style={styles.costLabel}>Tax</Text>
-          <Text style={styles.costValue}>{tripData.costs.tax}</Text>
-        </View>
+        {tripPlan.days.map((day, index) => (
+          <View key={index} style={styles.costItem}>
+            <Text style={styles.costLabel}>Day {day.day}</Text>
+            <Text style={styles.costValue}>{day.estimatedCost}</Text>
+          </View>
+        ))}
         <View style={[styles.costItem, styles.totalCostItem]}>
-          <Text style={styles.totalLabel}>Total Price</Text>
-          <Text style={styles.totalValue}>{totalPrice}</Text>
+          <Text style={styles.totalLabel}>Total Estimated Cost</Text>
+          <Text style={styles.totalValue}>${totalEstimatedCost.toFixed(2)}</Text>
         </View>
       </View>
 
       {/* Proceed Button */}
       <TouchableOpacity style={styles.proceedButton}>
-        <Text style={styles.proceedButtonText}>Proceed to Pay</Text>
+        <Text style={styles.proceedButtonText}>Proceed to Payment</Text>
+        <Icon name="arrow-forward" size={24} color="#FFF" style={styles.proceedIcon} />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -105,22 +115,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   backButton: {
-    fontSize: 24,
-    color: '#000',
+    padding: 4,
   },
   headerTitle: {
+    flex: 1,
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 8,
+    marginRight: 28, 
   },
   statsContainer: {
     padding: 16,
+    backgroundColor: '#F5F5F5',
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 8,
   },
   statItem: {
     flexDirection: 'row',
@@ -134,6 +150,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#000',
   },
   costContainer: {
     margin: 16,
@@ -153,6 +170,7 @@ const styles = StyleSheet.create({
   costValue: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#000',
   },
   totalCostItem: {
     borderTopWidth: 1,
@@ -163,22 +181,35 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#000',
   },
   totalValue: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#20B2AA',
   },
   proceedButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     margin: 16,
     backgroundColor: '#20B2AA',
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   proceedButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    marginRight: 8,
+  },
+  proceedIcon: {
+    marginLeft: 4,
   },
 });
 

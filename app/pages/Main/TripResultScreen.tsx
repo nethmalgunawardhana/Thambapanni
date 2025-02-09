@@ -6,7 +6,8 @@ import {
   ScrollView, 
   TouchableOpacity, 
   Image, 
-  SafeAreaView 
+  SafeAreaView ,
+  ActivityIndicator 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { RouteProp } from '@react-navigation/native';
@@ -42,15 +43,55 @@ type Props = {
   route: RouteProp<RootStackParamList, 'TripResult'>;
   navigation: StackNavigationProp<RootStackParamList>;
 };
-
+const API_BASE_URL = 'https://thambapanni-backend.vercel.app/images';
 const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
   const [selectedDay, setSelectedDay] = useState(0);
-
+  const [destinationImages, setDestinationImages] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
+  const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
+    if (route.params?.tripPlan) {
+      fetchAllDestinationImages();
+    }
     console.log('Route Params:', route.params);
     console.log('Trip Plan:', route.params?.tripPlan);
   }, [route.params]);
   
+  const fetchDestinationImage = async (destination: string) => {
+    try {
+      setLoading(prev => ({ ...prev, [destination]: true }));
+      setImageErrors(prev => ({ ...prev, [destination]: false }));
+      const formattedDestination = destination.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const response = await fetch(`${API_BASE_URL}/destination-images/${formattedDestination}`);
+      
+      if (!response.ok) {
+        throw new Error('Image fetch failed');
+      }
+
+      // Convert the response to base64
+      const imageUrl = response.url;
+      setDestinationImages(prev => ({ ...prev, [destination]: imageUrl }));
+      
+      
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      setImageErrors(prev => ({ ...prev, [destination]: true }));
+    } finally {
+      setLoading(prev => ({ ...prev, [destination]: false }));
+    }
+  };
+
+  const fetchAllDestinationImages = () => {
+    const { tripPlan } = route.params;
+    tripPlan.days.forEach(day => {
+      day.activities.forEach(activity => {
+        if (!destinationImages[activity.destination]) {
+          fetchDestinationImage(activity.destination);
+        }
+      });
+    });
+  };
+
   if (!route.params?.success || !route.params?.tripPlan) {
     return (
       <SafeAreaView style={styles.container}>
@@ -79,31 +120,58 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       <Text style={[styles.dayText, selectedDay === day.day - 1 && styles.selectedDayText]}>
         Day {String(day.day).padStart(2, '0')}
       </Text>
-      <Text style={[styles.dateText, selectedDay === day.day - 1 && styles.selectedDateText]}>
-        {new Date(day.date).toLocaleDateString()}
+      <Text style={[styles.dayDateText, selectedDay === day.day - 1 && styles.selectedDayText]}>
+        {day.day}
       </Text>
     </TouchableOpacity>
   );
 
+  const getImageSource = (destination: string) => {
+    if (imageErrors[destination]) {
+
+      return require('../../../assets/images/login.png');
+    }
+    
+    if (destinationImages[destination]) {
+
+      return { uri: destinationImages[destination] };
+    }
+    
+ 
+    return require('../../../assets/images/login.png');
+  };
   const renderActivity = (activity: Activity, index: number) => (
     <View key={index} style={styles.activityContainer}>
       <View style={styles.timelineContainer}>
-        <View style={styles.timelineDot} />
-        <View style={styles.timelineLine} />
+        <View style={[styles.timelineDot, { backgroundColor: '#FF9800' }]} />
+        <View style={[styles.timelineLine, { backgroundColor: '#FFE0B2' }]} />
       </View>
-      <View style={styles.activityContent}>
+      <View style={[styles.activityContent, styles.activityCardShadow]}>
         <Text style={styles.activityTime}>{activity.time}</Text>
         <Text style={styles.activityDestination}>{activity.destination}</Text>
-        <Image
-          source={{ uri: activity.image }}
-          style={styles.activityImage}
-          resizeMode="cover"
-          defaultSource={require('../../../assets/images/beach1.png')}
-        />
+        
+        <View style={styles.imageContainer}>
+          {loading[activity.destination] ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#FF9800" />
+            </View>
+          ) : (
+            <Image
+              source={getImageSource(activity.destination)}
+              style={styles.activityImage}
+              resizeMode="cover"
+              onError={() => {
+                setImageErrors(prev => ({ ...prev, [activity.destination]: true }));
+              }}
+            />
+          )}
+        </View>
+        
         <Text style={styles.activityDescription}>{activity.description}</Text>
       </View>
     </View>
   );
+
 
   const currentDay = tripPlan.days[selectedDay];
 
@@ -184,47 +252,64 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
-  daySelector: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  daySelectorContainer: {
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  daySelector: {
+    flexGrow: 0,
+  },
+  daySelectorContent: {
+    paddingHorizontal: 16,
   },
   dayTab: {
     marginRight: 24,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    alignItems: 'center',
   },
   selectedDayTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#000',
+    borderBottomColor: '#FF9800',
+    transform: [{ scale: 1.05 }],
   },
   dayText: {
     fontSize: 16,
     fontWeight: '500',
     color: '#666',
+    marginBottom: 4,
+  },
+  dayDateText: {
+    fontSize: 14,
+    color: '#666',
   },
   selectedDayText: {
-    color: '#000',
-  },
-  dateText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  selectedDateText: {
-    color: '#000',
+    color: '#FF9800',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#F5F5F5', 
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   infoText: {
     marginLeft: 12,
@@ -319,6 +404,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  fadeIn: {
+    opacity: 1,
+    transform: [{ scale: 1 }],
+  },
+  imageContainer: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginVertical: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activityCardShadow: {
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+ 
 });
 
 export default TripResultScreen;
