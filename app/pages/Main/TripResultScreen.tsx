@@ -120,9 +120,9 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       <Text style={[styles.dayText, selectedDay === day.day - 1 && styles.selectedDayText]}>
         Day {String(day.day).padStart(2, '0')}
       </Text>
-      <Text style={[styles.dayDateText, selectedDay === day.day - 1 && styles.selectedDayText]}>
+      {/* <Text style={[styles.dayDateText, selectedDay === day.day - 1 && styles.selectedDayText]}>
         {day.day}
-      </Text>
+      </Text> */}
     </TouchableOpacity>
   );
 
