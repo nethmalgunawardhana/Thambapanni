@@ -9,6 +9,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Shared types
 type Activity = {
@@ -45,6 +46,7 @@ type RootStackParamList = {
     }
   };
   TripResult: { success: boolean; tripPlan: TripData };
+  Login: undefined;
 };
 
 type TripGenerationScreenRouteProp = RouteProp<RootStackParamList, 'TripGeneration'>;
@@ -61,6 +63,12 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
   useEffect(() => {
     const generatePlan = async () => {
       try {
+         // Get the auth token from AsyncStorage
+         const token = await AsyncStorage.getItem('authToken');
+        
+         if (!token) {
+           throw new Error('Authentication token not found');
+         }
         const response = await axios.post<{
           success: boolean;
           tripPlan: TripData;
@@ -68,7 +76,9 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
           'https://thambapanni-backend.vercel.app/api/generate-trip-plan',
           requestData,
           {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+             }
           }
         );
 
@@ -93,6 +103,21 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
         }
       } catch (error) {
         console.error('Error:', error);
+         // Handle authentication errors separately
+         if (error.message === 'Authentication token not found') {
+          Alert.alert(
+            'Authentication Error',
+            'Please log in to generate a trip plan.',
+            [
+              { 
+                text: 'OK', 
+                onPress: () => navigation.navigate('Login') 
+              }
+            ]
+          );
+          return;
+        }
+        
         Alert.alert(
           'Error',
           'Failed to generate trip plan. Please try again.',
