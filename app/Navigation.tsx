@@ -11,6 +11,7 @@ import MenuBar from './pages/Main/menubar';
 import TripResultScreen  from './pages/Main/TripResultScreen'
 import TripGenerationScreen from './pages/Main/TripGeneration';
 import BudgetReportScreen from './pages/Main/BudgetReportScreen';
+import TripPlansScreen from './pages/Main/TripPlansScreen';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -26,6 +27,7 @@ const NewStack = () => {
             <Stack.Screen name="TripResult" component={TripResultScreen} />
             <Stack.Screen name="TripGeneration" component={TripGenerationScreen}/>
             <Stack.Screen name="BudgetReport" component={BudgetReportScreen}/>
+            <Stack.Screen name="TripPlans" component={TripPlansScreen}/>
         </Stack.Navigator>
       
     );  
