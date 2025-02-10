@@ -92,7 +92,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
         throw new Error('Authentication required');
       }
       // Fetch user's trip plans
-      const userResponse = await fetch(`${API_BASE_URL}/my-trips`,{
+      const userResponse = await fetch(`${API_BASE_URL}/my-trips`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -111,18 +111,24 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       }
 
       // Fetch public trip plans
-      const publicResponse = await fetch(`${API_BASE_URL}/public`,{
-        headers: { 'Content-Type': 'application/json' }
+      const publicResponse = await fetch(`${API_BASE_URL}/public`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' }
       });
       if (!publicResponse.ok) {
-        throw new Error(`HTTP error! status: ${publicResponse.status}`);
+        if (publicResponse.status === 401) {
+          throw new Error('Authentication required');
+        }
+        throw new Error(`Failed to fetch public trips. Please try again.`);
       }
-      const publicTripPlans = await publicResponse.json();
-      setPublicTripPlans(publicTripPlans);
-
+      const publicData = await publicResponse.json();
+      if (publicData.success) {
+        setPublicTripPlans(publicData.trips);
+      }
     } catch (error) {
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       console.error('Error fetching trip plans:', error);
-      setError('Failed to load trip plans. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -165,7 +171,9 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       onPress={() => handleTripPress(item)}
     >
       <Image
-        source={require('../../../assets/images/cover.jpg')}
+        source={activeTab === 'public' 
+          ? require('../../../assets/images/public-cover.webp')  
+          : require('../../../assets/images/cover.jpg')}
         style={styles.tripImage}
         defaultSource={require('../../../assets/images/cover.jpg')}
       />
