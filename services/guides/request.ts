@@ -3,6 +3,16 @@ import { getAuthToken } from '../auth/loginService'; // Adjust the path if neede
 import { API_URL } from '../config';
 
 
+export const fetchVerifiedGuides = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/guides/verified`);
+    return response.data.data; // Assuming the response is in this format
+  } catch (error) {
+    console.error('Error fetching guides:', error);
+    throw new Error('Failed to fetch guides');
+  }
+};
+
 
 export const submitGuideApplication = async (formData: FormData) => {
   try {
@@ -58,3 +68,5 @@ export const getApplicationStatus = async (): Promise<ApplicationStatusResponse>
     throw new Error(error.response?.data?.message || 'Failed to fetch application status.');
   }
 };
+
+
