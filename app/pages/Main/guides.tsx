@@ -15,6 +15,7 @@ import {
   submitGuideApplication,
   getApplicationStatus,
 } from '../../../services/guides/request';
+import Guides from '../components/GuidesDisplay';
 
 const JoinTeamForm: React.FC<{
   visible: boolean;
@@ -43,17 +44,17 @@ const JoinTeamForm: React.FC<{
       }
 
       const fileUri = result.assets[0]?.uri.startsWith('file://')
-      ? result.assets[0]?.uri
-      : `file://${result.assets[0]?.uri}`;
+        ? result.assets[0]?.uri
+        : `file://${result.assets[0]?.uri}`;
 
-    setFormData({
-      ...formData,
-      license: {
-        name: result.assets[0]?.name,
-        uri: fileUri,
-        type: 'application/pdf',
-      },
-    });
+      setFormData({
+        ...formData,
+        license: {
+          name: result.assets[0]?.name,
+          uri: fileUri,
+          type: 'application/pdf',
+        },
+      });
     } catch (err) {
       Alert.alert('Error', 'Failed to pick the document');
     }
@@ -188,8 +189,7 @@ const TopGuides: React.FC = () => {
   const fetchApplicationStatus = async () => {
     try {
       const response = await getApplicationStatus();
-     
-  
+
       if (response.message === 'No application found.') {
         setStatusMessage('You haven’t applied yet.');
         setIsOfficialGuide(false);
@@ -198,13 +198,10 @@ const TopGuides: React.FC = () => {
         setIsOfficialGuide(response.message === 'You are an official guide for the Thambapanni team.');
       }
     } catch (error: any) {
-      
       setStatusMessage('You haven’t applied yet.');
       setIsOfficialGuide(false);
     }
   };
-  
-  
 
   useEffect(() => {
     // Fetch application status immediately on component mount
@@ -222,6 +219,7 @@ const TopGuides: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Top Guides</Text>
+      <Text style={styles.statusMessage}>{statusMessage}</Text>
       {!isOfficialGuide && (
         <TouchableOpacity
           style={styles.joinButton}
@@ -237,7 +235,7 @@ const TopGuides: React.FC = () => {
         fetchApplicationStatus={fetchApplicationStatus}
       />
 
-      <Text style={styles.statusMessage}>{statusMessage}</Text>
+      <Guides />
     </View>
   );
 };
@@ -247,14 +245,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 0,
-    paddingVertical: 12,
-    marginLeft: 55,
   },
   title: {
     marginTop: 16,
@@ -282,6 +272,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     letterSpacing: 0.8,
     textAlign: 'center',
+  },
+  statusMessage: {
+    marginTop: 0,
+    marginBottom: 10,
+    fontSize: 16,
+    color: '#FF0000',
+    textAlign: 'center',
+    lineHeight: 24,
+    fontWeight: '500',
+    letterSpacing: 0.3,
   },
   modalOverlay: {
     flex: 1,
@@ -381,124 +381,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 0.8,
   },
-  statusMessage: {
-    marginTop: 0,
-    marginBottom: 10,
-    fontSize: 16,
-    color: '#FF0000',
-    textAlign: 'center',
-    lineHeight: 24,
-    fontWeight: '500',
-    letterSpacing: 0.3,
-  },
-  // Guide list related styles
-  guidesList: {
-    flex: 1,
-    marginTop: 16,
-  },
-  guideCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-    elevation: 4,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-  },
-  guideInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  guideImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginRight: 24,
-  },
-  guideDetails: {
-    flex: 1,
-  },
-  guideName: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 10,
-    color: '#1A1A1A',
-    letterSpacing: 0.5,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  infoText: {
-    fontSize: 15,
-    color: '#4A4A4A',
-    lineHeight: 22,
-    fontWeight: '500',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  tripText: {
-    fontSize: 16,
-    marginRight: 20,
-    color: '#1A1A1A',
-    fontWeight: '600',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  phoneText: {
-    fontSize: 16,
-    marginBottom: 14,
-    color: '#4A4A4A',
-    fontWeight: '500',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  priceText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#00BFA6',
-    letterSpacing: 0.5,
-  },
-  hireButton: {
-    backgroundColor: '#00BFA6',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#00BFA6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-  },
-  hireButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 16,
-    marginRight: 8,
-    letterSpacing: 0.5,
-  },
 });
-
 
 export default TopGuides;
