@@ -11,16 +11,31 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  Alert
 } from "react-native";
+import axios from 'axios'; 
 import Icon from "react-native-vector-icons/Ionicons";
 import  DestinationGallery  from '../components/DestinationGallery';
 import SelectedDestinationPopup from '../components/editselectedDetination';
+import { StackNavigationProp } from "@react-navigation/stack";
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
 
 type DestinationType = "Hiking" | "Nature" | "Historical" | "Beach";
 type CategoryType = "solo" | "friends" | "family" | "couple" | "";
+
+type RootStackParamList = {
+  PlanningTrip: undefined;
+  TripPlans: undefined;
+  TripGeneration: {requestData: {
+    destinations: string[];
+    categoryType: string;
+    days: number;
+    members: number;
+    budgetRange: string;
+  }};
+};
 
 interface CategoryOption {
   label: string;
@@ -31,7 +46,9 @@ interface SavedDestination {
   name: string;
   type: string;
 }
-
+interface PlanningTripScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'PlanningTrip'>;
+}
 
 const categoryOptions: CategoryOption[] = [
   { label: "Solo", value: "solo", icon: "person" },
@@ -40,7 +57,7 @@ const categoryOptions: CategoryOption[] = [
   { label: "Couple", value: "couple", icon: "heart" },
 ];
 
-const PlanningTripScreen = () => {
+const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [categoryType, setCategoryType] = useState<CategoryType>("");
   const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
@@ -56,7 +73,11 @@ const PlanningTripScreen = () => {
   //   Historical: require("../../../assets/images/historical1.png"),
   //   Beach: require("../../../assets/images/beach1.png"),
   // };
-
+  const [tripDays, setTripDays] = useState<string>('');
+  const [tripMembers, setTripMembers] = useState<string>('');
+  const [budgetRange, setBudgetRange] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+ 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % trendingImages.length);
@@ -113,6 +134,42 @@ const PlanningTripScreen = () => {
     setIsPopupVisible(false);
   };
 
+  const handleGenerateTripPlan = async () => {
+    // Validate inputs
+    if (selectedDestinations.length === 0) {
+      Alert.alert('Error', 'Please select at least one destination type');
+      return;
+    }
+    if (!categoryType) {
+      Alert.alert('Error', 'Please select a category type');
+      return;
+    }
+    if (!tripDays) {
+      Alert.alert('Error', 'Please enter number of trip days');
+      return;
+    }
+    if (!tripMembers) {
+      Alert.alert('Error', 'Please enter number of trip members');
+      return;
+    }
+    if (!budgetRange) {
+      Alert.alert('Error', 'Please enter your budget range');
+      return;
+    }
+  
+    setIsLoading(true);
+  
+    // Transform the data to match backend expectations
+    const requestData = {
+      destinations: savedDestinations.map(dest => dest.name), // Use saved destination names
+      categoryType: categoryType,
+      days: parseInt(tripDays),
+      members: parseInt(tripMembers),
+      budgetRange: budgetRange // Keep as string, backend will parse
+    };
+   
+    navigation.navigate('TripGeneration', { requestData });
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -259,6 +316,8 @@ const PlanningTripScreen = () => {
                 style={styles.input}
                 keyboardType="numeric"
                 placeholder="Enter number of days"
+                value={tripDays}
+                onChangeText={setTripDays}
               />
             </View>
 
@@ -268,6 +327,8 @@ const PlanningTripScreen = () => {
                 style={styles.input}
                 keyboardType="numeric"
                 placeholder="Enter number of members"
+                value={tripMembers}
+                onChangeText={setTripMembers}
               />
             </View>
 
@@ -277,8 +338,28 @@ const PlanningTripScreen = () => {
                 style={styles.input}
                 keyboardType="numeric"
                 placeholder="Enter your budget"
+                value={budgetRange}
+                onChangeText={setBudgetRange}
               />
             </View>
+            <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.planTripButton}
+              onPress={handleGenerateTripPlan}
+             >
+            <Text style={styles.planTripButtonText}>Plan My Trip</Text>
+              
+            </TouchableOpacity>
+           
+          </View>
+          <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+              style={styles.planTripButton}
+              onPress={() => navigation.navigate('TripPlans')}>                
+             <Text style={styles.planTripButtonText}>Trip Plans</Text>
+            </TouchableOpacity>
+          </View>
+          
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
@@ -287,6 +368,28 @@ const PlanningTripScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    paddingHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  planTripButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  planTripButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFF",
