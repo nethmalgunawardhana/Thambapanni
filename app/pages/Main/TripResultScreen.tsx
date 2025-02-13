@@ -30,6 +30,7 @@ type DayData = {
 };
 
 type TripData = {
+  tripId: string; 
   tripTitle: string;
   days: DayData[];
 };

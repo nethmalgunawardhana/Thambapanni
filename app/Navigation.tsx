@@ -12,6 +12,9 @@ import TripResultScreen  from './pages/Main/TripResultScreen'
 import TripGenerationScreen from './pages/Main/TripGeneration';
 import BudgetReportScreen from './pages/Main/BudgetReportScreen';
 import TripPlansScreen from './pages/Main/TripPlansScreen';
+import StripePaymentWrapper from './pages/payment-gateway/payment';
+import PaymentSuccessScreen from './pages/payment-gateway/paymentsuccess';
+import PaymentFailedScreen from './pages/payment-gateway/PaymentFailed';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -28,6 +31,9 @@ const NewStack = () => {
             <Stack.Screen name="TripGeneration" component={TripGenerationScreen}/>
             <Stack.Screen name="BudgetReport" component={BudgetReportScreen}/>
             <Stack.Screen name="TripPlans" component={TripPlansScreen}/>
+            <Stack.Screen name="StripePayment" component={StripePaymentWrapper} />
+            <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+            <Stack.Screen name="PaymentFailed" component={PaymentFailedScreen} />
         </Stack.Navigator>
       
     );  

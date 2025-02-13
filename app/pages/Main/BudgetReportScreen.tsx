@@ -29,12 +29,14 @@ type DayData = {
 };
 
 type TripData = {
+  tripId: string;
   tripTitle: string;
   days: DayData[];
 };
 
 type RootStackParamList = {
   BudgetReport: { tripPlan: TripData };
+  StripePayment: { amount: number; tripId: string };
 };
 
 type BudgetReportScreenProps = {
@@ -101,13 +103,19 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
       </View>
 
       {/* Proceed Button */}
-      <TouchableOpacity style={styles.proceedButton}>
+      <TouchableOpacity 
+         style={styles.proceedButton}
+         onPress={() => navigation.navigate('StripePayment', {
+         amount: totalEstimatedCost,
+         tripId: tripPlan.tripId 
+  })}>
         <Text style={styles.proceedButtonText}>Proceed to Payment</Text>
         <Icon name="arrow-forward" size={24} color="#FFF" style={styles.proceedIcon} />
       </TouchableOpacity>
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
