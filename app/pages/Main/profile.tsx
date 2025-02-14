@@ -169,7 +169,7 @@ const ProfileScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View >
         <Text>Loading...</Text>
       </View>
     );
@@ -184,7 +184,7 @@ const ProfileScreen: React.FC = () => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View style={styles.container}>
+      <View >
         <View style={styles.profileHeader}>
           <TouchableOpacity 
             style={styles.hexagonWrapper}
@@ -315,27 +315,31 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    backgroundColor: '#e6fff0',
-    borderRadius: 12,
-    padding: 16,
-    margin: 16,
+    backgroundColor: '#1a1b1e',
+    paddingBottom: 80,
   },
   profileHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 32,
+    paddingHorizontal: 16,
   },
   hexagonWrapper: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#fff',
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#40bfff',
+    width: 120,
+    height: 120,
+    backgroundColor: '#2a2b2f',
+    borderRadius: 60,
+    borderWidth: 4,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 16,
+    shadowColor: '#8b5cf6',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   profileImage: {
     width: '100%',
@@ -343,139 +347,179 @@ const styles = StyleSheet.create({
   },
   editOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(139, 92, 246, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   editText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   nameInputContainer: {
     width: '100%',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 4,
-    padding: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    backgroundColor: '#3a3b3f',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#4a4b4f',
+    fontSize: 16,
+    color: '#fff',
   },
   name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#fff',
   },
   countryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#3a3b3f',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   flag: {
-    width: 20,
-    height: 15,
+    width: 24,
+    height: 18,
     marginRight: 8,
+    borderRadius: 4,
   },
   countryText: {
-    color: '#40bfff',
+    color: '#8b5cf6',
+    fontWeight: '600',
+    fontSize: 14,
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginBottom: 32,
+    paddingHorizontal: 16,
   },
   statItem: {
     alignItems: 'center',
-  },
-  itemStyle: {
-    width: 100,
-    height: 100,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#40bfff',
-    overflow: 'hidden',
-    marginBottom: 8,
-    
-  },
-  statNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-  },
-  personalInfoContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: '#3a3b3f',
+    padding: 12,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+    width: '28%',
+  },
+  itemStyle: {
+    width: 50,  // Fixed width for icon
+    height: 50, // Fixed height for icon
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2a2b2f',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgb(17, 19, 19)',
+    marginBottom: 8,
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#8b5cf6',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: '#9ca3af',
+    fontWeight: '500',
+  },
+  personalInfoContainer: {
+    backgroundColor: '#2a2b2f',
+    marginHorizontal: 16,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
+    marginBottom: 90,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 0.5,
   },
   editButton: {
-    color: '#40bfff',
-    fontSize: 14,
-    fontWeight: '500',
+    color: '#8b5cf6',
+    fontSize: 16,
+    fontWeight: '600',
   },
   infoItem: {
-    marginBottom: 12,
+    marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    paddingBottom: 8,
+    borderBottomColor: '#3a3b3f',
+    paddingBottom: 16,
   },
   infoLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
+    fontSize: 14,
+    color: '#9ca3af',
+    marginBottom: 8,
     textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: '600',
   },
   infoValue: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: 16,
+    color: '#fff',
     fontWeight: '500',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1a1b1e',
   },
   errorContainer: {
-    padding: 16,
+    padding: 24,
     alignItems: 'center',
+    backgroundColor: '#451a1a',
+    borderRadius: 16,
+    margin: 16,
   },
   errorText: {
-    color: '#ff4444',
+    color: '#f87171',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: '500',
   },
   retryButton: {
-    padding: 8,
-    backgroundColor: '#40bfff',
-    borderRadius: 4,
+    padding: 12,
+    backgroundColor: '#8b5cf6',
+    borderRadius: 12,
+    paddingHorizontal: 24,
   },
   retryButtonText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
   }
 });
 
