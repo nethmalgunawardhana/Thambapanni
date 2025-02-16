@@ -35,7 +35,7 @@ type TripData = {
 };
 
 type RootStackParamList = {
-  BudgetReport: { tripPlan: TripData };
+  BudgetReport: { tripPlan: TripData; selectedGuide: any };
   StripePayment: { amount: number; tripId: string };
 };
 
@@ -45,8 +45,7 @@ type BudgetReportScreenProps = {
 };
 
 const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, route }) => {
-  const { tripPlan } = route.params;
-
+  const { tripPlan, selectedGuide } = route.params;
   // Calculate total estimated cost
   const totalEstimatedCost = tripPlan.days.reduce((total, day) => {
     const cost = parseFloat(day.estimatedCost.replace(/[^0-9.]/g, ''));
@@ -71,6 +70,16 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Budget Report</Text>
       </View>
+
+      {/* Display selected guide information */}
+      {selectedGuide && (
+        <View style={styles.guideInfoContainer}>
+          <Text style={styles.guideInfoTitle}>Selected Guide:</Text>
+          <Text style={styles.guideInfoText}>Name:{selectedGuide.fullName}</Text>
+          <Text style={styles.guideInfoText}>Location:{selectedGuide.location}</Text>
+          <Text style={styles.guideInfoText}>Languages:{selectedGuide.languages}</Text>
+        </View>
+      )}
 
       {/* Trip Statistics */}
       <View style={styles.statsContainer}>
@@ -218,6 +227,22 @@ const styles = StyleSheet.create({
   },
   proceedIcon: {
     marginLeft: 4,
+  },
+
+  guideInfoContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+  },
+  guideInfoTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  guideInfoText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 

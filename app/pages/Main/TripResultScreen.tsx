@@ -38,6 +38,7 @@ type TripData = {
 type RootStackParamList = {
   TripResult: { success: boolean; tripPlan: TripData };
   BudgetReport: { tripPlan: TripData };
+  SelectGuide: { tripPlan: TripData };
 };
 
 type Props = {
@@ -221,9 +222,9 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* Next Button */}
       <TouchableOpacity 
         style={styles.nextButton}
-        onPress={() => navigation.navigate('BudgetReport', { tripPlan })}
+        onPress={() => navigation.navigate('SelectGuide', { tripPlan })}
       >
-        <Text style={styles.nextButtonText}>Next: View Budget</Text>
+        <Text style={styles.nextButtonText}>Next: Select a Guide</Text>
         <Icon name="arrow-forward" size={24} color="#FFF" />
       </TouchableOpacity>
     </SafeAreaView>
