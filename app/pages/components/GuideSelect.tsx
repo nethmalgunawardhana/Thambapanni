@@ -2,20 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, TextInput, ImageSourcePropType } from 'react-native';
 import { fetchVerifiedGuides } from '../../../services/guides/request';
 
-const Guides = () => {
+type GuidesProps = {
+  onGuideSelect: (guide: any) => void;
+};
+
+const Guides: React.FC<GuidesProps> = ({ onGuideSelect }) => {
   const [guides, setGuides] = useState<any[]>([]);
   const [filteredGuides, setFilteredGuides] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Define the default avatar image
   const defaultImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
 
   useEffect(() => {
+    // Fetch guides when the component mounts
     const getGuides = async () => {
       try {
         const fetchedGuides = await fetchVerifiedGuides();
         setGuides(fetchedGuides);
-        setFilteredGuides(fetchedGuides);
+        setFilteredGuides(fetchedGuides); // Initially show all guides
       } catch (error) {
         console.error('Error loading guides:', error);
         setError('Failed to load guides. Please try again later.');
@@ -27,19 +33,23 @@ const Guides = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+
+    // Convert the query to lowercase for case-insensitive search
     const lowercasedQuery = query.toLowerCase();
 
+    // Filter guides based on location or languages
     const filtered = guides.filter(
       (guide) =>
         guide.location.toLowerCase().includes(lowercasedQuery) ||
         guide.languages.toLowerCase().includes(lowercasedQuery)
     );
 
-    setFilteredGuides(filtered);
+    setFilteredGuides(filtered); // Update the filtered guides list
   };
 
   const renderGuideCard = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => onGuideSelect(item)}>
+      {/* Render profile image for each guide */}
       <Image source={defaultImage} style={styles.image} />
       <View style={styles.cardContent}>
         <Text style={styles.name}>{item.fullName}</Text>
@@ -52,17 +62,18 @@ const Guides = () => {
   );
 
   if (error) {
-    return <Text>{error}</Text>;
+    return <Text>{error}</Text>; // Display the error message if an error occurs
   }
 
   if (guides.length === 0) {
-    return <Text>Loading guides...</Text>;
-  }
+      return <Text>Loading guides...</Text>;
+    }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Verified Guides</Text>
 
+      {/* Search Bar */}
       <TextInput
         style={styles.searchInput}
         placeholder="Search by Location or Languages"
@@ -71,22 +82,22 @@ const Guides = () => {
       />
 
       {filteredGuides.length === 0 ? (
-        <Text style={styles.noGuides}>No guides available</Text>
-      ) : (
-        <FlatList
-          data={filteredGuides}
-          renderItem={renderGuideCard}
-          keyExtractor={(item) => item.email}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+              <Text style={styles.noGuides}>No guides available</Text>
+            ) : (
+              <FlatList
+                data={filteredGuides}
+                renderItem={renderGuideCard}
+                keyExtractor={(item) => item.email}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, // Makes the container take up all available space
     padding: 10,
     backgroundColor: '#fff',
   },
@@ -101,7 +112,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    marginBottom: 20,
     fontSize: 16,
   },
   noGuides: {
@@ -127,7 +138,7 @@ const styles = StyleSheet.create({
   image: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: 40, // Make it circular
     marginRight: 15,
   },
   cardContent: {
