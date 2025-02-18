@@ -15,7 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
 import {
   fetchUserProfile,
   updateUserProfile,
@@ -98,44 +98,58 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleImagePick = async (): Promise<void> => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission Required', 'Please allow access to your photo library');
-      return;
-    }
-  
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [2, 2],
-        quality: 1,
-        selectionLimit: 1,
-        presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
-        base64: false,
-      });
+      // No need to request permission manually for react-native-image-picker
   
-      if (!result.canceled && result.assets[0].uri) {
-        const formData = new FormData();
-        const response = await fetch(result.assets[0].uri);
-        const blob = await response.blob();
-        const fileName = `profile-photo-${Date.now()}.jpg`;
-        formData.append('profilePhoto', blob, fileName);
+      // Open the image library
+      ImagePicker.launchImageLibrary(
+        {
+          mediaType: 'photo',
+          includeBase64: false,
+          maxWidth: 200,
+          maxHeight: 200,
+          quality: 1,
+          selectionLimit: 1,
+        },
+        async (response) => {
+          if (response.didCancel) {
+            console.log('User cancelled image picker');
+            return;
+          }
   
-        try {
-          const data = await uploadProfilePhoto(formData);
-          setProfileData(prev => ({
-            ...prev,
-            profilePhoto: data.photoUrl
-          }));
-          Alert.alert('Success', 'Profile photo updated successfully');
-        } catch (error: any) {
-          console.error('Image upload error:', error);
-          const errorMessage = error.response?.data?.message || 'Failed to upload image';
-          Alert.alert('Error', errorMessage);
+          if (response.errorCode || response.errorMessage) {
+            console.error('ImagePicker Error:', response.errorMessage);
+            Alert.alert('Error', 'Failed to pick image');
+            return;
+          }
+  
+          if (response.assets && response.assets.length > 0) {
+            const selectedImage = response.assets[0];
+  
+            const formData = new FormData();
+            const fileName = `profile-photo-${Date.now()}.jpg`;
+  
+            formData.append('profilePhoto', {
+              uri: selectedImage.uri!,
+              type: selectedImage.type || 'image/jpeg',
+              name: selectedImage.fileName || fileName,
+            } as any);
+  
+            try {
+              const data = await uploadProfilePhoto(formData);
+              setProfileData((prev) => ({
+                ...prev,
+                profilePhoto: data.photoUrl,
+              }));
+              Alert.alert('Success', 'Profile photo updated successfully');
+            } catch (error: any) {
+              console.error('Image upload error:', error);
+              const errorMessage = error.response?.data?.message || 'Failed to upload image';
+              Alert.alert('Error', errorMessage);
+            }
+          }
         }
-      }
+      );
     } catch (error: any) {
       console.error('Image pick error:', error);
       Alert.alert('Error', 'Failed to pick image');
