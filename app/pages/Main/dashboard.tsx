@@ -1,9 +1,10 @@
-import React, { useState, useEffect,useCallback } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, SafeAreaView, DeviceEventEmitter } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import TrendingDestinationsSection from '../components/TrendingDestinations';
+import { DeviceEventEmitter } from 'react-native';
 interface Trip {
   name: string;
   date: string;
@@ -22,6 +23,7 @@ interface Guide {
   languages: string[];
   image: string;
 }
+
 interface ProfileData {
   firstName: string;
   lastName: string;
@@ -31,11 +33,11 @@ interface ProfileData {
   profilePhoto?: string;
 }
 
+const { width } = Dimensions.get('window');
+
 const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-
- 
 
   const fetchUserProfile = useCallback(async () => {
     try {
@@ -184,6 +186,9 @@ const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
 );
 
 export default function Dashboard() {
+
+
+
   const currentTrip: Trip = {
     name: 'HIGHLAND ESCAPE',
     date: '22 August 2024',
@@ -245,6 +250,11 @@ export default function Dashboard() {
             <GuideCard key={index} guide={guide} />
           ))}
         </ScrollView>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Trending Destinations</Text>
+        <TrendingDestinationsSection />
       </View>
     </ScrollView>
   );
