@@ -29,7 +29,7 @@ const TrendingDestinationsSection = () => {
   const fetchTrendingDestinations = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://thambapanni-backend.vercel.app/api/trending-places');
+      const response = await axios.get('https://trip-planner-api-production-a10f.up.railway.app/api/trending-places');
       if (response.data.success) {
         setDestinations(response.data.data);
       } else {

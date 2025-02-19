@@ -74,7 +74,7 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
           success: boolean;
           tripPlan: TripData;
         }>(
-          'https://thambapanni-backend.vercel.app/api/generate-trip-plan',
+          'https://trip-planner-api-production-a10f.up.railway.app/api/generate-trip-plan',
           requestData,
           {
             headers: { 'Content-Type': 'application/json',
