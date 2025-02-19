@@ -4,24 +4,24 @@ import { fetchVerifiedGuides } from '../../../services/guides/request';
 
 type GuidesProps = {
   onGuideSelect: (guide: any) => void;
+  tripPlan: any;
 };
 
-const Guides: React.FC<GuidesProps> = ({ onGuideSelect }) => {
+const Guides: React.FC<GuidesProps> = ({ onGuideSelect, tripPlan }) => {
   const [guides, setGuides] = useState<any[]>([]);
   const [filteredGuides, setFilteredGuides] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
-  // Define the default avatar image
+
   const defaultImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
+  const totalDistanceKm = tripPlan.distanceInfo?.totalDistanceKm || 0;
 
   useEffect(() => {
-    // Fetch guides when the component mounts
     const getGuides = async () => {
       try {
         const fetchedGuides = await fetchVerifiedGuides();
         setGuides(fetchedGuides);
-        setFilteredGuides(fetchedGuides); // Initially show all guides
+        setFilteredGuides(fetchedGuides);
       } catch (error) {
         console.error('Error loading guides:', error);
         setError('Failed to load guides. Please try again later.');
@@ -33,23 +33,21 @@ const Guides: React.FC<GuidesProps> = ({ onGuideSelect }) => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-
-    // Convert the query to lowercase for case-insensitive search
     const lowercasedQuery = query.toLowerCase();
-
-    // Filter guides based on location or languages
     const filtered = guides.filter(
       (guide) =>
         guide.location.toLowerCase().includes(lowercasedQuery) ||
         guide.languages.toLowerCase().includes(lowercasedQuery)
     );
+    setFilteredGuides(filtered);
+  };
 
-    setFilteredGuides(filtered); // Update the filtered guides list
+  const calculateGuidePrice = (pricePerKm: number) => {
+    return (pricePerKm * totalDistanceKm).toFixed(2);
   };
 
   const renderGuideCard = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.card} onPress={() => onGuideSelect(item)}>
-      {/* Render profile image for each guide */}
       <Image source={defaultImage} style={styles.image} />
       <View style={styles.cardContent}>
         <Text style={styles.name}>{item.fullName}</Text>
@@ -57,47 +55,45 @@ const Guides: React.FC<GuidesProps> = ({ onGuideSelect }) => {
         <Text style={styles.phone}>Phone: {item.phone}</Text>
         <Text style={styles.languages}>Languages: {item.languages}</Text>
         <Text style={styles.location}>Location: {item.location}</Text>
+        <Text style={styles.price}>Price: $ {calculateGuidePrice(item.pricePerKm || 0.5)}</Text>
       </View>
     </TouchableOpacity>
   );
 
   if (error) {
-    return <Text>{error}</Text>; // Display the error message if an error occurs
+    return <Text>{error}</Text>;
   }
 
   if (guides.length === 0) {
-      return <Text>Loading guides...</Text>;
-    }
+    return <Text>Loading guides...</Text>;
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Verified Guides</Text>
-
-      {/* Search Bar */}
       <TextInput
         style={styles.searchInput}
         placeholder="Search by Location or Languages"
         value={searchQuery}
         onChangeText={handleSearch}
       />
-
       {filteredGuides.length === 0 ? (
-              <Text style={styles.noGuides}>No guides available</Text>
-            ) : (
-              <FlatList
-                data={filteredGuides}
-                renderItem={renderGuideCard}
-                keyExtractor={(item) => item.email}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
+        <Text style={styles.noGuides}>No guides available</Text>
+      ) : (
+        <FlatList
+          data={filteredGuides}
+          renderItem={renderGuideCard}
+          keyExtractor={(item) => item.email}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Makes the container take up all available space
+    flex: 1,
     padding: 10,
     backgroundColor: '#fff',
   },
@@ -138,7 +134,7 @@ const styles = StyleSheet.create({
   image: {
     width: 80,
     height: 80,
-    borderRadius: 40, // Make it circular
+    borderRadius: 40,
     marginRight: 15,
   },
   cardContent: {
@@ -164,6 +160,11 @@ const styles = StyleSheet.create({
   },
   location: {
     color: '#888',
+  },
+  price: {
+    color: '#4CAF50',
+    fontWeight: '600',
+    marginTop: 5,
   },
 });
 
