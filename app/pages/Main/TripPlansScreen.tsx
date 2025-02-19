@@ -50,7 +50,7 @@ type Props = {
   navigation: StackNavigationProp<RootStackParamList>;
 };
 
-const API_BASE_URL = 'https://thambapanni-backend.vercel.app/api';
+const API_BASE_URL = 'https://trip-planner-api-production-a10f.up.railway.app/api';
 
 const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const [myTripPlans, setMyTripPlans] = useState<TripPlan[]>([]);

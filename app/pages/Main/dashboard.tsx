@@ -42,7 +42,7 @@ const UserProfile = () => {
   const fetchUserProfile = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await axios.get('https://thambapanni-backend.vercel.app/user/profile', {
+      const response = await axios.get('https://trip-planner-api-production-a10f.up.railway.app/user/profile', {
         headers: {
           Authorization: `Bearer ${token}`
         }
