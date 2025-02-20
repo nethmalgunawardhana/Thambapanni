@@ -159,7 +159,6 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
   
     setIsLoading(true);
   
-    // Transform the data to match backend expectations
     const requestData = {
       destinations: savedDestinations.map(dest => dest.name), // Use saved destination names
       categoryType: categoryType,
