@@ -14,6 +14,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Types
 type Activity = {
@@ -58,16 +59,22 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'myTrips' | 'public'>('myTrips');
-  const [userId, setUserId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [bookmarkedTrips, setBookmarkedTrips] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     initializeScreen();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchBookmarkedTripIds();
+    }, [])
+  );
+
   const initializeScreen = async () => {
     setError(null);
-    await fetchTripPlans();
+    await Promise.all([fetchTripPlans(), fetchBookmarkedTripIds()]);
   };
 
   const getAuthToken = async () => {
@@ -79,6 +86,57 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       return token;
     } catch (error) {
       throw new Error('Authentication required');
+    }
+  };
+
+  const fetchBookmarkedTripIds = async () => {
+    try {
+      const token = await getAuthToken();
+      const response = await fetch(`${API_BASE_URL}/bookmarks/ids`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch bookmarked trip IDs');
+      
+      const data = await response.json();
+      if (data.success) {
+        setBookmarkedTrips(new Set(data.bookmarkedIds));
+      }
+    } catch (error) {
+      console.error('Error fetching bookmarked trip IDs:', error);
+    }
+  };
+
+  const handleBookmark = async (tripId: string) => {
+    try {
+      const token = await getAuthToken();
+      const isBookmarked = bookmarkedTrips.has(tripId);
+      const endpoint = isBookmarked ? 'remove' : 'add';
+      
+      const response = await fetch(`${API_BASE_URL}/bookmarks/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tripId })
+      });
+
+      if (!response.ok) throw new Error('Failed to update bookmark');
+
+      const newBookmarkedTrips = new Set(bookmarkedTrips);
+      if (isBookmarked) {
+        newBookmarkedTrips.delete(tripId);
+      } else {
+        newBookmarkedTrips.add(tripId);
+      }
+      setBookmarkedTrips(newBookmarkedTrips);
+    } catch (error) {
+      console.error('Error updating bookmark:', error);
+      Alert.alert('Error', 'Failed to update bookmark. Please try again.');
     }
   };
 
@@ -138,7 +196,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     fetchTripPlans();
-  }, [userId]);
+  }, []);
 
   const handleTripPress = (tripPlan: TripPlan) => {
     try {
@@ -178,7 +236,19 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
         defaultSource={require('../../../assets/images/cover.jpg')}
       />
       <View style={styles.tripInfo}>
-        <Text style={styles.tripTitle}>{item.tripTitle}</Text>
+        <View style={styles.tripHeader}>
+          <Text style={styles.tripTitle}>{item.tripTitle}</Text>
+          <TouchableOpacity 
+            onPress={() => handleBookmark(item.id)}
+            style={styles.bookmarkButton}
+          >
+            <Icon 
+              name={bookmarkedTrips.has(item.id) ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color="#FF9800" 
+            />
+          </TouchableOpacity>
+        </View>
         <View style={styles.tripDetails}>
           <Icon name="calendar-outline" size={16} color="#666" />
           <Text style={styles.tripDetailText}>{item.days.length} Days</Text>
@@ -328,6 +398,12 @@ const styles = StyleSheet.create({
   tripInfo: {
     padding: 16,
   },
+  tripHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   tripTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -344,6 +420,9 @@ const styles = StyleSheet.create({
   },
   detailIcon: {
     marginLeft: 16,
+  },
+  bookmarkButton: {
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,

@@ -7,6 +7,7 @@ import Dashboard from './dashboard';
 import PlanningTripScreen from './PlanningTrip';
 import TopGuides from './guides';
 import ProfileCard from './profile';
+import BookmarkedTripsScreen from './bookmarkScreen'
 
 // Type definitions
 type RootStackParamList = {
@@ -94,7 +95,7 @@ const MenuBar: React.FC = () => {
       
       <Tab.Screen 
         name="Bookmark" 
-        component={SesonalTrends} 
+        component={BookmarkedTripsScreen} 
         options={{
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <Ionicons 
