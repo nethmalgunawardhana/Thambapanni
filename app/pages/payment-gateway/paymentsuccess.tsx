@@ -11,7 +11,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 type RootStackParamList = {
-  Home: undefined;
+  MenuBar: undefined;
   PaymentSuccess: undefined;
 };
 
@@ -40,7 +40,7 @@ const PaymentSuccessScreen: React.FC<PaymentSuccessScreenProps> = ({ navigation 
   const handleBackToHome = () => {
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Home' }],
+      routes: [{ name: 'MenuBar' }],
     });
   };
 

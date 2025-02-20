@@ -22,7 +22,7 @@ const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
 
-type DestinationType = "Hiking" | "Nature" | "Historical" | "Beach";
+type DestinationType = "Hiking" | "Nature" | "Historical" | "Beach" | "Religious" | "Other";
 type CategoryType = "solo" | "friends" | "family" | "couple" | "";
 
 type RootStackParamList = {
@@ -182,11 +182,9 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
           ]}
         >
           <View style={styles.header}>
-            <TouchableOpacity>
-              <Icon name="chevron-back" size={24} color="#000" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Trending Trips</Text>
-          </View>
+            
+            <Text style={styles.headerTitle}>Plan Your Trip</Text>
+           </View> 
 
           {!keyboardVisible && (
             <>
@@ -209,21 +207,30 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
               </View>
             </>
           )}
- <View style={styles.inputContainer}>
+       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Selected Destinations</Text>
         <View style={styles.savedDestinationsContainer}>
-          {savedDestinations.map((destination, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleDestinationTagPress(destination)}
-            >
-              <View style={styles.savedDestinationTag}>
-                <Text style={styles.savedDestinationText}>
-                  {destination.name}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+        {savedDestinations.length === 0 ? (
+    <View style={styles.emptyDestinationContainer}>
+    <Icon name="location-outline" size={32} color="#9E9E9E" />
+    <Text style={styles.emptyDestinationText}>
+      No destinations selected yet. Choose your preferred destination types below and explore options.
+    </Text>
+  </View>
+    ) : (
+  savedDestinations.map((destination, index) => (
+    <TouchableOpacity
+      key={index}
+      onPress={() => handleDestinationTagPress(destination)}
+    >
+      <View style={styles.savedDestinationTag}>
+        <Text style={styles.savedDestinationText}>
+          {destination.name}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  ))
+  )}
         </View>
       {selectedPopupDestination && (
         <SelectedDestinationPopup
@@ -235,10 +242,10 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
         />
       )}
 
-            <View style={styles.inputContainer}>
+      <View style={styles.inputContainer}>
       <Text style={styles.inputLabel}>Select Destinations</Text>
       <View style={styles.destinationsContainer}>
-        {["Hiking", "Nature", "Historical", "Beach"].map((destination) => (
+        {["Hiking", "Nature", "Historical", "Beach","Religious","Other"].map((destination) => (
           <TouchableOpacity
             key={destination}
             style={[
@@ -369,7 +376,7 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212", // Dark background
+    backgroundColor: "#FFFFFF",
   },
   scrollViewContent: {
     paddingBottom: 86,
@@ -378,207 +385,233 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    marginTop: 40,
+    marginTop: 48,
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2D2D2D",
+    backgroundColor: "#FFFFFF",
+    
+    
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 16,
-    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "800",
+   
+    marginLeft: 80,
+    color: "#1E3A2F",
+    letterSpacing: 0.5,
   },
   savedDestinationsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 12,
+    gap: 12,
+    marginTop: 16,
     marginBottom: 24,
   },
   savedDestinationTag: {
-    backgroundColor: '#1E3A2F',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#4CAF50',
-    elevation: 3,
+    elevation: 2,
     shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   savedDestinationText: {
-    color: '#4CAF50',
-    fontSize: 14,
+    color: '#1E3A2F',
+    fontSize: 15,
     fontWeight: '600',
   },
   trendingTripCard: {
     marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 20,
+    marginVertical: 16,
+    borderRadius: 24,
     overflow: "hidden",
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
   },
   trendingTripImage: {
     width: "100%",
-    height: 140,
+    height: 180,
     resizeMode: "cover",
   },
   dotContainer: {
     flexDirection: "row",
     justifyContent: "center",
     position: "absolute",
-    bottom: 20,
+    bottom: 16,
     left: 0,
     right: 0,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
-    marginHorizontal: 5,
-    
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: "#4CAF50",
-    width: 12,
-    height: 12,
+    backgroundColor: "#FFFFFF",
+    width: 10,
+    height: 10,
   },
   inputContainer: {
-    marginBottom: 24,
-    paddingHorizontal: 16,
+    marginBottom: 28,
+    paddingHorizontal: 14,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
+    marginLeft: 8,
     marginBottom: 12,
-    color: "#E0E0E0",
+    color: "#1E3A2F",
     letterSpacing: 0.5,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#333333",
+    borderWidth: 1.5,
+    borderColor: "#E0E0E0",
     borderRadius: 16,
-    height: 52,
-    paddingHorizontal: 18,
-    backgroundColor: "#1E1E1E",
+    height: 56,
+    paddingHorizontal: 20,
+    backgroundColor: "#FFFFFF",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#1E3A2F",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   destinationsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 12,
   },
   destinationButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: "#333333",
-    backgroundColor: "#1E1E1E",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "#E0E0E0",
+    backgroundColor: "#FFFFFF",
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 3,
   },
   selectedDestination: {
-    backgroundColor: "#2E7D32",
-    borderColor: "#4CAF50",
-    
+    backgroundColor: "#4CAF50",
+    borderColor: "#2E7D32",
   },
   destinationText: {
-    color: "#E0E0E0",
-    fontSize: 15,
+    color: "#1E3A2F",
+    fontSize: 16,
     fontWeight: "600",
   },
   selectedDestinationText: {
     color: "#FFFFFF",
-    
   },
   destinationGalleryContainer: {
-    marginVertical: 20,
+    marginTop: 20,
     height: 120,
   },
   carouselItem: {
-    marginRight: 18,
+    marginRight: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     elevation: 6,
   },
   categoryContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: 14,
+    marginTop: 4,
   },
   categoryButton: {
     flex: 1,
     minWidth: "45%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    padding: 12,
     borderRadius: 16,
-    borderWidth: 2,
-    borderColor: "#333333",
-    backgroundColor: "#1E1E1E",
-    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: " #E0E0E0",
+    backgroundColor: "#FFFFFF",
+    elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   selectedCategory: {
-    backgroundColor: "#2E7D32",
-    borderColor: "#4CAF50",
+    backgroundColor: "#4CAF50",
+    borderColor: "#2E7D32",
   },
   categoryText: {
     marginLeft: 12,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#E0E0E0",
+    color: "#1E3A2F",
   },
   selectedCategoryText: {
     color: "#FFFFFF",
   },
   buttonContainer: {
     paddingHorizontal: 16,
-    marginTop: 24,
+    marginTop: 32,
     marginBottom: 40,
   },
   planTripButton: {
-    backgroundColor: '#2E7D32',
+    backgroundColor: '#4CAF50',
     borderRadius: 16,
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4CAF50',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 5,
+    elevation: 4,
   },
   planTripButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  emptyDestinationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#E0E0E0',
+    marginVertical: 10,
+    width: '100%',
+  },
+  emptyDestinationText: {
+    fontSize: 15,
+    color: '#757575',
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 22,
   },
 });
 

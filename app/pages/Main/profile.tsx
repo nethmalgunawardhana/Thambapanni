@@ -49,7 +49,8 @@ const ProfileScreen: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileState>(defaultProfileData);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-
+  const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
+  
   const loadProfile = async (): Promise<void> => {
     try {
       const data = await fetchUserProfile();
@@ -98,9 +99,11 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleImagePick = async (): Promise<void> => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (uploadingPhoto) return; // Prevent multiple simultaneous uploads
+
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
-    if (permissionResult.granted === false) {
+    if (status !== 'granted') {
       Alert.alert('Permission Required', 'Please allow access to your photo library');
       return;
     }
@@ -109,27 +112,44 @@ const ProfileScreen: React.FC = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [2, 2],
-        quality: 1,
+        aspect: [1, 1],
+        quality: 0.8,
         selectionLimit: 1,
-        presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
-        base64: false,
       });
   
-      if (!result.canceled && result.assets[0].uri) {
+      if (!result.canceled && result.assets && result.assets[0].uri) {
+        setUploadingPhoto(true);
+        
+        // Create form data
         const formData = new FormData();
-        const response = await fetch(result.assets[0].uri);
-        const blob = await response.blob();
-        const fileName = `profile-photo-${Date.now()}.jpg`;
-        formData.append('profilePhoto', blob, fileName);
+        
+        // Get file extension from URI
+        const uriParts = result.assets[0].uri.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        
+        formData.append('profilePhoto', {
+          uri: result.assets[0].uri,
+          name: `profile-photo-${Date.now()}.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
   
         try {
-          const data = await uploadProfilePhoto(formData);
+          const uploadResponse = await uploadProfilePhoto(formData);
+          
+          // Update local state with new photo URL
           setProfileData(prev => ({
             ...prev,
-            profilePhoto: data.photoUrl
+            profilePhoto: uploadResponse.photoUrl
           }));
+          
+          // Update profile with new photo URL
+          await updateUserProfile({
+            ...profileData,
+            profilePhoto: uploadResponse.photoUrl
+          });
+          
           Alert.alert('Success', 'Profile photo updated successfully');
+          DeviceEventEmitter.emit('profilePhotoUpdated');
         } catch (error: any) {
           console.error('Image upload error:', error);
           const errorMessage = error.response?.data?.message || 'Failed to upload image';
@@ -139,6 +159,8 @@ const ProfileScreen: React.FC = () => {
     } catch (error: any) {
       console.error('Image pick error:', error);
       Alert.alert('Error', 'Failed to pick image');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
