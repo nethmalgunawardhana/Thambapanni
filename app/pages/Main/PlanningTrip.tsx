@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    marginTop: 48,
+    marginTop: 5,
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
