@@ -47,7 +47,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         tripId,
       });
       // Call your backend to create the payment intent
-      const response = await fetch('https://thambapanni-backend.vercel.app/api/payments/create-payment-intent', {
+      const response = await fetch('https://trip-planner-api-production-a10f.up.railway.app/api/payments/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
