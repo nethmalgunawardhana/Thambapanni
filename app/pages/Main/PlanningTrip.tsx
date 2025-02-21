@@ -11,30 +11,38 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
-  Alert
+  Alert,
 } from "react-native";
-import axios from 'axios'; 
+import axios from "axios";
 import Icon from "react-native-vector-icons/Ionicons";
-import  DestinationGallery  from '../components/DestinationGallery';
-import SelectedDestinationPopup from '../components/editselectedDetination';
+import DestinationGallery from "../components/DestinationGallery";
+import SelectedDestinationPopup from "../components/editselectedDetination";
 import { StackNavigationProp } from "@react-navigation/stack";
 const trending1 = require("../../../assets/images/trending1.png");
 const trending2 = require("../../../assets/images/trending2.png");
 const trending3 = require("../../../assets/images/trending3.png");
 
-type DestinationType = "Hiking" | "Nature" | "Historical" | "Beach" | "Religious" | "Other";
+type DestinationType =
+  | "Hiking"
+  | "Nature"
+  | "Historical"
+  | "Beach"
+  | "Religious"
+  | "Other";
 type CategoryType = "solo" | "friends" | "family" | "couple" | "";
 
 type RootStackParamList = {
   PlanningTrip: undefined;
   TripPlans: undefined;
-  TripGeneration: {requestData: {
-    destinations: string[];
-    categoryType: string;
-    days: number;
-    members: number;
-    budgetRange: string;
-  }};
+  TripGeneration: {
+    requestData: {
+      destinations: string[];
+      categoryType: string;
+      days: number;
+      members: number;
+      budgetRange: string;
+    };
+  };
 };
 
 interface CategoryOption {
@@ -47,7 +55,7 @@ interface SavedDestination {
   type: string;
 }
 interface PlanningTripScreenProps {
-  navigation: StackNavigationProp<RootStackParamList, 'PlanningTrip'>;
+  navigation: StackNavigationProp<RootStackParamList, "PlanningTrip">;
 }
 
 const categoryOptions: CategoryOption[] = [
@@ -57,15 +65,24 @@ const categoryOptions: CategoryOption[] = [
   { label: "Couple", value: "couple", icon: "heart" },
 ];
 
-const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) => {
+const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
+  navigation,
+}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [categoryType, setCategoryType] = useState<CategoryType>("");
-  const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
+  const [selectedDestinations, setSelectedDestinations] = useState<
+    DestinationType[]
+  >([]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [savedDestinationNames, setSavedDestinationNames] = useState<string[]>([]);
+  const [savedDestinationNames, setSavedDestinationNames] = useState<string[]>(
+    []
+  );
   const trendingImages = [trending1, trending2, trending3];
-  const [savedDestinations, setSavedDestinations] = useState<SavedDestination[]>([]);
-  const [selectedPopupDestination, setSelectedPopupDestination] = useState<SavedDestination | null>(null);
+  const [savedDestinations, setSavedDestinations] = useState<
+    SavedDestination[]
+  >([]);
+  const [selectedPopupDestination, setSelectedPopupDestination] =
+    useState<SavedDestination | null>(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   // const destinationImages: Record<DestinationType, any> = {
   //   Hiking: require("../../../assets/images/hiking1.png"),
@@ -73,22 +90,24 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
   //   Historical: require("../../../assets/images/historical1.png"),
   //   Beach: require("../../../assets/images/beach1.png"),
   // };
-  const [tripDays, setTripDays] = useState<string>('');
-  const [tripMembers, setTripMembers] = useState<string>('');
-  const [budgetRange, setBudgetRange] = useState<string>('');
+  const [tripDays, setTripDays] = useState<string>("");
+  const [tripMembers, setTripMembers] = useState<string>("");
+  const [budgetRange, setBudgetRange] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
- 
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % trendingImages.length);
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % trendingImages.length
+      );
     }, 3000);
 
     const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
+      "keyboardDidShow",
       () => setKeyboardVisible(true)
     );
     const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
+      "keyboardDidHide",
       () => setKeyboardVisible(false)
     );
 
@@ -107,14 +126,20 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
     );
   };
 
-  const handleSaveDestination = (destinationName: string, destinationType: DestinationType) => {
+  const handleSaveDestination = (
+    destinationName: string,
+    destinationType: DestinationType
+  ) => {
     setSavedDestinations((prev) => {
       // Only add if not already present
-      if (!prev.find(d => d.name === destinationName)) {
-        return [...prev, {
-          name: destinationName,
-          type: destinationType
-        }];
+      if (!prev.find((d) => d.name === destinationName)) {
+        return [
+          ...prev,
+          {
+            name: destinationName,
+            type: destinationType,
+          },
+        ];
       }
       return prev;
     });
@@ -127,7 +152,7 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
 
   const handleRemoveDestination = () => {
     if (selectedPopupDestination) {
-      setSavedDestinations((prev) => 
+      setSavedDestinations((prev) =>
         prev.filter((d) => d.name !== selectedPopupDestination.name)
       );
     }
@@ -137,37 +162,37 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
   const handleGenerateTripPlan = async () => {
     // Validate inputs
     if (selectedDestinations.length === 0) {
-      Alert.alert('Error', 'Please select at least one destination type');
+      Alert.alert("Error", "Please select at least one destination type");
       return;
     }
     if (!categoryType) {
-      Alert.alert('Error', 'Please select a category type');
+      Alert.alert("Error", "Please select a category type");
       return;
     }
     if (!tripDays) {
-      Alert.alert('Error', 'Please enter number of trip days');
+      Alert.alert("Error", "Please enter number of trip days");
       return;
     }
     if (!tripMembers) {
-      Alert.alert('Error', 'Please enter number of trip members');
+      Alert.alert("Error", "Please enter number of trip members");
       return;
     }
     if (!budgetRange) {
-      Alert.alert('Error', 'Please enter your budget range');
+      Alert.alert("Error", "Please enter your budget range");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     const requestData = {
-      destinations: savedDestinations.map(dest => dest.name), // Use saved destination names
+      destinations: savedDestinations.map((dest) => dest.name), // Use saved destination names
       categoryType: categoryType,
       days: parseInt(tripDays),
       members: parseInt(tripMembers),
-      budgetRange: budgetRange // Keep as string, backend will parse
+      budgetRange: budgetRange, // Keep as string, backend will parse
     };
-   
-    navigation.navigate('TripGeneration', { requestData });
+
+    navigation.navigate("TripGeneration", { requestData });
   };
   return (
     <KeyboardAvoidingView
@@ -182,9 +207,8 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
           ]}
         >
           <View style={styles.header}>
-            
             <Text style={styles.headerTitle}>Plan Your Trip</Text>
-           </View> 
+          </View>
 
           {!keyboardVisible && (
             <>
@@ -207,84 +231,98 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
               </View>
             </>
           )}
-       <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Selected Destinations</Text>
-        <View style={styles.savedDestinationsContainer}>
-        {savedDestinations.length === 0 ? (
-    <View style={styles.emptyDestinationContainer}>
-    <Icon name="location-outline" size={32} color="#9E9E9E" />
-    <Text style={styles.emptyDestinationText}>
-      No destinations selected yet. Choose your preferred destination types below and explore options.
-    </Text>
-  </View>
-    ) : (
-  savedDestinations.map((destination, index) => (
-    <TouchableOpacity
-      key={index}
-      onPress={() => handleDestinationTagPress(destination)}
-    >
-      <View style={styles.savedDestinationTag}>
-        <Text style={styles.savedDestinationText}>
-          {destination.name}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  ))
-  )}
-        </View>
-      {selectedPopupDestination && (
-        <SelectedDestinationPopup
-          visible={isPopupVisible}
-          destinationName={selectedPopupDestination.name}
-          destinationType={selectedPopupDestination.type}
-          onClose={() => setIsPopupVisible(false)}
-          onRemove={handleRemoveDestination}
-        />
-      )}
-
-      <View style={styles.inputContainer}>
-      <Text style={styles.inputLabel}>Select Destinations</Text>
-      <View style={styles.destinationsContainer}>
-        {["Hiking", "Nature", "Historical", "Beach","Religious","Other"].map((destination) => (
-          <TouchableOpacity
-            key={destination}
-            style={[
-              styles.destinationButton,
-              selectedDestinations.includes(destination as DestinationType) &&
-                styles.selectedDestination,
-            ]}
-            onPress={() => toggleDestination(destination as DestinationType)}
-          >
-            <Text
-              style={[
-                styles.destinationText,
-                selectedDestinations.includes(destination as DestinationType) &&
-                  styles.selectedDestinationText,
-              ]}
-            >
-              {destination}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {!keyboardVisible && selectedDestinations.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.destinationGalleryContainer}
-        >
-          {selectedDestinations.map((destinationType) => (
-            <View key={destinationType} style={styles.carouselItem}>
-              <DestinationGallery
-                  destinationType={destinationType}
-                  onSaveDestination={(name) => handleSaveDestination(name, destinationType)}
-            />
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Selected Destinations</Text>
+            <View style={styles.savedDestinationsContainer}>
+              {savedDestinations.length === 0 ? (
+                <View style={styles.emptyDestinationContainer}>
+                  <Icon name="location-outline" size={32} color="#9E9E9E" />
+                  <Text style={styles.emptyDestinationText}>
+                    No destinations selected yet. Choose your preferred
+                    destination types below and explore options.
+                  </Text>
+                </View>
+              ) : (
+                savedDestinations.map((destination, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleDestinationTagPress(destination)}
+                  >
+                    <View style={styles.savedDestinationTag}>
+                      <Text style={styles.savedDestinationText}>
+                        {destination.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
             </View>
-          ))}
-        </ScrollView>
-      )}
-    </View>
+            {selectedPopupDestination && (
+              <SelectedDestinationPopup
+                visible={isPopupVisible}
+                destinationName={selectedPopupDestination.name}
+                destinationType={selectedPopupDestination.type}
+                onClose={() => setIsPopupVisible(false)}
+                onRemove={handleRemoveDestination}
+              />
+            )}
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Select Destinations</Text>
+              <View style={styles.destinationsContainer}>
+                {[
+                  "Hiking",
+                  "Nature",
+                  "Historical",
+                  "Beach",
+                  "Religious",
+                  "Other",
+                ].map((destination) => (
+                  <TouchableOpacity
+                    key={destination}
+                    style={[
+                      styles.destinationButton,
+                      selectedDestinations.includes(
+                        destination as DestinationType
+                      ) && styles.selectedDestination,
+                    ]}
+                    onPress={() =>
+                      toggleDestination(destination as DestinationType)
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.destinationText,
+                        selectedDestinations.includes(
+                          destination as DestinationType
+                        ) && styles.selectedDestinationText,
+                      ]}
+                    >
+                      {destination}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {!keyboardVisible && selectedDestinations.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.destinationGalleryContainer}
+                >
+                  {selectedDestinations.map((destinationType) => (
+                    <View key={destinationType} style={styles.carouselItem}>
+                      <DestinationGallery
+                        destinationType={destinationType}
+                        onSaveDestination={(name) =>
+                          handleSaveDestination(name, destinationType)
+                        }
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+            </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Category Type</Text>
@@ -306,7 +344,8 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
                     <Text
                       style={[
                         styles.categoryText,
-                        categoryType === option.value && styles.selectedCategoryText,
+                        categoryType === option.value &&
+                          styles.selectedCategoryText,
                       ]}
                     >
                       {option.label}
@@ -349,23 +388,21 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({ navigation }) =
               />
             </View>
             <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.planTripButton}
-              onPress={handleGenerateTripPlan}
-             >
-            <Text style={styles.planTripButtonText}>Plan My Trip</Text>
-              
-            </TouchableOpacity>
-           
-          </View>
-          <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-              style={styles.planTripButton}
-              onPress={() => navigation.navigate('TripPlans')}>                
-             <Text style={styles.planTripButtonText}>Trip Plans</Text>
-            </TouchableOpacity>
-          </View>
-          
+              <TouchableOpacity
+                style={styles.planTripButton}
+                onPress={handleGenerateTripPlan}
+              >
+                <Text style={styles.planTripButtonText}>Plan My Trip</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.planTripButton}
+                onPress={() => navigation.navigate("TripPlans")}
+              >
+                <Text style={styles.planTripButtonText}>Trip Plans</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
@@ -385,13 +422,13 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   header: {
-    marginTop: 5,
+    marginTop: 25,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     padding: 16,
     backgroundColor: "#FFFFFF",
-    
-    
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -400,35 +437,34 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: "800",
-   
-    marginLeft: 80,
+
     color: "#1E3A2F",
     letterSpacing: 0.5,
   },
   savedDestinationsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
     marginTop: 16,
     marginBottom: 24,
   },
   savedDestinationTag: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: "#E8F5E9",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#4CAF50',
+    borderColor: "#4CAF50",
     elevation: 2,
-    shadowColor: '#4CAF50',
+    shadowColor: "#4CAF50",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   savedDestinationText: {
-    color: '#1E3A2F',
+    color: "#1E3A2F",
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   trendingTripCard: {
     marginHorizontal: 16,
@@ -497,6 +533,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   destinationButton: {
     paddingVertical: 12,
@@ -576,44 +614,43 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   planTripButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     borderRadius: 16,
     height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
   },
   planTripButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   emptyDestinationContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     borderRadius: 16,
     borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#E0E0E0',
+    borderStyle: "dashed",
+    borderColor: "#E0E0E0",
     marginVertical: 10,
-    width: '100%',
+    width: "100%",
   },
   emptyDestinationText: {
     fontSize: 15,
-    color: '#757575',
-    textAlign: 'center',
+    color: "#757575",
+    textAlign: "center",
     marginTop: 12,
     lineHeight: 22,
   },
 });
 
 export default PlanningTripScreen;
-

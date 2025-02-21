@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEEEEE',
   },
   headerTitle: {
+    marginTop: 20,
     fontSize: 24,
     fontWeight: '600',
   },

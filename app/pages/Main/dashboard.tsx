@@ -412,6 +412,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   profileContainer: {
+    marginTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
