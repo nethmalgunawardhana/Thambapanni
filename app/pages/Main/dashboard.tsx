@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TrendingDestinationsSection from '../components/TrendingDestinations';
 import { DeviceEventEmitter } from 'react-native';
+import { API_URL } from '../../../services/config';
 interface Trip {
   name: string;
   date: string;
@@ -42,7 +43,7 @@ const UserProfile = () => {
   const fetchUserProfile = useCallback(async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await axios.get('https://trip-planner-api-production-a10f.up.railway.app/user/profile', {
+      const response = await axios.get(`${API_URL}/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

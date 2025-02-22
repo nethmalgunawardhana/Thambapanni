@@ -10,7 +10,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { API_URL } from '../../../services/config';
 // Shared types
 type Activity = {
   time: string;
@@ -74,7 +74,7 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
           success: boolean;
           tripPlan: TripData;
         }>(
-          'https://trip-planner-api-production-a10f.up.railway.app/api/generate-trip-plan',
+          `${ API_URL }/api/generate-trip-plan`,
           requestData,
           {
             headers: { 'Content-Type': 'application/json',

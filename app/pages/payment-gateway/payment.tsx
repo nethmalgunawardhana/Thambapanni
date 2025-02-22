@@ -5,7 +5,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { API_URL } from '../../../services/config';
 type RootStackParamList = {
   StripePayment: {
     amount: number;
@@ -47,7 +47,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         tripId,
       });
       // Call your backend to create the payment intent
-      const response = await fetch('https://trip-planner-api-production-a10f.up.railway.app/api/payments/create-payment-intent', {
+      const response = await fetch(`${API_URL}/payments/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

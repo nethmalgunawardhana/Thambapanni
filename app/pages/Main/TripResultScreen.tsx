@@ -12,7 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-
+import { API_URL } from '../../../services/config';
 type Activity = {
   time: string;
   destination: string;
@@ -56,7 +56,7 @@ type Props = {
   navigation: StackNavigationProp<RootStackParamList>;
 };
 
-const API_BASE_URL = 'https://trip-planner-api-production-a10f.up.railway.app/images';
+
 
 const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
   const [selectedDay, setSelectedDay] = useState(0);
@@ -75,7 +75,7 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       setLoading(prev => ({ ...prev, [destination]: true }));
       setImageErrors(prev => ({ ...prev, [destination]: false }));
       const formattedDestination = destination.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const response = await fetch(`${API_BASE_URL}/destination-images/${formattedDestination}`);
+      const response = await fetch(`${API_URL}/destination-images/${formattedDestination}`);
       
       if (!response.ok) {
         throw new Error('Image fetch failed');
