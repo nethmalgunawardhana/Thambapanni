@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,16 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { API_URL } from '../../../services/config'; // Ensure this is correctly set
 
 type Activity = {
   time: string;
@@ -43,8 +47,9 @@ type TripData = {
 };
 
 type RootStackParamList = {
-  BudgetReport: { tripPlan: TripData; selectedGuide?: any; selectedVehicle?: any };
+  BudgetReport: { tripPlan: TripData; selectedGuide?: any; selectedVehicle?: any; confirmationStatus?: string };
   StripePayment: { amount: number; tripId: string };
+  SelectGuide: { tripPlan: TripData; selectedVehicle?: any };
 };
 
 type BudgetReportScreenProps = {
@@ -52,11 +57,50 @@ type BudgetReportScreenProps = {
   navigation: StackNavigationProp<RootStackParamList>;
 };
 
+const getGuideConfirmationStatus = async (tripId: string, token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/guides/confirmation-status/${tripId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching confirmation status:', error);
+    throw error;
+  }
+};
+
 const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, route }) => {
-  const { tripPlan, selectedGuide, selectedVehicle } = route.params;
+  const { tripPlan, selectedGuide, selectedVehicle, confirmationStatus: initialStatus } = route.params;
+  const [confirmationStatus, setConfirmationStatus] = useState(initialStatus || 'pending');
+
+  useEffect(() => {
+    const fetchConfirmationStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (!token) {
+          Alert.alert('Error', 'User token not found. Please log in again.');
+          return;
+        }
+
+        const response = await getGuideConfirmationStatus(tripPlan.tripId, token);
+        if (response.success) {
+          setConfirmationStatus(response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching confirmation status:', error);
+      }
+    };
+
+    if (selectedGuide) {
+      fetchConfirmationStatus();
+      const interval = setInterval(fetchConfirmationStatus, 5000); // Poll every 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [selectedGuide, tripPlan.tripId]);
 
   const totalDistanceKm = tripPlan.distanceInfo?.totalDistanceKm || 0;
-
   const totalEstimatedCost = tripPlan.days.reduce((total, day) => {
     const cost = parseFloat(day.estimatedCost.replace(/[^0-9.]/g, ''));
     return total + (isNaN(cost) ? 0 : cost);
@@ -69,6 +113,16 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
   const totalDestinations = tripPlan.days.reduce((total, day) => total + day.activities.length, 0);
   const totalAccommodations = tripPlan.days.filter(day => day.accommodation).length;
 
+  const handleProceedToPayment = () => {
+    if (selectedGuide && confirmationStatus !== 'confirmed') {
+      Alert.alert('Guide Not Confirmed', 'Please wait for the guide to confirm the request.');
+      return;
+    }
+    navigation.navigate('StripePayment', { amount: totalBudget, tripId: tripPlan.tripId });
+  };
+  const handleSelectAnotherGuide = () => {
+    navigation.navigate('SelectGuide', { tripPlan, selectedVehicle });
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -80,6 +134,26 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Budget Report</Text>
         </View>
+
+        {/* Guide Confirmation Status */}
+        {selectedGuide && (
+          <View style={styles.confirmationStatusContainer}>
+            <Text style={styles.confirmationStatusText}>
+              Guide Confirmation Status: {confirmationStatus}
+            </Text>
+            {confirmationStatus === 'rejected' && (
+              <View style={styles.rejectedContainer}>
+              <Text style={styles.rejectedText}>Please select another guide.</Text>
+              <TouchableOpacity
+                style={styles.selectAnotherGuideButton}
+                onPress={handleSelectAnotherGuide}
+              >
+                <Text style={styles.selectAnotherGuideButtonText}>Select Another Guide</Text>
+              </TouchableOpacity>
+            </View>
+            )}
+          </View>
+        )}
 
         {/* Total Distance */}
         <View style={styles.totalDistanceContainer}>
@@ -156,8 +230,12 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
 
         {/* Proceed Button */}
         <TouchableOpacity
-          style={styles.proceedButton}
-          onPress={() => navigation.navigate('StripePayment', { amount: totalBudget, tripId: tripPlan.tripId })}
+          style={[
+            styles.proceedButton,
+            selectedGuide && confirmationStatus !== 'confirmed' && styles.disabledButton,
+          ]}
+          onPress={handleProceedToPayment}
+          disabled={selectedGuide && confirmationStatus !== 'confirmed'}
         >
           <Text style={styles.proceedButtonText}>Proceed to Payment</Text>
           <Icon2 name="arrow-forward" size={24} color="#FFF" style={styles.proceedIcon} />
@@ -174,7 +252,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20, // Add padding to avoid cutting off the last element
+    paddingBottom: 20,
   },
   header: {
     flexDirection: 'row',
@@ -182,6 +260,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  header2: {
+    flexDirection: 'row',
+   
+   
   },
   backButton: {
     padding: 4,
@@ -192,6 +275,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginRight: 28,
+  },
+  confirmationStatusContainer: {
+    padding: 16,
+    backgroundColor: '#FFF3E0',
+    margin: 16,
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  confirmationStatusText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  rejectedText: {
+    fontSize: 14,
+    color: '#FF0000',
+    marginTop: 8,
   },
   totalDistanceContainer: {
     flexDirection: 'row',
@@ -284,6 +388,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
   proceedButtonText: {
     color: '#fff',
     fontSize: 16,
@@ -322,6 +429,21 @@ const styles = StyleSheet.create({
   vehicleInfoText: {
     fontSize: 16,
     color: '#333',
+  },
+  rejectedContainer: {
+    marginTop: 2,
+    alignItems: 'center',
+  },
+  selectAnotherGuideButton: {
+    backgroundColor: '#20B2AA',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  selectAnotherGuideButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

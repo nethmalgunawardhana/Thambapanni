@@ -198,7 +198,7 @@ const TopGuides: React.FC = () => {
         setIsOfficialGuide(response.message === 'You are an official guide for the Thambapanni team.');
       }
     } catch (error: any) {
-      setStatusMessage('You haven’t applied yet.');
+      setStatusMessage('You can apply apply with our guide team.');
       setIsOfficialGuide(false);
     }
   };
@@ -274,8 +274,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   statusMessage: {
-    marginTop: 0,
-    marginBottom: 10,
+    marginTop: -20,
+    marginBottom: 0,
     fontSize: 16,
     color: '#FF0000',
     textAlign: 'center',
