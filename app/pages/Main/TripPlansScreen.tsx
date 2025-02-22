@@ -15,7 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { API_URL } from '../../../services/config';
 // Types
 type Activity = {
   time: string;
@@ -51,7 +51,7 @@ type Props = {
   navigation: StackNavigationProp<RootStackParamList>;
 };
 
-const API_BASE_URL = 'https://trip-planner-api-production-a10f.up.railway.app/api';
+
 
 const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const [myTripPlans, setMyTripPlans] = useState<TripPlan[]>([]);
@@ -92,7 +92,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const fetchBookmarkedTripIds = async () => {
     try {
       const token = await getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/bookmarks/ids`, {
+      const response = await fetch(`${API_URL}/bookmarks/ids`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -116,7 +116,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       const isBookmarked = bookmarkedTrips.has(tripId);
       const endpoint = isBookmarked ? 'remove' : 'add';
       
-      const response = await fetch(`${API_BASE_URL}/bookmarks/${endpoint}`, {
+      const response = await fetch(`${API_URL}/bookmarks/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,7 +150,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
         throw new Error('Authentication required');
       }
       // Fetch user's trip plans
-      const userResponse = await fetch(`${API_BASE_URL}/my-trips`, {
+      const userResponse = await fetch(`${API_URL}/my-trips`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -169,7 +169,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       }
 
       // Fetch public trip plans
-      const publicResponse = await fetch(`${API_BASE_URL}/public`, {
+      const publicResponse = await fetch(`${API_URL}/public`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json' }

@@ -14,6 +14,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../../../services/config';
 type Activity = {
     time: string;
     destination: string;
@@ -47,7 +48,7 @@ type Props = {
   navigation: StackNavigationProp<RootStackParamList>;
 };
 
-const API_BASE_URL = 'https://trip-planner-api-production-a10f.up.railway.app/api';
+
 
 const BookmarkedTripsScreen: React.FC<Props> = ({ navigation }) => {
   const [bookmarkedTrips, setBookmarkedTrips] = useState<TripPlan[]>([]);
@@ -77,7 +78,7 @@ const BookmarkedTripsScreen: React.FC<Props> = ({ navigation }) => {
       setError(null);
 
       const token = await getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/bookmarks/get`, {
+      const response = await fetch(`${API_URL}/bookmarks/get`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
