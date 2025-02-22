@@ -78,7 +78,7 @@ const BookmarkedTripsScreen: React.FC<Props> = ({ navigation }) => {
       setError(null);
 
       const token = await getAuthToken();
-      const response = await fetch(`${API_URL}/bookmarks/get`, {
+      const response = await fetch(`${API_URL}/api/bookmarks/get`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

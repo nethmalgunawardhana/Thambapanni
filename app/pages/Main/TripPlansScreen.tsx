@@ -92,7 +92,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
   const fetchBookmarkedTripIds = async () => {
     try {
       const token = await getAuthToken();
-      const response = await fetch(`${API_URL}/bookmarks/ids`, {
+      const response = await fetch(`${API_URL}/api/bookmarks/ids`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -116,7 +116,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       const isBookmarked = bookmarkedTrips.has(tripId);
       const endpoint = isBookmarked ? 'remove' : 'add';
       
-      const response = await fetch(`${API_URL}/bookmarks/${endpoint}`, {
+      const response = await fetch(`${API_URL}/api/bookmarks/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,7 +150,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
         throw new Error('Authentication required');
       }
       // Fetch user's trip plans
-      const userResponse = await fetch(`${API_URL}/my-trips`, {
+      const userResponse = await fetch(`${API_URL}/api/my-trips`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -169,7 +169,7 @@ const TripPlansScreen: React.FC<Props> = ({ navigation }) => {
       }
 
       // Fetch public trip plans
-      const publicResponse = await fetch(`${API_URL}/public`, {
+      const publicResponse = await fetch(`${API_URL}/api/public`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json' }

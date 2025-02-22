@@ -75,7 +75,7 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       setLoading(prev => ({ ...prev, [destination]: true }));
       setImageErrors(prev => ({ ...prev, [destination]: false }));
       const formattedDestination = destination.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      const response = await fetch(`${API_URL}/destination-images/${formattedDestination}`);
+      const response = await fetch(`${API_URL}/images/destination-images/${formattedDestination}`);
       
       if (!response.ok) {
         throw new Error('Image fetch failed');
