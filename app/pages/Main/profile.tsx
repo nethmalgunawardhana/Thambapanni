@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,20 +11,17 @@ import {
   RefreshControl,
   ScrollView,
   ImageSourcePropType,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import Entypo from '@expo/vector-icons/Entypo';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import * as ImagePicker from 'expo-image-picker';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import * as ImagePicker from "expo-image-picker";
 import {
   fetchUserProfile,
   updateUserProfile,
   uploadProfilePhoto,
-} from '../../../services/profile/profileservices';
-import { ProfileData, Stats } from '../../../services/profile/types/profile';
-
-
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+} from "../../../services/profile/profileservices";
+import { ProfileData, Stats } from "../../../services/profile/types/profile";
 
 interface ProfileState extends ProfileData {
   stats: Stats;
@@ -37,31 +34,33 @@ const defaultStats: Stats = {
 };
 
 const defaultProfileData: ProfileState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  nationality: '',
-  gender: '',
-  dateOfBirth: '',
+  firstName: "",
+  lastName: "",
+  email: "",
+  nationality: "",
+  gender: "",
+  dateOfBirth: "",
   profilePhoto: null,
   stats: defaultStats,
 };
 
 const ProfileScreen: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [profileData, setProfileData] = useState<ProfileState>(defaultProfileData);
+  const [profileData, setProfileData] =
+    useState<ProfileState>(defaultProfileData);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
-  
+
   const loadProfile = async (): Promise<void> => {
     try {
       const data = await fetchUserProfile();
       setProfileData(data);
     } catch (error: any) {
-      console.error('Profile fetch error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to fetch profile data';
-      Alert.alert('Error', errorMessage);
+      console.error("Profile fetch error:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch profile data";
+      Alert.alert("Error", errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -90,14 +89,16 @@ const ProfileScreen: React.FC = () => {
       };
 
       const response = await updateUserProfile(dataToUpdate);
-      Alert.alert('Success', 'Profile updated successfully');
-      DeviceEventEmitter.emit('profileUpdated');
+      Alert.alert("Success", "Profile updated successfully");
+      DeviceEventEmitter.emit("profileUpdated");
       setIsEditing(false);
       loadProfile();
     } catch (error: any) {
-      console.error('Profile update error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update profile. Please try again.';
-      Alert.alert('Error', errorMessage);
+      console.error("Profile update error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to update profile. Please try again.";
+      Alert.alert("Error", errorMessage);
     }
   };
 
@@ -105,12 +106,15 @@ const ProfileScreen: React.FC = () => {
     if (uploadingPhoto) return; // Prevent multiple simultaneous uploads
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please allow access to your photo library');
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Required",
+        "Please allow access to your photo library"
+      );
       return;
     }
-  
+
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -119,49 +123,50 @@ const ProfileScreen: React.FC = () => {
         quality: 0.8,
         selectionLimit: 1,
       });
-  
+
       if (!result.canceled && result.assets && result.assets[0].uri) {
         setUploadingPhoto(true);
-        
+
         // Create form data
         const formData = new FormData();
-        
+
         // Get file extension from URI
-        const uriParts = result.assets[0].uri.split('.');
+        const uriParts = result.assets[0].uri.split(".");
         const fileType = uriParts[uriParts.length - 1];
-        
-        formData.append('profilePhoto', {
+
+        formData.append("profilePhoto", {
           uri: result.assets[0].uri,
           name: `profile-photo-${Date.now()}.${fileType}`,
           type: `image/${fileType}`,
         } as any);
-  
+
         try {
           const uploadResponse = await uploadProfilePhoto(formData);
-          
+
           // Update local state with new photo URL
-          setProfileData(prev => ({
+          setProfileData((prev) => ({
             ...prev,
-            profilePhoto: uploadResponse.photoUrl
+            profilePhoto: uploadResponse.photoUrl,
           }));
-          
+
           // Update profile with new photo URL
           await updateUserProfile({
             ...profileData,
-            profilePhoto: uploadResponse.photoUrl
+            profilePhoto: uploadResponse.photoUrl,
           });
-          
-          Alert.alert('Success', 'Profile photo updated successfully');
-          DeviceEventEmitter.emit('profilePhotoUpdated');
+
+          Alert.alert("Success", "Profile photo updated successfully");
+          DeviceEventEmitter.emit("profilePhotoUpdated");
         } catch (error: any) {
-          console.error('Image upload error:', error);
-          const errorMessage = error.response?.data?.message || 'Failed to upload image';
-          Alert.alert('Error', errorMessage);
+          console.error("Image upload error:", error);
+          const errorMessage =
+            error.response?.data?.message || "Failed to upload image";
+          Alert.alert("Error", errorMessage);
         }
       }
     } catch (error: any) {
-      console.error('Image pick error:', error);
-      Alert.alert('Error', 'Failed to pick image');
+      console.error("Image pick error:", error);
+      Alert.alert("Error", "Failed to pick image");
     } finally {
       setUploadingPhoto(false);
     }
@@ -170,18 +175,30 @@ const ProfileScreen: React.FC = () => {
   const renderStats = (): JSX.Element => (
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
-      <MaterialIcons name="commute" size={36} color="black" />
+        <Ionicons
+          style={styles.itemStyle}
+          name="person-outline"
+          size={42}
+          color="black"
+        />
         <Text style={styles.statNumber}>{profileData.stats?.trips || 0}</Text>
         <Text style={styles.statLabel}>Trips</Text>
       </View>
       <View style={styles.statItem}>
-      <MaterialIcons name="stars" size={36} color="black" />
+        <Entypo style={styles.itemStyle} name="star" size={42} color="gold" />
         <Text style={styles.statNumber}>{profileData.stats?.points || 0}</Text>
         <Text style={styles.statLabel}>Points</Text>
       </View>
       <View style={styles.statItem}>
-      <MaterialIcons name="forum" size={36} color="black" />
-        <Text style={styles.statNumber}>{profileData.stats?.comments || 0}</Text>
+        <MaterialCommunityIcons
+          style={styles.itemStyle}
+          name="comment-text-multiple-outline"
+          size={42}
+          color="gray"
+        />
+        <Text style={styles.statNumber}>
+          {profileData.stats?.comments || 0}
+        </Text>
         <Text style={styles.statLabel}>Comments</Text>
       </View>
     </View>
@@ -189,13 +206,13 @@ const ProfileScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View >
+      <View>
         <Text>Loading...</Text>
       </View>
     );
   }
 
-  const defaultAvatar: ImageSourcePropType = require('../../../assets/images/default-avatar.png');
+  const defaultAvatar: ImageSourcePropType = require("../../../assets/images/default-avatar.png");
 
   return (
     <ScrollView
@@ -204,15 +221,15 @@ const ProfileScreen: React.FC = () => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View >
+      <View>
         <View style={styles.profileHeader}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.hexagonWrapper}
             onPress={isEditing ? handleImagePick : undefined}
           >
             <Image
               source={
-                profileData.profilePhoto 
+                profileData.profilePhoto
                   ? { uri: profileData.profilePhoto }
                   : defaultAvatar
               }
@@ -224,30 +241,40 @@ const ProfileScreen: React.FC = () => {
               </View>
             )}
           </TouchableOpacity>
-          
+
           {isEditing ? (
             <View style={styles.nameInputContainer}>
               <TextInput
                 style={styles.input}
                 value={profileData.firstName}
-                onChangeText={(text: string) => setProfileData(prev => ({ ...prev, firstName: text }))}
+                onChangeText={(text: string) =>
+                  setProfileData((prev) => ({ ...prev, firstName: text }))
+                }
                 placeholder="First Name"
               />
               <TextInput
                 style={styles.input}
                 value={profileData.lastName}
-                onChangeText={(text: string) => setProfileData(prev => ({ ...prev, lastName: text }))}
+                onChangeText={(text: string) =>
+                  setProfileData((prev) => ({ ...prev, lastName: text }))
+                }
                 placeholder="Last Name"
               />
             </View>
           ) : (
-            <Text style={styles.name}>{`${profileData.firstName} ${profileData.lastName}`}</Text>
+            <Text
+              style={styles.name}
+            >{`${profileData.firstName} ${profileData.lastName}`}</Text>
           )}
 
           {profileData.nationality && (
             <View style={styles.countryContainer}>
               <Image
-                source={{ uri: `https://flagcdn.com/w20/${profileData.nationality?.toLowerCase()}.png` }}
+                source={{
+                  uri: `https://flagcdn.com/w20/${profileData.nationality
+                    ?.toLowerCase()
+                    .slice(0, 2)}.png`,
+                }}
                 style={styles.flag}
               />
               <Text style={styles.countryText}>{profileData.nationality}</Text>
@@ -260,11 +287,13 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.personalInfoContainer}>
           <View style={styles.headerRow}>
             <Text style={styles.sectionTitle}>Personal Information</Text>
-            <TouchableOpacity 
-              onPress={() => isEditing ? handleUpdateProfile() : setIsEditing(true)}
+            <TouchableOpacity
+              onPress={() =>
+                isEditing ? handleUpdateProfile() : setIsEditing(true)
+              }
             >
               <Text style={styles.editButton}>
-                {isEditing ? 'Save' : 'Edit'}
+                {isEditing ? "Save" : "Edit"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -276,7 +305,9 @@ const ProfileScreen: React.FC = () => {
                 <TextInput
                   style={styles.input}
                   value={profileData.email}
-                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, email: text }))}
+                  onChangeText={(text: string) =>
+                    setProfileData((prev) => ({ ...prev, email: text }))
+                  }
                   keyboardType="email-address"
                 />
               </View>
@@ -285,7 +316,9 @@ const ProfileScreen: React.FC = () => {
                 <TextInput
                   style={styles.input}
                   value={profileData.nationality}
-                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, nationality: text }))}
+                  onChangeText={(text: string) =>
+                    setProfileData((prev) => ({ ...prev, nationality: text }))
+                  }
                 />
               </View>
               <View style={styles.infoItem}>
@@ -293,7 +326,9 @@ const ProfileScreen: React.FC = () => {
                 <TextInput
                   style={styles.input}
                   value={profileData.gender}
-                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, gender: text }))}
+                  onChangeText={(text: string) =>
+                    setProfileData((prev) => ({ ...prev, gender: text }))
+                  }
                 />
               </View>
               <View style={styles.infoItem}>
@@ -301,7 +336,9 @@ const ProfileScreen: React.FC = () => {
                 <TextInput
                   style={styles.input}
                   value={profileData.dateOfBirth}
-                  onChangeText={(text: string) => setProfileData(prev => ({ ...prev, dateOfBirth: text }))}
+                  onChangeText={(text: string) =>
+                    setProfileData((prev) => ({ ...prev, dateOfBirth: text }))
+                  }
                   placeholder="YYYY-MM-DD"
                 />
               </View>
@@ -318,13 +355,11 @@ const ProfileScreen: React.FC = () => {
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Gender</Text>
-                <Text style={styles.infoValue}>{profileData.gender ? profileData.gender.charAt(0).toUpperCase() + profileData.gender.slice(1) : ''}</Text>
+                <Text style={styles.infoValue}>{profileData.gender}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Date of Birth</Text>
-                <Text style={styles.infoValue}>
-                  {profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString() : ''}
-                </Text>
+                <Text style={styles.infoValue}>{profileData.dateOfBirth}</Text>
               </View>
             </View>
           )}
@@ -337,11 +372,11 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     paddingBottom: 80,
   },
   profileHeader: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 50,
     marginBottom: 32,
     paddingHorizontal: 16,
@@ -349,12 +384,12 @@ const styles = StyleSheet.create({
   hexagonWrapper: {
     width: 120,
     height: 120,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 60,
     borderWidth: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 16,
-    shadowColor: '#8b5cf6',
+    shadowColor: "#8b5cf6",
     shadowOffset: {
       width: 0,
       height: 8,
@@ -364,50 +399,50 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   profileImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   editOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(139, 92, 246, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(139, 92, 246, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   editText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0.5,
   },
   nameInputContainer: {
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 20,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
     fontSize: 16,
-    color: '#1a1b1e',
+    color: "#1a1b1e",
   },
   name: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 8,
-    color: '#1a1b1e',
+    color: "#1a1b1e",
   },
   countryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
   },
   flag: {
     width: 24,
@@ -416,22 +451,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   countryText: {
-    color: '#8b5cf6',
-    fontWeight: '600',
+    color: "#8b5cf6",
+    fontWeight: "600",
     fontSize: 14,
   },
   statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginBottom: 32,
     paddingHorizontal: 16,
   },
   statItem: {
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
+    alignItems: "center",
+    backgroundColor: "#ffffff",
     padding: 12,
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -439,38 +474,38 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    width: '28%',
+    width: "28%",
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
   },
   itemStyle: {
     width: 50,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
     marginBottom: 8,
   },
   statNumber: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#8b5cf6',
+    fontWeight: "700",
+    color: "#8b5cf6",
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 13,
-    color: '#64748b',
-    fontWeight: '500',
+    color: "#64748b",
+    fontWeight: "500",
   },
   personalInfoContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     marginHorizontal: 16,
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 6,
@@ -480,75 +515,75 @@ const styles = StyleSheet.create({
     elevation: 4,
     marginBottom: 90,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: "#e2e8f0",
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1b1e',
+    fontWeight: "700",
+    color: "#1a1b1e",
     letterSpacing: 0.5,
   },
   editButton: {
-    color: '#8b5cf6',
+    color: "#8b5cf6",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   infoItem: {
     marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: "#e2e8f0",
     paddingBottom: 16,
   },
   infoLabel: {
     fontSize: 14,
-    color: '#64748b',
+    color: "#64748b",
     marginBottom: 8,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 1,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   infoValue: {
     fontSize: 16,
-    color: '#1a1b1e',
-    fontWeight: '500',
+    color: "#1a1b1e",
+    fontWeight: "500",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
   },
   errorContainer: {
     padding: 24,
-    alignItems: 'center',
-    backgroundColor: '#fee2e2',
+    alignItems: "center",
+    backgroundColor: "#fee2e2",
     borderRadius: 16,
     margin: 16,
   },
   errorText: {
-    color: '#ef4444',
-    textAlign: 'center',
+    color: "#ef4444",
+    textAlign: "center",
     marginBottom: 12,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   retryButton: {
     padding: 12,
-    backgroundColor: '#8b5cf6',
+    backgroundColor: "#8b5cf6",
     borderRadius: 12,
     paddingHorizontal: 24,
   },
   retryButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
-  }
+    fontWeight: "600",
+  },
 });
 
 export default ProfileScreen;
