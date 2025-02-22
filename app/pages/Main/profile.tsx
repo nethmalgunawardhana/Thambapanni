@@ -23,6 +23,9 @@ import {
 } from '../../../services/profile/profileservices';
 import { ProfileData, Stats } from '../../../services/profile/types/profile';
 
+
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 interface ProfileState extends ProfileData {
   stats: Stats;
 }
@@ -167,22 +170,17 @@ const ProfileScreen: React.FC = () => {
   const renderStats = (): JSX.Element => (
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
-        <Ionicons style={styles.itemStyle} name="person-outline" size={42} color="black" />
+      <MaterialIcons name="commute" size={36} color="black" />
         <Text style={styles.statNumber}>{profileData.stats?.trips || 0}</Text>
         <Text style={styles.statLabel}>Trips</Text>
       </View>
       <View style={styles.statItem}>
-        <Entypo style={styles.itemStyle} name="star" size={42} color="gold" />
+      <MaterialIcons name="stars" size={36} color="black" />
         <Text style={styles.statNumber}>{profileData.stats?.points || 0}</Text>
         <Text style={styles.statLabel}>Points</Text>
       </View>
       <View style={styles.statItem}>
-        <MaterialCommunityIcons
-          style={styles.itemStyle}
-          name="comment-text-multiple-outline"
-          size={42}
-          color="gray"
-        />
+      <MaterialIcons name="forum" size={36} color="black" />
         <Text style={styles.statNumber}>{profileData.stats?.comments || 0}</Text>
         <Text style={styles.statLabel}>Comments</Text>
       </View>
@@ -320,11 +318,13 @@ const ProfileScreen: React.FC = () => {
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Gender</Text>
-                <Text style={styles.infoValue}>{profileData.gender}</Text>
+                <Text style={styles.infoValue}>{profileData.gender ? profileData.gender.charAt(0).toUpperCase() + profileData.gender.slice(1) : ''}</Text>
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Date of Birth</Text>
-                <Text style={styles.infoValue}>{profileData.dateOfBirth}</Text>
+                <Text style={styles.infoValue}>
+                  {profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString() : ''}
+                </Text>
               </View>
             </View>
           )}
