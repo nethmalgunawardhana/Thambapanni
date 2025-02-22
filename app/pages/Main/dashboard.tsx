@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Dimensions, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TrendingDestinationsSection from '../components/TrendingDestinations';
 import { DeviceEventEmitter } from 'react-native';
 import { API_URL } from '../../../services/config';
+import { fetchVerifiedGuides } from '../../../services/guides/request';
+
 interface Trip {
   name: string;
   date: string;
@@ -17,12 +19,12 @@ interface Trip {
 }
 
 interface Guide {
-  name: string;
+  fullName: string;
   rating: number;
   trips: number;
   location: string;
-  languages: string[];
-  image: string;
+  languages: string;
+  profilePhoto: string;
 }
 
 interface ProfileData {
@@ -35,8 +37,10 @@ interface ProfileData {
 }
 
 const { width } = Dimensions.get('window');
-
+ const defaultImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
 const UserProfile = () => {
+
+  
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,23 +53,22 @@ const UserProfile = () => {
         }
       });
       
-      setProfile(response.data.data); // Access the data property from the response
+      setProfile(response.data.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
       setLoading(false);
     }
   }, []);
+
   useEffect(() => {
     fetchUserProfile();
 
-    // Listen for profile update events using DeviceEventEmitter
     const subscription = DeviceEventEmitter.addListener(
       'profileUpdated',
       fetchUserProfile
     );
 
-    // Cleanup subscription
     return () => {
       subscription.remove();
     };
@@ -112,7 +115,6 @@ const UserProfile = () => {
     </View>
   );
 };
-
 
 const TripCard: React.FC<{ trip: Trip; upcoming?: boolean }> = ({ trip, upcoming }) => (
   <View style={styles.tripCard}>
@@ -162,9 +164,9 @@ const TripCard: React.FC<{ trip: Trip; upcoming?: boolean }> = ({ trip, upcoming
 
 const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
   <View style={styles.guideCard}>
-    <Image source={{ uri: guide.image }} style={styles.guideImage} />
+     <Image source={defaultImage} style={styles.image} />
     <View style={styles.guideInfo}>
-      <Text style={styles.guideName}>{guide.name}</Text>
+      <Text style={styles.guideName}>{guide.fullName}</Text>
       <View style={styles.ratingContainer}>
         {[...Array(5)].map((_, i) => (
           <Ionicons 
@@ -177,18 +179,33 @@ const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
         <Text style={styles.tripCount}>{guide.trips} Trips</Text>
       </View>
       <Text style={styles.guideLocation}>{guide.location}</Text>
-      <Text style={styles.guideLanguages}>{guide.languages.join('/')}</Text>
+      <Text style={styles.guideLanguages}>{guide.languages}</Text>
     </View>
     <TouchableOpacity style={styles.hireButton}>
-      <Text style={styles.hireButtonText}>HIRE NOW</Text>
+      <Text style={styles.hireButtonText}>SEARCH NOW</Text>
       <Ionicons name="chevron-forward" size={20} color="#fff" />
     </TouchableOpacity>
   </View>
 );
 
 export default function Dashboard() {
+  const [guides, setGuides] = useState<Guide[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const loadGuides = async () => {
+      try {
+        const fetchedGuides = await fetchVerifiedGuides();
+        setGuides(fetchedGuides);
+      } catch (error) {
+        console.error('Error loading guides:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    loadGuides();
+  }, []);
 
   const currentTrip: Trip = {
     name: 'HIGHLAND ESCAPE',
@@ -205,25 +222,6 @@ export default function Dashboard() {
     locations: ['Jaffna Fort', 'Point Pedro'],
     image: 'https://example.com/trip-image.jpg'
   };
-
-  const guides: Guide[] = [
-    {
-      name: 'Kiyan Gathota',
-      rating: 5,
-      trips: 124,
-      location: 'Colombo',
-      languages: ['French', 'German'],
-      image: 'https://example.com/guide1.jpg'
-    },
-    {
-      name: 'Sumudu Kodikara',
-      rating: 4.5,
-      trips: 124,
-      location: 'Galle',
-      languages: ['French', 'German'],
-      image: 'https://example.com/guide2.jpg'
-    }
-  ];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -245,12 +243,16 @@ export default function Dashboard() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Hire a Guide</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {guides.map((guide, index) => (
-            <GuideCard key={index} guide={guide} />
-          ))}
-        </ScrollView>
+        <Text style={styles.sectionTitle}>Our Guide Team</Text>
+        {loading ? (
+          <Text style={styles.loadingText}>Loading guides...</Text>
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {guides.map((guide, index) => (
+              <GuideCard key={index} guide={guide} />
+            ))}
+          </ScrollView>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   scrollContent: {
-    paddingBottom: 90, //  padding to prevent MenuBar overlap
+    paddingBottom: 90,
   },
   tripCard: {
     backgroundColor: '#fff',
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '500',
   },
-  guideCard: {
+ guideCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
@@ -369,34 +371,53 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    alignItems: 'center', // Center contents horizontally
+  },
+  guideContent: {
+    alignItems: 'center', // Center all guide content
+    width: '100%',
   },
   guideImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: 8,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 12,
   },
   guideInfo: {
+    alignItems: 'center', // Center all text and elements
     gap: 4,
+    width: '100%',
   },
   guideName: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+    marginTop: 4,
+    textAlign: 'center',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center', // Center stars and trip count
     gap: 4,
+    marginTop: 4,
   },
   tripCount: {
     marginLeft: 8,
     color: '#666',
+    fontSize: 14,
   },
   guideLocation: {
     color: '#666',
+    fontSize: 14,
+    marginTop: 2,
+    textAlign: 'center',
   },
   guideLanguages: {
     color: '#666',
+    fontSize: 14,
+    marginTop: 2,
+    textAlign: 'center',
   },
   hireButton: {
     backgroundColor: '#34D399',
@@ -405,12 +426,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 8,
     borderRadius: 6,
-    marginTop: 12,
+    marginTop: 16,
+    width: '100%', // Make button full width
   },
   hireButtonText: {
     color: '#fff',
     fontWeight: '500',
     marginRight: 4,
+    fontSize: 14,
   },
   profileContainer: {
     marginTop: 20,
@@ -448,5 +471,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 2,
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginLeft: 16,
+    color: '#666',
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 15,
   },
 });
