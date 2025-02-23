@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Dashboard from './dashboard';
 import PlanningTripScreen from './PlanningTrip';
-import TopGuides from './guides';
+import Search from './Search';
 import ProfileCard from './profile';
 import BookmarkedTripsScreen from './bookmarkScreen'
 
@@ -67,7 +67,7 @@ const MenuBar: React.FC = () => {
       
       <Tab.Screen 
         name="Search" 
-        component={TopGuides} 
+        component={Search} 
         options={{
           tabBarIcon: ({ focused }: { focused: boolean }) => (
             <Ionicons 

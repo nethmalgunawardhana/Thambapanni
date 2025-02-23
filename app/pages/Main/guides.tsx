@@ -218,7 +218,7 @@ const TopGuides: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Top Guides</Text>
+      
       <Text style={styles.statusMessage}>{statusMessage}</Text>
       {!isOfficialGuide && (
         <TouchableOpacity
