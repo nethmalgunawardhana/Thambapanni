@@ -1,30 +1,48 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import TopGuides from './guides';
-import DestinationSearch from './DestinationSearch';
+import DestinationSearch, { DestinationType } from './DestinationSearch';
 
 interface SearchResult {
   id: string;
   name: string;
-  // Add other properties that your destination object should have
+  type: DestinationType;
+  description?: string;
+  image?: string;
 }
 
 const { width } = Dimensions.get('window');
 
 const Search: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'destination' | 'topGuides'>('destination');
+  const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
 
-  const handleSelectDestination = (destination: SearchResult) => {
-    // Handle the selected destination here
-    console.log('Selected destination:', destination);
+  const handleToggleDestination = (destination: DestinationType) => {
+    setSelectedDestinations(prev => {
+      const isSelected = prev.includes(destination);
+      if (isSelected) {
+        return prev.filter(d => d !== destination);
+      }
+      return [...prev, destination];
+    });
+  };
+
+  const handleSaveDestination = (name: string, type: DestinationType) => {
+    // Implement save functionality here
+    console.log('Saving destination:', { name, type });
   };
 
   const renderContent = () => {
     if (activeTab === 'destination') {
-      return <DestinationSearch onSelectDestination={handleSelectDestination} />;
-    } else {
-      return <TopGuides />;
+      return (
+        <DestinationSearch 
+          selectedDestinations={selectedDestinations}
+          onToggleDestination={handleToggleDestination}
+          onSaveDestination={handleSaveDestination}
+        />
+      );
     }
+    return <TopGuides />;
   };
 
   return (
