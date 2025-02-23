@@ -7,7 +7,7 @@ const Guides = () => {
   const [filteredGuides, setFilteredGuides] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
   const defaultImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
 
   useEffect(() => {
@@ -40,13 +40,15 @@ const Guides = () => {
 
   const renderGuideCard = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.card}>
-      <Image source={defaultImage} style={styles.image} />
-      <View style={styles.cardContent}>
-        <Text style={styles.name}>{item.fullName}</Text>
-        <Text style={styles.email}>{item.email}</Text>
-        <Text style={styles.phone}>Phone: {item.phone}</Text>
-        <Text style={styles.languages}>Languages: {item.languages}</Text>
-        <Text style={styles.location}>Location: {item.location}</Text>
+      <View style={styles.cardInner}>
+        <Image source={defaultImage} style={styles.image} />
+        <View style={styles.cardContent}>
+          <Text style={styles.name}>{item.fullName}</Text>
+          <Text style={styles.email}>{item.email}</Text>
+          <Text>Phone: {item.phone}</Text>
+          <Text >Languages: {item.languages}</Text>
+          <Text >Location: {item.location}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -78,81 +80,135 @@ const Guides = () => {
           renderItem={renderGuideCard}
           keyExtractor={(item) => item.email}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
         />
       )}
     </View>
   );
 };
 
+// Updated styles with optimized widths and spacing
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    paddingTop: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontWeight: '800',
+    color: '#1A1A1A',
+    marginBottom: 12,
+    letterSpacing: 0.5,
+    paddingHorizontal: 8, // Reduced from 16
+    alignSelf: 'center',
+    marginTop: -8,
   },
   searchInput: {
-    height: 40,
-    borderColor: '#ddd',
+    height: 50,
+    backgroundColor: '#F8F8F8',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 20,
     fontSize: 16,
+    marginHorizontal: -8, // Reduced from 16
+    color: '#1A1A1A',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   noGuides: {
     textAlign: 'center',
     fontSize: 18,
-    color: '#888',
-    marginTop: 10,
+    color: '#666',
+    marginTop: 32,
+    fontWeight: '500',
   },
   card: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'hidden',
-    backgroundColor: '#f9f9f9',
-    padding: 15,
+    marginHorizontal: -8, // Reduced from 16
+    marginBottom: 12, // Slightly reduced for tighter vertical spacing
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    padding: 12, // Slightly reduced padding
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  cardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 80, // Slightly reduced
+    height: 80, // Slightly reduced
     borderRadius: 40,
-    marginRight: 15,
+    marginRight: 12, // Reduced from 16
+    backgroundColor: '#F5F5F5',
+    borderWidth: 2,
+    borderColor: '#00BFA6',
   },
   cardContent: {
-    justifyContent: 'center',
     flex: 1,
   },
   name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 18, // Slightly reduced
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
   email: {
-    color: '#888',
-    marginBottom: 5,
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 6,
   },
-  phone: {
-    color: '#888',
-    marginBottom: 5,
+  infoContainer: {
+    backgroundColor: '#F8FDFB',
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 8,
   },
-  languages: {
-    color: '#888',
-    marginBottom: 5,
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  location: {
-    color: '#888',
+  infoLabel: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    fontWeight: '600',
+    width: 75, // Slightly reduced
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#666',
+    flex: 1,
+  },
+  badge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: '#00BFA6',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
 });
 
