@@ -8,6 +8,7 @@ import { DeviceEventEmitter } from 'react-native';
 import { API_URL } from '../../../services/config';
 import { fetchVerifiedGuides } from '../../../services/guides/request';
 import { useNavigation } from '@react-navigation/native';
+import SettingsSidePanel from '../components/SettingsSidePanel';
 
 interface Trip {
   name: string;
@@ -113,7 +114,6 @@ const UserProfile = () => {
         <Text style={styles.welcomeText}>
           Hi {profile.firstName} {profile.lastName}
         </Text>
-       
       </View>
     </View>
   );
@@ -146,8 +146,6 @@ const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void;
         style={styles.tripImage}
       />
       
-    
-      
       <TouchableOpacity 
         style={styles.detailsButton}
         onPress={() => navigation.navigate('TripResult', { 
@@ -160,9 +158,13 @@ const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void;
     </View>
   );
 };
+
 const GuideCard: React.FC<{ guide: Guide; navigation: any }> = ({ guide, navigation }) => (
   <View style={styles.guideCard}>
-    <Image source={defaultProfileImage} style={styles.image} />
+    <Image 
+      source={guide.profilePhoto ? { uri: guide.profilePhoto } : defaultProfileImage} 
+      style={styles.guideImage}
+    />
     <View style={styles.guideInfo}>
       <Text style={styles.guideName}>{guide.fullName}</Text>
       <View style={styles.ratingContainer}>
@@ -205,6 +207,7 @@ export default function Dashboard() {
   const [currentTrip, setCurrentTrip] = useState<TripPlan | null>(null);
   const [upcomingTrips, setUpcomingTrips] = useState<TripPlan[]>([]);
   const [bookmarkedTrips, setBookmarkedTrips] = useState<Set<string>>(new Set());
+  const [isSettingsPanelVisible, setIsSettingsPanelVisible] = useState(false);
 
   const getAuthToken = async () => {
     try {
@@ -321,23 +324,43 @@ export default function Dashboard() {
     loadInitialData();
   }, []);
 
+  // Add this function to handle logout
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
+      // Navigate to login screen or handle logout as needed
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.header}>
         <UserProfile />
-        <TouchableOpacity style={styles.settingsButton}>
-          <Ionicons name="settings-outline" size={24} color="#000" />
+        
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => setIsSettingsPanelVisible(true)}
+        >
+          <Ionicons name="menu" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Current Trip</Text>
         {currentTrip && (
-          <TripCard 
-            tripPlan={currentTrip} 
-            onBookmark={handleBookmark}
-            isBookmarked={bookmarkedTrips.has(currentTrip.id)}
-          />
+          <View style={styles.currentTripContainer}>
+            <TripCard 
+              tripPlan={currentTrip} 
+              onBookmark={handleBookmark}
+              isBookmarked={bookmarkedTrips.has(currentTrip.id)}
+            />
+          </View>
         )}
       </View>
 
@@ -351,7 +374,11 @@ export default function Dashboard() {
             <Text style={styles.seeMoreText}>See More</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalScrollContent}
+        >
           {upcomingTrips.map((trip) => (
             <View key={trip.id} style={styles.horizontalTripCard}>
               <TripCard 
@@ -369,7 +396,11 @@ export default function Dashboard() {
         {loading ? (
           <Text style={styles.loadingText}>Loading guides...</Text>
         ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.guidesScrollContent}
+          >
             {guides.map((guide, index) => (
               <GuideCard key={index} guide={guide} navigation={navigation} />
             ))}
@@ -381,6 +412,12 @@ export default function Dashboard() {
         <Text style={styles.sectionTitle}>Trending Destinations</Text>
         <TrendingDestinationsSection />
       </View>
+
+      <SettingsSidePanel
+        isVisible={isSettingsPanelVisible}
+        onClose={() => setIsSettingsPanelVisible(false)}
+        onLogout={handleLogout}
+      />
     </ScrollView>
   );
 }
@@ -389,23 +426,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    padding: 8
+    padding: 8,
+    marginHorizontal: -5,
+    
+  },
+  scrollContent: {
+    paddingBottom: 90,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    marginBottom: 10,
   },
   settingsButton: {
     padding: 8,
   },
   section: {
     marginBottom: 24,
+    width: '100%',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -427,31 +467,40 @@ const styles = StyleSheet.create({
     color: '#FF9800',
     fontWeight: '600',
   },
-  scrollContent: {
-    paddingBottom: 90,
+  // Current trip container
+  currentTripContainer: {
+    paddingHorizontal: 16,
+  },
+  // Horizontal scrolling containers
+  horizontalScrollContent: {
+    paddingLeft: 16,
+    paddingRight: 8,
+  },
+  guidesScrollContent: {
+    paddingLeft: 16,
+    paddingRight: 8,
   },
   horizontalTripCard: {
     width: width - 64,
-    marginLeft: 5,
-    marginRight: 8,
+    marginRight: 16,
   },
+  // Trip card styles
   tripCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    width: '100%',
   },
   tripHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
-    marginRight: 20,
-    marginLeft: 10,
   },
   bookmarkContainer: {
     flexDirection: 'row',
@@ -468,18 +517,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
   },
-  tripDetails: {
-    gap: 8,
-  },
-  tripInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-   
-  },
   detailsButton: {
     backgroundColor: '#34D399',
-    padding: 8,
+    padding: 10,
     borderRadius: 6,
     alignItems: 'center',
     marginTop: 12,
@@ -487,25 +527,21 @@ const styles = StyleSheet.create({
   detailsButtonText: {
     color: '#fff',
     fontWeight: '500',
+    fontSize: 14,
   },
+  // Guide card styles
   guideCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    marginLeft: 6,
-    marginRight: 8,
-    marginBottom: 8,
-    width: 250,
+    marginRight: 16,
+    width: 220,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
-  },
-  guideContent: {
-    alignItems: 'center',
-    width: '100%',
   },
   guideImage: {
     width: 80,
@@ -515,22 +551,21 @@ const styles = StyleSheet.create({
   },
   guideInfo: {
     alignItems: 'center',
-    gap: 4,
     width: '100%',
+    marginBottom: 12,
   },
   guideName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginTop: 4,
+    marginBottom: 4,
     textAlign: 'center',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    marginTop: 4,
+    marginVertical: 4,
   },
   tripCount: {
     marginLeft: 8,
@@ -540,7 +575,7 @@ const styles = StyleSheet.create({
   guideLocation: {
     color: '#666',
     fontSize: 14,
-    marginTop: 2,
+    marginTop: 4,
     textAlign: 'center',
   },
   guideLanguages: {
@@ -554,9 +589,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
+    padding: 10,
     borderRadius: 6,
-    marginTop: 16,
     width: '100%',
   },
   hireButtonText: {
@@ -565,8 +599,8 @@ const styles = StyleSheet.create({
     marginRight: 4,
     fontSize: 14,
   },
+  // Profile styles
   profileContainer: {
-    marginTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
@@ -597,20 +631,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  emailText: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-  },
   loadingText: {
     textAlign: 'center',
-    marginLeft: 16,
+    padding: 16,
     color: '#666',
-  },
-  image: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 10,
   },
 });

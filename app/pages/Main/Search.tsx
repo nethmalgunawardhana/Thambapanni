@@ -83,7 +83,7 @@ const Search: React.FC = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    marginTop: 30,
+    marginTop: 5,
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
