@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
-  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -17,7 +17,9 @@ interface SettingsSidePanelProps {
   onLogout: () => void;
 }
 
-const PANEL_WIDTH = Dimensions.get('window').width * 0.75;
+// Adjust panel width based on screen size
+const { width } = Dimensions.get('window');
+const PANEL_WIDTH = width * 0.75; // 75% of screen width
 
 const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
   isVisible,
@@ -55,10 +57,17 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
         }),
       ]).start();
     }
-  }, [isVisible]);
+  }, [isVisible, slideAnim, fadeAnim]);
 
-  const menuItems: Array<{ icon: keyof typeof Ionicons.glyphMap, label: string }> = [
-    { icon: 'person-outline', label: 'Profile' },
+  const menuItems = [
+    { icon: 'home-outline', label: 'Dashboard' },
+    { icon: 'search-outline', label: 'Search' },
+    { icon: 'airplane-outline', label: 'Planning Trip' },
+    { icon: 'bookmark-outline', label: 'Book Mark' },
+    { icon: 'map-outline', label: 'Trip Plans' },
+    { icon: 'timer-outline', label: 'Pending Payments' },
+    { icon: 'card-outline', label: 'Payment History' },
+    { icon: 'person-outline', label: 'Profile Settings' },
     { icon: 'notifications-outline', label: 'Notifications' },
     { icon: 'shield-outline', label: 'Privacy' },
     { icon: 'help-circle-outline', label: 'Help & Support' },
@@ -69,6 +78,7 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
 
   return (
     <View style={styles.container}>
+      {/* Backdrop for closing panel */}
       <Animated.View
         style={[
           styles.backdrop,
@@ -80,6 +90,7 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
         <TouchableOpacity style={styles.backdropTouch} onPress={onClose} />
       </Animated.View>
 
+      {/* Panel content */}
       <Animated.View
         style={[
           styles.panel,
@@ -88,35 +99,36 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
           },
         ]}
       >
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Settings</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="#000" />
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Main Menu</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.content}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuItem}
+              onPress={() => {
+                console.log(`Selected: ${item.label}`);
+                onClose();
+              }}
+            >
+              <Ionicons name={item.icon} size={24} color="#333" />
+              <Text style={styles.menuItemText}>{item.label}</Text>
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.content}>
-            {menuItems.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.menuItem}
-                onPress={() => {
-                  // Handle menu item press
-                  onClose();
-                }}
-              >
-                <Ionicons name={item.icon} size={24} color="#333" />
-                <Text style={styles.menuItemText}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
+          ))}
+        </View>
+        
+        {/* Logout button appears directly after menu items */}
+        <View style={styles.footer}>
           <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
             <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
-        </SafeAreaView>
+        </View>
       </Animated.View>
     </View>
   );
@@ -125,7 +137,9 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
+    zIndex: 200,
+    marginLeft:-10,
+    marginTop:-10,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -141,6 +155,8 @@ const styles = StyleSheet.create({
     width: PANEL_WIDTH,
     height: '100%',
     backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -153,9 +169,6 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  safeArea: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -163,22 +176,24 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 16 : 16,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   closeButton: {
     padding: 4,
   },
   content: {
-    flex: 1,
-    paddingTop: 16,
+    // Makes content scrollable when many menu items are present
+    maxHeight: '85%',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -187,12 +202,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    // No marginTop: 'auto' - we want it to appear directly after the menu items
+  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
+    paddingVertical: 20,
   },
   logoutText: {
     marginLeft: 16,
