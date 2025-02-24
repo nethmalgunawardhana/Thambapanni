@@ -8,7 +8,7 @@ import { DeviceEventEmitter } from 'react-native';
 import { API_URL } from '../../../services/config';
 import { fetchVerifiedGuides } from '../../../services/guides/request';
 import { useNavigation } from '@react-navigation/native';
-
+import SettingsSidePanel from '../components/SettingsSidePanel';
 interface Trip {
   name: string;
   date: string;
@@ -210,6 +210,7 @@ export default function Dashboard() {
   const [currentTrip, setCurrentTrip] = useState<TripPlan | null>(null);
   const [upcomingTrips, setUpcomingTrips] = useState<TripPlan[]>([]);
   const [bookmarkedTrips, setBookmarkedTrips] = useState<Set<string>>(new Set());
+  const [isSettingsPanelVisible, setIsSettingsPanelVisible] = useState(false);
 
   const getAuthToken = async () => {
     try {
@@ -326,13 +327,31 @@ export default function Dashboard() {
     loadInitialData();
   }, []);
 
+  // Add this function to handle logout
+const handleLogout = async () => {
+  try {
+    await AsyncStorage.removeItem('authToken');
+    // Navigate to login screen or handle logout as needed
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
+};
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.header}>
         <UserProfile />
-        <TouchableOpacity style={styles.settingsButton}>
-          <Ionicons name="settings-outline" size={24} color="#000" />
-        </TouchableOpacity>
+        
+<TouchableOpacity 
+  style={styles.settingsButton}
+  onPress={() => setIsSettingsPanelVisible(true)}
+>
+  <Ionicons name="settings-outline" size={24} color="#000" />
+</TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -386,7 +405,15 @@ export default function Dashboard() {
         <Text style={styles.sectionTitle}>Trending Destinations</Text>
         <TrendingDestinationsSection />
       </View>
+
+      <SettingsSidePanel
+  isVisible={isSettingsPanelVisible}
+  onClose={() => setIsSettingsPanelVisible(false)}
+  onLogout={handleLogout}
+/>
     </ScrollView>
+
+    
   );
 }
 
