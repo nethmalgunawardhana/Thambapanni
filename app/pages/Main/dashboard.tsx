@@ -7,6 +7,7 @@ import TrendingDestinationsSection from '../components/TrendingDestinations';
 import { DeviceEventEmitter } from 'react-native';
 import { API_URL } from '../../../services/config';
 import { fetchVerifiedGuides } from '../../../services/guides/request';
+import { useNavigation } from '@react-navigation/native';
 
 interface Trip {
   name: string;
@@ -16,6 +17,14 @@ interface Trip {
   travelers?: number;
   price?: string;
   image?: string;
+}
+
+interface TripPlan {
+  id: string;
+  tripTitle: string;
+  coverImage: string;
+  days: any[];
+  estimatedTotalCost: string;
 }
 
 interface Guide {
@@ -37,10 +46,10 @@ interface ProfileData {
 }
 
 const { width } = Dimensions.get('window');
- const defaultImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
-const UserProfile = () => {
+const defaultImage: ImageSourcePropType = require('../../../assets/images/tripplan-cover.jpg');
+const defaultProfileImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
 
-  
+const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,7 +61,6 @@ const UserProfile = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      
       setProfile(response.data.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -63,17 +71,15 @@ const UserProfile = () => {
 
   useEffect(() => {
     fetchUserProfile();
-
     const subscription = DeviceEventEmitter.addListener(
       'profileUpdated',
       fetchUserProfile
     );
-
     return () => {
       subscription.remove();
     };
   }, [fetchUserProfile]);
- 
+
   if (loading) {
     return (
       <View style={styles.profileContainer}>
@@ -94,10 +100,7 @@ const UserProfile = () => {
     <View style={styles.profileContainer}>
       <View style={styles.profilePhotoContainer}>
         {profile.profilePhoto ? (
-          <Image
-            source={{ uri: profile.profilePhoto }}
-            style={styles.profilePhoto}
-          />
+          <Image source={{ uri: profile.profilePhoto }} style={styles.profilePhoto} />
         ) : (
           <View style={[styles.profilePhoto, styles.placeholderPhoto]}>
             <Text style={styles.placeholderText}>
@@ -116,55 +119,56 @@ const UserProfile = () => {
   );
 };
 
-const TripCard: React.FC<{ trip: Trip; upcoming?: boolean }> = ({ trip, upcoming }) => (
-  <View style={styles.tripCard}>
-    <View style={styles.tripHeader}>
-      <View style={styles.bookmarkContainer}>
-        <Ionicons name="bookmark-outline" size={24} color="#000" />
-        <Text style={styles.tripName}>{trip.name}</Text>
+const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void; isBookmarked: boolean }> = ({ 
+  tripPlan, 
+  onBookmark,
+  isBookmarked 
+}) => {
+  const navigation = useNavigation<any>();
+
+  return (
+    <View style={styles.tripCard}>
+      <View style={styles.tripHeader}>
+        <View style={styles.bookmarkContainer}>
+          <TouchableOpacity onPress={() => onBookmark(tripPlan.id)}>
+            <Ionicons 
+              name={isBookmarked ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color="#FF9800" 
+            />
+          </TouchableOpacity>
+          <Text style={styles.tripName}>{tripPlan.tripTitle}</Text>
+        </View>
       </View>
-      <Text style={styles.tripDate}>{trip.date}</Text>
-    </View>
-    
-    {upcoming && trip.image && (
+      
       <Image
-        source={{ uri: trip.image }}
+        source={tripPlan.coverImage ? { uri: tripPlan.coverImage } : defaultImage}
         style={styles.tripImage}
       />
-    )}
-    
-    <View style={styles.tripDetails}>
-      {trip.nextStop && (
-        <View style={styles.locationRow}>
-          <Text>Next Stop</Text>
-          <Text>{trip.nextStop}</Text>
-        </View>
-      )}
       
-      {trip.locations?.map((location, index) => (
-        <View key={index} style={styles.locationRow}>
-          <View style={styles.locationDot} />
-          <Text>{location}</Text>
-        </View>
-      ))}
-      
-      {trip.travelers && (
+      <View style={styles.tripDetails}>
         <View style={styles.tripInfo}>
-          <Text>{trip.travelers} Travelers</Text>
-          <Text>{trip.price}</Text>
+          <Text>{tripPlan.days.length} Days</Text>
+          <Text>{tripPlan.estimatedTotalCost}</Text>
         </View>
-      )}
+      </View>
+      
+      <TouchableOpacity 
+        style={styles.detailsButton}
+        onPress={() => navigation.navigate('TripResult', { 
+          success: true, 
+          tripPlan 
+        })}
+      >
+        <Text style={styles.detailsButtonText}>Details</Text>
+      </TouchableOpacity>
     </View>
-    
-    <TouchableOpacity style={styles.detailsButton}>
-      <Text style={styles.detailsButtonText}>Details</Text>
-    </TouchableOpacity>
-  </View>
-);
+  );
+};
 
 const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
   <View style={styles.guideCard}>
-     <Image source={defaultImage} style={styles.image} />
+    <Image source={defaultProfileImage} style={styles.image} />
     <View style={styles.guideInfo}>
       <Text style={styles.guideName}>{guide.fullName}</Text>
       <View style={styles.ratingContainer}>
@@ -189,39 +193,127 @@ const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
 );
 
 export default function Dashboard() {
+  const navigation = useNavigation<any>();
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentTrip, setCurrentTrip] = useState<TripPlan | null>(null);
+  const [upcomingTrips, setUpcomingTrips] = useState<TripPlan[]>([]);
+  const [bookmarkedTrips, setBookmarkedTrips] = useState<Set<string>>(new Set());
+
+  const getAuthToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No authentication token found');
+      return token;
+    } catch (error) {
+      throw new Error('Authentication required');
+    }
+  };
+
+  const fetchBookmarkedTripIds = async () => {
+    try {
+      const token = await getAuthToken();
+      const response = await fetch(`${API_URL}/api/bookmarks/ids`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch bookmarked trip IDs');
+      
+      const data = await response.json();
+      if (data.success) {
+        setBookmarkedTrips(new Set(data.bookmarkedIds));
+      }
+    } catch (error) {
+      console.error('Error fetching bookmarked trip IDs:', error);
+    }
+  };
+
+  const handleBookmark = async (tripId: string) => {
+    try {
+      const token = await getAuthToken();
+      const isBookmarked = bookmarkedTrips.has(tripId);
+      const endpoint = isBookmarked ? 'remove' : 'add';
+      
+      const response = await fetch(`${API_URL}/api/bookmarks/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tripId })
+      });
+
+      if (!response.ok) throw new Error('Failed to update bookmark');
+
+      const newBookmarkedTrips = new Set(bookmarkedTrips);
+      if (isBookmarked) {
+        newBookmarkedTrips.delete(tripId);
+      } else {
+        newBookmarkedTrips.add(tripId);
+      }
+      setBookmarkedTrips(newBookmarkedTrips);
+    } catch (error) {
+      console.error('Error updating bookmark:', error);
+    }
+  };
+
+  const fetchTripPlans = async () => {
+    try {
+      const token = await getAuthToken();
+      
+      // Fetch user's latest trip
+      const userResponse = await fetch(`${API_URL}/api/my-trips`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (userResponse.ok) {
+        const userTripData = await userResponse.json();
+        if (userTripData.success && userTripData.trips.length > 0) {
+          setCurrentTrip(userTripData.trips[0]); // Get the latest trip
+        }
+      }
+
+      // Fetch public trips
+      const publicResponse = await fetch(`${API_URL}/api/public`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        }
+      });
+      
+      if (publicResponse.ok) {
+        const publicData = await publicResponse.json();
+        if (publicData.success) {
+          setUpcomingTrips(publicData.trips.slice(0, 3)); // Get first 3 public trips
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching trip plans:', error);
+    }
+  };
 
   useEffect(() => {
-    const loadGuides = async () => {
+    const loadInitialData = async () => {
       try {
         const fetchedGuides = await fetchVerifiedGuides();
         setGuides(fetchedGuides);
+        await fetchTripPlans();
+        await fetchBookmarkedTripIds();
       } catch (error) {
-        console.error('Error loading guides:', error);
+        console.error('Error loading initial data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadGuides();
+    loadInitialData();
   }, []);
-
-  const currentTrip: Trip = {
-    name: 'HIGHLAND ESCAPE',
-    date: '22 August 2024',
-    nextStop: 'Nine Arch',
-    locations: ['Queens', 'Park', 'Colombo Fort'],
-    travelers: 9,
-    price: 'LKR 890000'
-  };
-
-  const upcomingTrip: Trip = {
-    name: 'NORTHERN HERITAGE',
-    date: '30 August 2024',
-    locations: ['Jaffna Fort', 'Point Pedro'],
-    image: 'https://example.com/trip-image.jpg'
-  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -234,12 +326,36 @@ export default function Dashboard() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Current Trip</Text>
-        <TripCard trip={currentTrip} />
+        {currentTrip && (
+          <TripCard 
+            tripPlan={currentTrip} 
+            onBookmark={handleBookmark}
+            isBookmarked={bookmarkedTrips.has(currentTrip.id)}
+          />
+        )}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Upcoming trips</Text>
-        <TripCard trip={upcomingTrip} upcoming />
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Upcoming trips</Text>
+          <TouchableOpacity 
+            style={styles.seeMoreButton}
+            onPress={() => navigation.navigate("TripPlans")}
+          >
+            <Text style={styles.seeMoreText}>See More</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {upcomingTrips.map((trip) => (
+            <View key={trip.id} style={styles.horizontalTripCard}>
+              <TripCard 
+                tripPlan={trip} 
+                onBookmark={handleBookmark}
+                isBookmarked={bookmarkedTrips.has(trip.id)}
+              />
+            </View>
+          ))}
+        </ScrollView>
       </View>
 
       <View style={styles.section}>
@@ -284,19 +400,37 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 16,
+    marginBottom: 12,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 16,
     marginBottom: 12,
   },
+  seeMoreButton: {
+    padding: 8,
+  },
+  seeMoreText: {
+    color: '#FF9800',
+    fontWeight: '600',
+  },
   scrollContent: {
     paddingBottom: 90,
+  },
+  horizontalTripCard: {
+    width: width - 64,
+    marginLeft: 16,
+    marginRight: 8,
   },
   tripCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    margin: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -319,9 +453,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  tripDate: {
-    color: '#666',
-  },
   tripImage: {
     width: '100%',
     height: 150,
@@ -331,22 +462,11 @@ const styles = StyleSheet.create({
   tripDetails: {
     gap: 8,
   },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  locationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#ccc',
-    marginRight: 8,
-  },
   tripInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 8,
+   
   },
   detailsButton: {
     backgroundColor: '#34D399',
@@ -359,7 +479,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '500',
   },
- guideCard: {
+  guideCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
@@ -371,10 +491,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    alignItems: 'center', // Center contents horizontally
+    alignItems: 'center',
   },
   guideContent: {
-    alignItems: 'center', // Center all guide content
+    alignItems: 'center',
     width: '100%',
   },
   guideImage: {
@@ -384,7 +504,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   guideInfo: {
-    alignItems: 'center', // Center all text and elements
+    alignItems: 'center',
     gap: 4,
     width: '100%',
   },
@@ -398,7 +518,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Center stars and trip count
+    justifyContent: 'center',
     gap: 4,
     marginTop: 4,
   },
@@ -427,7 +547,7 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 6,
     marginTop: 16,
-    width: '100%', // Make button full width
+    width: '100%',
   },
   hireButtonText: {
     color: '#fff',
