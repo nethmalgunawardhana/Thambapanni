@@ -1,15 +1,15 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { DeviceEventEmitter } from 'react-native';
 import Dashboard from './dashboard';
 import PlanningTripScreen from './PlanningTrip';
 import Search from './Search';
 import ProfileCard from './profile';
-import BookmarkedTripsScreen from './bookmarkScreen'
+import BookmarkedTripsScreen from './bookmarkScreen';
 
-// Type definitions
 type RootStackParamList = {
   Home: undefined;
   Search: undefined;
@@ -20,48 +20,61 @@ type RootStackParamList = {
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-// Props interface for PlaceholderScreen
-interface PlaceholderScreenProps {
-  screenName: string;
+interface TabIconProps {
+  focused: boolean;
+  color: string;
+  size: number;
 }
 
-// Component type definitions
-const PlaceholderScreen: React.FC<PlaceholderScreenProps> = ({ screenName }) => (
-  <View style={styles.placeholderContainer}>
-    <Text style={styles.placeholderText}>{screenName} Screen</Text>
-    <Text style={styles.developmentText}>Under Development</Text>
-  </View>
-);
-
-const TopGuide: React.FC = () => <PlaceholderScreen screenName="Search" />;
-const PlanningTrip: React.FC = () => <PlaceholderScreen screenName="Planning Trip" />;
-const SesonalTrends: React.FC = () => <PlaceholderScreen screenName="Bookmarks" />;
-const ProfileScreen: React.FC = () => <PlaceholderScreen screenName="Profile" />;
-
 const MenuBar: React.FC = () => {
-  // Type the navigation
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      'switchTab', 
+      (data: { screen: keyof RootStackParamList }) => {
+        if (data?.screen) {
+          const currentRoute = navigation.getState().routes[navigation.getState().index];
+          if (currentRoute.name !== data.screen) {
+            try {
+              navigation.navigate(data.screen);
+            } catch (error) {
+              console.error('Navigation error:', error);
+            }
+          }
+        }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [navigation]);
+  
+  const renderTabIcon = (iconName: keyof typeof Ionicons.glyphMap, focused: boolean) => {
+    return (
+      <Ionicons 
+        name={iconName}
+        size={24} 
+        color={focused ? '#FF9500' : 'white'} 
+      />
+    );
+  };
+
   return (
     <Tab.Navigator
-      id={undefined}
-      screenOptions={{
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBarStyle,
-        headerShown: false
-      }}
-    >
+    id={undefined}
+  initialRouteName="Home"
+  screenOptions={{
+    tabBarShowLabel: false,
+    tabBarStyle: styles.tabBarStyle,
+    headerShown: false
+  }}
+>
       <Tab.Screen 
         name="Home" 
         component={Dashboard} 
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Ionicons 
-              name="home-outline" 
-              size={24} 
-              color={focused ? '#FF9500' : 'white'} 
-            />
-          ),
+          tabBarIcon: ({ focused }) => renderTabIcon('home-outline', focused),
         }} 
       />
       
@@ -69,13 +82,7 @@ const MenuBar: React.FC = () => {
         name="Search" 
         component={Search} 
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Ionicons 
-              name="search-outline" 
-              size={24} 
-              color={focused ? '#FF9500' : 'white'} 
-            />
-          ),
+          tabBarIcon: ({ focused }) => renderTabIcon('search-outline', focused),
         }} 
       />
       
@@ -83,10 +90,14 @@ const MenuBar: React.FC = () => {
         name="PlanningTrip"
         component={PlanningTripScreen}
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
+          tabBarIcon: ({ focused }) => (
             <View style={styles.customTabBarButton}>
               <View style={styles.customButtonBackground}>
-                <Ionicons name="add" size={40} color={focused ? '#1E1E1E' : 'white'} />
+                <Ionicons 
+                  name="add" 
+                  size={40} 
+                  color={focused ? '#1E1E1E' : 'white'} 
+                />
               </View>
             </View>
           ),
@@ -97,13 +108,7 @@ const MenuBar: React.FC = () => {
         name="Bookmark" 
         component={BookmarkedTripsScreen} 
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Ionicons 
-              name="bookmark-outline" 
-              size={24} 
-              color={focused ? '#FF9500' : 'white'} 
-            />
-          ),
+          tabBarIcon: ({ focused }) => renderTabIcon('bookmark-outline', focused),
         }} 
       />
       
@@ -111,19 +116,12 @@ const MenuBar: React.FC = () => {
         name="Profile" 
         component={ProfileCard} 
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <Ionicons 
-              name="person-outline" 
-              size={24} 
-              color={focused ? '#FF9500' : 'white'} 
-            />
-          ),
+          tabBarIcon: ({ focused }) => renderTabIcon('person-outline', focused),
         }} 
       />
     </Tab.Navigator>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
   tabBarStyle: {
@@ -144,7 +142,7 @@ const styles = StyleSheet.create({
     top: -40,
     width: 80,
     height: 80,
-    borderRadius: 40 ,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FF9500',
@@ -162,22 +160,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  placeholderText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  developmentText: {
-    fontSize: 16,
-    color: '#666',
-  },
 });
-
 
 export default MenuBar;

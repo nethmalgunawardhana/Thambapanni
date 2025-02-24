@@ -165,8 +165,7 @@ const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void;
     </View>
   );
 };
-
-const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
+const GuideCard: React.FC<{ guide: Guide; navigation: any }> = ({ guide, navigation }) => (
   <View style={styles.guideCard}>
     <Image source={defaultProfileImage} style={styles.image} />
     <View style={styles.guideInfo}>
@@ -185,7 +184,19 @@ const GuideCard: React.FC<{ guide: Guide }> = ({ guide }) => (
       <Text style={styles.guideLocation}>{guide.location}</Text>
       <Text style={styles.guideLanguages}>{guide.languages}</Text>
     </View>
-    <TouchableOpacity style={styles.hireButton}>
+    <TouchableOpacity 
+      style={styles.hireButton}
+      onPress={() => {
+        // First navigate back to MenuBar if not already there
+        navigation.getParent()?.navigate('MenuBar', {
+          screen: 'Search' // This specifies which tab in MenuBar
+        });
+        // Then switch to top guides tab
+        setTimeout(() => {
+          DeviceEventEmitter.emit('switchToTopGuides');
+        }, 100);
+      }}
+    >
       <Text style={styles.hireButtonText}>SEARCH NOW</Text>
       <Ionicons name="chevron-forward" size={20} color="#fff" />
     </TouchableOpacity>
@@ -365,7 +376,7 @@ export default function Dashboard() {
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {guides.map((guide, index) => (
-              <GuideCard key={index} guide={guide} />
+              <GuideCard key={index} guide={guide} navigation={navigation} />
             ))}
           </ScrollView>
         )}

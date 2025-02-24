@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, DeviceEventEmitter } from 'react-native';
 import TopGuides from './guides';
 import DestinationSearch, { DestinationType } from './DestinationSearch';
-
-interface SearchResult {
-  id: string;
-  name: string;
-  type: DestinationType;
-  description?: string;
-  image?: string;
-}
 
 const { width } = Dimensions.get('window');
 
 const Search: React.FC = () => {
+  // Initial state should be 'destination'
   const [activeTab, setActiveTab] = useState<'destination' | 'topGuides'>('destination');
   const [selectedDestinations, setSelectedDestinations] = useState<DestinationType[]>([]);
+
+  // Single useEffect for handling tab switching
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('switchToTopGuides', () => {
+      setActiveTab('topGuides');
+    });
+
+    // Reset to destination tab when component unmounts
+    return () => {
+      subscription.remove();
+      setActiveTab('destination');
+    };
+  }, []);
 
   const handleToggleDestination = (destination: DestinationType) => {
     setSelectedDestinations(prev => {
@@ -28,7 +34,6 @@ const Search: React.FC = () => {
   };
 
   const handleSaveDestination = (name: string, type: DestinationType) => {
-    // Implement save functionality here
     console.log('Saving destination:', { name, type });
   };
 
@@ -76,7 +81,6 @@ const Search: React.FC = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
