@@ -395,14 +395,7 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
                 <Text style={styles.planTripButtonText}>Plan My Trip</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.planTripButton}
-                onPress={() => navigation.navigate("TripPlans")}
-              >
-                <Text style={styles.planTripButtonText}>Trip Plans</Text>
-              </TouchableOpacity>
-            </View>
+            
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>
@@ -416,10 +409,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   scrollViewContent: {
-    paddingBottom: 86,
+    paddingBottom: 10,
   },
   scrollViewContentWithKeyboard: {
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
   header: {
     marginTop: 25,
