@@ -113,7 +113,7 @@ const UserProfile = () => {
         <Text style={styles.welcomeText}>
           Hi {profile.firstName} {profile.lastName}
         </Text>
-        <Text style={styles.emailText}>{profile.email}</Text>
+       
       </View>
     </View>
   );
@@ -146,12 +146,7 @@ const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void;
         style={styles.tripImage}
       />
       
-      <View style={styles.tripDetails}>
-        <View style={styles.tripInfo}>
-          <Text>{tripPlan.days.length} Days</Text>
-          <Text>{tripPlan.estimatedTotalCost}</Text>
-        </View>
-      </View>
+    
       
       <TouchableOpacity 
         style={styles.detailsButton}
@@ -421,6 +416,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+    padding: 8
   },
   header: {
     flexDirection: 'row',
@@ -463,24 +459,26 @@ const styles = StyleSheet.create({
   },
   horizontalTripCard: {
     width: width - 64,
-    marginLeft: 16,
+    marginLeft: 5,
     marginRight: 8,
   },
   tripCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5,
   },
   tripHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+    marginRight: 20,
+    marginLeft: 10,
   },
   bookmarkContainer: {
     flexDirection: 'row',
@@ -521,8 +519,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    marginLeft: 16,
+    marginLeft: 6,
     marginRight: 8,
+    marginBottom: 8,
     width: 250,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -639,6 +638,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 15,
+    marginRight: 10,
   },
 });
