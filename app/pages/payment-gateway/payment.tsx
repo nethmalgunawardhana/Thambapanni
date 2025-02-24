@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 import { RouteProp } from '@react-navigation/native';
@@ -6,12 +6,16 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { API_URL } from '../../../services/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 type RootStackParamList = {
   StripePayment: {
     amount: number;
     tripId: string;
   };
-  PaymentSuccess: undefined;
+  PaymentSuccess: {
+    paymentId: string;
+  };
   PaymentFailed: undefined;
 };
 
@@ -33,6 +37,28 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
   const { amount, tripId } = route.params;
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  
+  // Fetch the authentication token when component mounts
+  useEffect(() => {
+    const getAuthToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (!token) {
+          Alert.alert('Authentication Error', 'Please log in to continue');
+          navigation.goBack();
+          return;
+        }
+        setAuthToken(token);
+      } catch (error) {
+        console.error('Error retrieving auth token:', error);
+        Alert.alert('Authentication Error', 'Unable to retrieve authentication details');
+        navigation.goBack();
+      }
+    };
+    
+    getAuthToken();
+  }, [navigation]);
 
   const initializePayment = async () => {
     try {
@@ -40,24 +66,31 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
       if (!amount || !tripId) {
         throw new Error('Missing required payment parameters');
       }
+      
+      if (!authToken) {
+        throw new Error('Authentication token not available');
+      }
 
       // Log the request details for debugging
       console.log('Initiating payment request:', {
         amount: Math.round(amount * 100),
         tripId,
       });
+      
       // Call your backend to create the payment intent
-      const response = await fetch(`${API_URL}/payments/create-payment-intent`, {
+      const response = await fetch(`${API_URL}/api/payments/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json', // Explicitly request JSON response
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           amount: Math.round(amount * 100), // Convert to cents
           tripId,
         }),
       });
+      
       console.log('Backend response status:', response.status);
       if (!response.ok) {
         const errorData = await response.text();
@@ -73,12 +106,14 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         console.error('JSON parse error:', parseError);
         throw new Error('Invalid response format from server');
       }
-       // Validate response data
-       const { paymentIntent, ephemeralKey, customer } = jsonResponse;
-       if (!paymentIntent || !ephemeralKey || !customer) {
-         throw new Error('Incomplete payment details received from server');
-       }
-       const initResult = await initPaymentSheet({
+      
+      // Validate response data
+      const { paymentIntent, ephemeralKey, customer } = jsonResponse;
+      if (!paymentIntent || !ephemeralKey || !customer) {
+        throw new Error('Incomplete payment details received from server');
+      }
+      
+      const initResult = await initPaymentSheet({
         merchantDisplayName: 'Thambapanni App',
         paymentIntentClientSecret: paymentIntent,
         customerId: customer,
@@ -96,7 +131,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
       }
 
       // Present payment sheet
-      await openPaymentSheet();
+      await openPaymentSheet(paymentIntent);
 
     } catch (error) {
       console.error('Payment initialization error:', error);
@@ -118,16 +153,22 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
     }
   };
 
-  const openPaymentSheet = async () => {
+  const openPaymentSheet = async (clientSecret) => {
     try {
-      const { error } = await presentPaymentSheet();
+      const { error, paymentOption } = await presentPaymentSheet();
 
       if (error) {
         console.error('Payment sheet presentation error:', error);
         throw new Error(error.message);
       }
 
-      navigation.navigate('PaymentSuccess');
+      // Extract paymentIntentId from the client secret
+      // Client secret format: pi_xxx_secret_yyy
+      const paymentIntentId = clientSecret.split('_secret_')[0];
+      
+      // Record the successful payment in Firestore
+      await recordPaymentSuccess(paymentIntentId);
+
     } catch (error) {
       console.error('Payment presentation error:', error);
       Alert.alert(
@@ -138,6 +179,53 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
     }
   };
 
+  const recordPaymentSuccess = async (paymentIntentId) => {
+    try {
+      if (!authToken) {
+        throw new Error('Authentication token not available');
+      }
+      
+      // Send data to your backend to store in Firestore
+      const response = await fetch(`${API_URL}/api/payments/handle-success`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          paymentIntentId,
+          tripId,
+          amount: Math.round(amount * 100), // Amount in cents
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Backend payment record error:', errorData);
+        throw new Error(`Failed to record payment: ${errorData}`);
+      }
+
+      const result = await response.json();
+      
+      // Navigate to success screen with payment ID
+      navigation.navigate('PaymentSuccess', { 
+        paymentId: result.paymentId 
+      });
+      
+    } catch (error) {
+      console.error('Error recording payment success:', error);
+      
+      // Even if recording fails, we know the payment succeeded with Stripe
+      // So we still navigate to success but without the payment ID
+      Alert.alert(
+        'Payment Successful',
+        'Your payment was processed successfully, but there was an issue saving the payment details. Please contact support if needed.'
+      );
+      
+      navigation.navigate('PaymentSuccess', { paymentId: null });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -153,7 +241,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         <TouchableOpacity
           style={[styles.payButton, loading && styles.payButtonDisabled]}
           onPress={initializePayment}
-          disabled={loading}
+          disabled={loading || !authToken}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
