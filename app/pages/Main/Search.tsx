@@ -83,6 +83,7 @@ const Search: React.FC = () => {
 };
 const styles = StyleSheet.create({
   container: {
+    marginTop: 30,
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -91,10 +92,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
-    elevation: 2,
+    borderBottomWidth: 1,
+    backgroundColor: 'rgba(249, 249, 249, 0.97)',   
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

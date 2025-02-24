@@ -242,8 +242,9 @@ const TopGuides: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 10,
     flex: 1,
-    padding: 24,
+    padding: 10,
     backgroundColor: '#FFFFFF',
   },
   title: {
