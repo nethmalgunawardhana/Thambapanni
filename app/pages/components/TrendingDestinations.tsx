@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5,
   },
   destinationImage: {
     width: '100%',
@@ -207,7 +207,8 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 15,
+    marginLeft: 4,
   },
   loadingText: {
     marginTop: 10,
