@@ -18,37 +18,33 @@ interface DestinationGalleryProps {
   onSaveDestination: (destinationName: string) => void;
 }
 
-const DestinationGallery_2: React.FC<DestinationGalleryProps> = ({ destinationType, onSaveDestination }) => {
+const DestinationGallery_2 = ({ destinationType, onSaveDestination }: DestinationGalleryProps) => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
+    const loadDestinations = async () => {
+      try {
+        const data = await fetchDestinations(destinationType);
+        setDestinations(data || []); // Ensure we always have an array
+      } catch (error) {
+        console.error('Error loading destinations:', error);
+        setDestinations([]); // Set empty array on error
+      }
+    };
     loadDestinations();
   }, [destinationType]);
-
-  const loadDestinations = async () => {
-    try {
-      const data = await fetchDestinations(destinationType);
-      setDestinations(data);
-    } catch (error) {
-      console.error('Error loading destinations:', error);
-    }
-  };
 
   const handleImagePress = (destination: Destination) => {
     setSelectedDestination(destination);
     setModalVisible(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (selectedDestination) {
-      try {
-        onSaveDestination(selectedDestination.name);
-        setModalVisible(false);
-      } catch (error) {
-        console.error('Error saving destination:', error);
-      }
+      onSaveDestination(selectedDestination.name);
+      setModalVisible(false);
     }
   };
 
@@ -68,12 +64,14 @@ const DestinationGallery_2: React.FC<DestinationGalleryProps> = ({ destinationTy
         ))}
       </ScrollView>
 
-      <DestinationModal_2
-        visible={modalVisible}
-        destination={selectedDestination}
-        onClose={() => setModalVisible(false)}
-        onSave={handleSave}
-      />
+      {selectedDestination && (
+        <DestinationModal_2
+          visible={modalVisible}
+          destination={selectedDestination}
+          onClose={() => setModalVisible(false)}
+          onSave={handleSave}
+        />
+      )}
     </View>
   );
 };
@@ -86,7 +84,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   imageContainer: {
-    marginBottom: 15, // Adds space between images
+    marginBottom: 15,
+    alignItems: 'center',
   }
 });
 

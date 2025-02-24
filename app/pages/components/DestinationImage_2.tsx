@@ -6,7 +6,7 @@ interface DestinationImageProps {
   onPress: () => void;
 }
 
-const DestinationImage_2: React.FC<DestinationImageProps> = ({ imageUrl, onPress }) => {
+const DestinationImage_2 = ({ imageUrl, onPress }: DestinationImageProps) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
       <Image 
@@ -22,8 +22,8 @@ const windowWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   container: {
-    width: windowWidth - 28, // Full width minus padding (14px on each side)
-    marginBottom: 12,
+    width: windowWidth - 28,
+    alignItems: 'center',
   },
   image: {
     width: '92%',

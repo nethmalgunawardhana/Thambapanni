@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import DestinationGallery_2 from "../components/DestinationGallery_2";
 
@@ -11,12 +11,12 @@ interface DestinationSearchProps {
   keyboardVisible?: boolean;
 }
 
-const DestinationSearch: React.FC<DestinationSearchProps> = ({
+const DestinationSearch = ({
   selectedDestinations,
   onToggleDestination,
   onSaveDestination,
   keyboardVisible = false
-}) => {
+}: DestinationSearchProps) => {
   const destinations: DestinationType[] = [
     "Hiking",
     "Nature",
@@ -25,6 +25,24 @@ const DestinationSearch: React.FC<DestinationSearchProps> = ({
     "Religious",
     "Other"
   ];
+
+  useEffect(() => {
+    if (selectedDestinations.length === 0) {
+      onToggleDestination("Hiking");
+    }
+  }, []);
+
+  const handleDestinationPress = (selectedDestination: DestinationType) => {
+    if (selectedDestinations.includes(selectedDestination)) {
+      return;
+    }
+    
+    if (selectedDestinations.length > 0) {
+      onToggleDestination(selectedDestinations[0]);
+    }
+    
+    onToggleDestination(selectedDestination);
+  };
 
   return (
     <ScrollView 
@@ -42,7 +60,7 @@ const DestinationSearch: React.FC<DestinationSearchProps> = ({
                 selectedDestinations.includes(destination) && 
                 styles.selectedDestination,
               ]}
-              onPress={() => onToggleDestination(destination)}
+              onPress={() => handleDestinationPress(destination)}
             >
               <Text
                 style={[
