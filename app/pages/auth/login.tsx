@@ -216,8 +216,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   overlay: {
-    height: '100%',
     flex: 1,
+    height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   contentContainer: {
