@@ -200,7 +200,7 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
       style={styles.container}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
+        <ScrollView showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollViewContent,
             keyboardVisible && styles.scrollViewContentWithKeyboard,

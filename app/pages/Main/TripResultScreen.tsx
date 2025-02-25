@@ -198,7 +198,7 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
       </ScrollView>
 
       {/* Activities */}
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Transport Info */}
         <View style={styles.infoCard}>
           <Icon name="car-outline" size={24} color="#666" />

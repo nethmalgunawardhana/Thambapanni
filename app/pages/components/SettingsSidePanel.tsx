@@ -8,33 +8,38 @@ import {
   Dimensions,
   Platform,
   StatusBar,
+  Modal,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-interface SettingsSidePanelProps {
+interface SettingsPopupProps {
   isVisible: boolean;
   onClose: () => void;
   onLogout: () => void;
+  navigation?: any; // Add navigation prop for routing
 }
 
-// Adjust panel width based on screen size
-const { width } = Dimensions.get('window');
-const PANEL_WIDTH = width * 0.75; // 75% of screen width
+const { width, height } = Dimensions.get('window');
+const POPUP_WIDTH = width; // Full width
+const POPUP_HEIGHT = height * 0.89; // 95% of screen height
 
-const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
+const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isVisible,
   onClose,
   onLogout,
+  navigation,
 }) => {
-  const slideAnim = useRef(new Animated.Value(-PANEL_WIDTH)).current;
+  const slideAnim = useRef(new Animated.Value(height)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isVisible) {
       Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
+        Animated.spring(slideAnim, {
+          toValue: height * 0.14, // Slides to show 85% of screen
+          friction: 8,
+          tension: 40,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
@@ -46,30 +51,42 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
     } else {
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -PANEL_WIDTH,
+          toValue: height,
           duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 300,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
     }
-  }, [isVisible, slideAnim, fadeAnim]);
+  }, [isVisible, slideAnim, fadeAnim, height]);
 
-  const menuItems = [
-    { icon: 'home-outline', label: 'Dashboard' },
-    { icon: 'search-outline', label: 'Search' },
-    { icon: 'airplane-outline', label: 'Planning Trip' },
-    { icon: 'bookmark-outline', label: 'Book Mark' },
-    { icon: 'map-outline', label: 'Trip Plans' },
-    { icon: 'timer-outline', label: 'Pending Payments' },
-    { icon: 'card-outline', label: 'Payment History' },
-    { icon: 'person-outline', label: 'Profile Settings' },
+  // Add payment history to menu items
+  const menuItems: Array<{ 
+    icon: keyof typeof Ionicons.glyphMap; 
+    label: string;
+    onPress?: () => void;
+  }> = [
+    { icon: 'person-outline', label: 'Account Settings' },
     { icon: 'notifications-outline', label: 'Notifications' },
     { icon: 'shield-outline', label: 'Privacy' },
+    { icon: 'language-outline', label: 'Language' },
+    { icon: 'color-palette-outline', label: 'Appearance' },
+    { icon: 'cloud-download-outline', label: 'Offline Mode' },
+    { 
+      icon: 'card-outline', 
+      label: 'Payment History',
+      onPress: () => {
+        onClose(); // Close the settings popup
+        if (navigation) {
+          // Navigate to the Payment History screen
+          navigation.navigate('PaymentHistory');
+        }
+      }
+    },
     { icon: 'help-circle-outline', label: 'Help & Support' },
     { icon: 'information-circle-outline', label: 'About' },
   ];
@@ -77,69 +94,85 @@ const SettingsSidePanel: React.FC<SettingsSidePanelProps> = ({
   if (!isVisible) return null;
 
   return (
-    <View style={styles.container}>
-      {/* Backdrop for closing panel */}
-      <Animated.View
-        style={[
-          styles.backdrop,
-          {
-            opacity: fadeAnim,
-          },
-        ]}
-      >
-        <TouchableOpacity style={styles.backdropTouch} onPress={onClose} />
-      </Animated.View>
+    <Modal
+      visible={isVisible}
+      transparent={true}
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent={true}
+    >
+      <View style={styles.modalContainer}>
+        {/* Backdrop for closing popup */}
+        <Animated.View
+          style={[
+            styles.backdrop,
+            {
+              opacity: fadeAnim,
+            },
+          ]}
+        >
+          <TouchableOpacity style={styles.backdropTouch} onPress={onClose} />
+        </Animated.View>
 
-      {/* Panel content */}
-      <Animated.View
-        style={[
-          styles.panel,
-          {
-            transform: [{ translateX: slideAnim }],
-          },
-        ]}
-      >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Main Menu</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
+        {/* Popup content */}
+        <Animated.View
+          style={[
+            styles.popup,
+            {
+              transform: [
+                { translateY: slideAnim },
+              ],
+            },
+          ]}
+        >
+          {/* Handle for dragging */}
+          <View style={styles.dragHandle}>
+            <View style={styles.dragHandleBar} />
+          </View>
 
-        <View style={styles.content}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={() => {
-                console.log(`Selected: ${item.label}`);
-                onClose();
-              }}
-            >
-              <Ionicons name={item.icon} size={24} color="#333" />
-              <Text style={styles.menuItemText}>{item.label}</Text>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Settings</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#000" />
             </TouchableOpacity>
-          ))}
-        </View>
-        
-        {/* Logout button appears directly after menu items */}
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-            <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    </View>
+          </View>
+
+          <ScrollView style={styles.content}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.menuItem}
+                onPress={item.onPress || (() => {
+                  console.log(`Selected: ${item.label}`);
+                  // Don't close popup when an item is selected unless specified
+                })}
+              >
+                <Ionicons name={item.icon} size={24} color="#333" />
+                <Text style={styles.menuItemText}>{item.label}</Text>
+                <Ionicons name="chevron-forward-outline" size={20} color="#CCCCCC" style={styles.rightIcon} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          {/* Logout button appears at the bottom */}
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+              <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 200,
-    marginLeft:-10,
-    marginTop:-10,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end', // Align to bottom
+    alignItems: 'center',
+    marginBottom: 100,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -148,52 +181,66 @@ const styles = StyleSheet.create({
   backdropTouch: {
     flex: 1,
   },
-  panel: {
+  popup: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: PANEL_WIDTH,
-    height: '100%',
+    width: POPUP_WIDTH,
+    height: POPUP_HEIGHT,
     backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
+        shadowOffset: { width: 0, height: -6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
       },
       android: {
-        elevation: 5,
+        elevation: 10,
       },
     }),
+  },
+  dragHandle: {
+    width: '100%',
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
+  },
+  dragHandleBar: {
+    width: 50,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#DDDDDD',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
+    paddingTop: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 16 : 16,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: 'bold',
+    color: '#333',
   },
   closeButton: {
-    padding: 4,
+    padding: 8,
   },
   content: {
-    // Makes content scrollable when many menu items are present
-    maxHeight: '85%',
+    flex: 1,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    paddingVertical: 15,
+    paddingVertical: 18,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -201,24 +248,28 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     fontSize: 16,
     color: '#333',
+    flex: 1,
+  },
+  rightIcon: {
+    marginLeft: 'auto',
   },
   footer: {
     borderTopWidth: 1,
     borderTopColor: '#E5E5E5',
-    // No marginTop: 'auto' - we want it to appear directly after the menu items
+    backgroundColor: '#f8f8f8',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    paddingVertical: 20,
+    padding: 20,
+    paddingVertical: 24,
   },
   logoutText: {
     marginLeft: 16,
-    fontSize: 16,
+    fontSize: 18,
     color: '#FF3B30',
     fontWeight: '500',
   },
 });
 
-export default SettingsSidePanel;
+export default SettingsPopup;

@@ -94,7 +94,7 @@ const PaymentHistoryScreen = () => {
 
   const navigateToTripDetails = (tripId) => {
     if (tripId) {
-      navigation.navigate('TripDetails', { tripId });
+      navigation.navigate('TripResult', { tripId });
     }
   };
 

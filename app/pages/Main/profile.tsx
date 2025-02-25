@@ -206,7 +206,7 @@ const ProfileScreen: React.FC = () => {
   const defaultAvatar: ImageSourcePropType = require("../../../assets/images/default-avatar.png");
 
   return (
-    <ScrollView
+    <ScrollView showsVerticalScrollIndicator={false}
       style={styles.scrollContainer}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

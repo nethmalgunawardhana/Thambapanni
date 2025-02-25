@@ -417,6 +417,7 @@ export default function Dashboard() {
         isVisible={isSettingsPanelVisible}
         onClose={() => setIsSettingsPanelVisible(false)}
         onLogout={handleLogout}
+        navigation={navigation}
       />
     </ScrollView>
   );
