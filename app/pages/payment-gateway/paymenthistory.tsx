@@ -98,6 +98,10 @@ const PaymentHistoryScreen = () => {
     }
   };
 
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
   const renderPaymentItem = ({ item }) => {
     return (
       <TouchableOpacity 
@@ -181,6 +185,13 @@ const PaymentHistoryScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity 
+          onPress={handleGoBack}
+          style={styles.backButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Icon name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
         <Text style={styles.title}>Payment History</Text>
       </View>
       
@@ -208,10 +219,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
   },
   header: {
+    marginTop: 20,
     backgroundColor: '#fff',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 16,
   },
   title: {
     fontSize: 20,
