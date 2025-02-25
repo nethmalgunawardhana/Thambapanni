@@ -18,6 +18,7 @@ import PaymentFailedScreen from './pages/payment-gateway/PaymentFailed';
 import SelectGuideScreen from './pages/Main/SelectGuideScreen';
 import TripMapScreen        from './pages/Main/TripMapScreen';
 import SelectVehicleScreen from './pages/Main/SelectVehicleScreen';
+import PaymentHistoryScreen from './pages/payment-gateway/paymenthistory';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -40,6 +41,8 @@ const NewStack = () => {
             <Stack.Screen name="PaymentFailed" component={PaymentFailedScreen} />
             <Stack.Screen name="TripMap" component={TripMapScreen} />
             <Stack.Screen name="SelectVehicle" component={SelectVehicleScreen} />
+            <Stack.Screen name="PaymentHistory" component={PaymentHistoryScreen} />
+            
         </Stack.Navigator>
       
     );  
