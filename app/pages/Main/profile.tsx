@@ -180,12 +180,12 @@ const ProfileScreen: React.FC = () => {
     <View style={styles.statsContainer}>
       <View style={styles.statItem}>
       <MaterialIcons name="commute" size={36} color="black" />
-        <Text style={styles.statNumber}>{profileData.stats?.trips || 0}</Text>
+        <Text style={styles.statNumber}>{profileData.stats?.trips || 4}</Text>
         <Text style={styles.statLabel}>Trips</Text>
       </View>
       <View style={styles.statItem}>
       <MaterialIcons name="stars" size={36} color="black" />
-        <Text style={styles.statNumber}>{profileData.stats?.points || 0}</Text>
+        <Text style={styles.statNumber}>{profileData.stats?.points || 150}</Text>
         <Text style={styles.statLabel}>Points</Text>
       </View>
       <View style={styles.statItem}>
@@ -203,7 +203,7 @@ const ProfileScreen: React.FC = () => {
     );
   }
 
-  const defaultAvatar: ImageSourcePropType = require("../../../assets/images/default-avatar.png");
+  const defaultAvatar: ImageSourcePropType = require("../../../assets/images/profile_image.png");
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}
