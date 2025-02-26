@@ -54,20 +54,28 @@ const Search: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'destination' && styles.activeTab]}
+          style={styles.tabButton1}
           onPress={() => setActiveTab('destination')}
         >
-          <Text style={[styles.tabText, activeTab === 'destination' && styles.activeTabText]}>
+          <Text style={[
+            styles.tabText, 
+            activeTab === 'destination' && styles.activeTabText
+          ]}>
             Destination
           </Text>
+          {activeTab === 'destination' && <View style={styles.activeIndicator1} />}
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'topGuides' && styles.activeTab]}
+          style={styles.tabButton2}
           onPress={() => setActiveTab('topGuides')}
         >
-          <Text style={[styles.tabText, activeTab === 'topGuides' && styles.activeTabText]}>
+          <Text style={[
+            styles.tabText, 
+            activeTab === 'topGuides' && styles.activeTabText
+          ]}>
             Top Guides
           </Text>
+          {activeTab === 'topGuides' && <View style={styles.activeIndicator2} />}
         </TouchableOpacity>
       </View>
 
@@ -81,6 +89,7 @@ const Search: React.FC = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     marginTop: 5,
@@ -89,40 +98,53 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
+    justifyContent: 'flex-start',
+    paddingVertical: 12,
     paddingHorizontal: 24,
     borderBottomColor: '#E0E0E0',
     borderBottomWidth: 1,
-    backgroundColor: 'rgba(249, 249, 249, 0.97)',   
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    backgroundColor: '#FFFFFF',
   },
-  tabButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 24,
-    minWidth: width * 0.35,
+  tabButton1: {
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    position: 'relative',
     alignItems: 'center',
+    minWidth: width * 0.35,
   },
-  activeTab: {
+  tabButton2: {
+    paddingVertical: 16,
+    paddingHorizontal: 22,
+    position: 'relative',
+    alignItems: 'center',
+    minWidth: width * 0.35,
+  },
+  activeIndicator1: {
+    position: 'absolute',
+    bottom: -2,
+    left: 36,
+    right: 36,
+    height: 3,
     backgroundColor: '#00BFA6',
-    elevation: 4,
-    shadowColor: '#00BFA6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    
+  },
+  activeIndicator2: {
+    position: 'absolute',
+    bottom: -2,
+    left: 12,
+    right: 12,
+    height: 3,
+    backgroundColor: '#00BFA6',
+    
   },
   tabText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#4A4A4A',
+    color: '#757575',
     letterSpacing: 0.5,
   },
   activeTabText: {
-    color: '#FFFFFF',
+    color: '#00BFA6',
     fontWeight: '700',
   },
   contentContainer: {
