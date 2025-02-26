@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -38,6 +38,30 @@ const Otp: React.FC<Props> = ({ navigation, route }) => {
   const { email } = route.params; // Get email from the previous screen
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countdown, setCountdown] = useState(180); // 3 minutes in seconds
+  const [timerActive, setTimerActive] = useState(true);
+
+  // Format countdown as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' + secs : secs}`;
+  };
+
+  // Countdown timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (timerActive && countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setTimerActive(false);
+    }
+    
+    return () => clearInterval(interval);
+  }, [countdown, timerActive]);
 
   const handleVerifyOtp = async () => {
     if (!otp) {
@@ -67,6 +91,10 @@ const Otp: React.FC<Props> = ({ navigation, route }) => {
       // Call resend OTP function
       await sendOtp(email); // Ensure resendOtp function exists in authService
 
+      // Reset the countdown timer
+      setCountdown(180);
+      setTimerActive(true);
+      
       Alert.alert("Success", "OTP resent to your email!");
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to resend OTP");
@@ -87,11 +115,21 @@ const Otp: React.FC<Props> = ({ navigation, route }) => {
             <Text style={styles.headerText}>
               We have sent you a 6-digit code to your email address
             </Text>
+            
+            {/* Countdown Timer */}
+            <View style={styles.timerContainer}>
+              <Text style={[
+                styles.timerText, 
+                countdown > 30 ? styles.timerTextBlue : styles.timerTextRed
+              ]}>
+                Code expires in: {formatTime(countdown)}
+              </Text>
+            </View>
 
             <TextInput
               style={styles.input}
               placeholder="Enter OTP"
-              placeholderTextColor="rgba(79, 70, 229, 0.6)"
+              placeholderTextColor="#A794FF"
               keyboardType="number-pad"
               autoCapitalize="none"
               autoCorrect={false}
@@ -116,9 +154,12 @@ const Otp: React.FC<Props> = ({ navigation, route }) => {
             <TouchableOpacity
               style={styles.resendContainer}
               onPress={handleResendOtp}
-              disabled={isSubmitting}
+              disabled={isSubmitting || timerActive}
             >
-              <Text style={styles.resendText}>
+              <Text style={[
+                styles.resendText, 
+                timerActive && styles.disabledText
+              ]}>
                 {isSubmitting ? "Resending..." : "Resend Code"}
               </Text>
             </TouchableOpacity>
@@ -145,7 +186,7 @@ const styles = StyleSheet.create({
   },
   semiTransparentBlock: {
     marginHorizontal: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 20,
     paddingVertical: 32,
     shadowColor: "#000",
@@ -163,20 +204,34 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     color: "#374151",
-    marginBottom: 32,
+    marginBottom: 16,
     textAlign: "center",
     fontWeight: "500",
     lineHeight: 24,
   },
+  timerContainer: {
+    alignItems: "center",
+    marginBottom: 18,
+  },
+  timerText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  timerTextBlue: {
+    color: "#4F46E5",
+  },
+  timerTextRed: {
+    color: "#EF4444",
+  },
   input: {
     height: 56,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: 12,
     paddingHorizontal: 16,
-    fontSize: 20,
-    color: "#1F2937",
+    fontSize: 18,
+    color: "#A794FF",
     marginBottom: 16,
     textAlign: "center",
     letterSpacing: 8,
@@ -215,7 +270,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   linkText: {
-    color: "#4F46E5",
+    color: "#8B5CF6",
     fontSize: 15,
     fontWeight: "500",
   },
@@ -230,6 +285,9 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#cccccc",
+  },
+  disabledText: {
+    color: "#D1D5DB",
   },
 });
 

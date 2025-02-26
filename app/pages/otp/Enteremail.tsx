@@ -56,25 +56,39 @@ const Email: React.FC<Props> = ({ navigation }) => {
     <ImageBackground source={backgroundImage} style={styles.background}>
       <StatusBar style="light" />
       <View style={styles.overlay}>
-        <View style={styles.semiTransparentBlock}>
-          <View style={styles.contentContainer}>
-            <Text style={styles.subHeaderText}>Please enter your email</Text>
-            
-            <TextInput
-              style={[styles.input, styles.marginBottom]}
-              placeholder="Enter your email"
-              placeholderTextColor="rgba(79, 70, 229, 0.6)"
-              keyboardType="email-address"
-              value={email}
-               onChangeText={setEmail}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            
-            <CustomButton 
-              title="Continue" 
-              onPress={handleSendOtp}
-            />
+        {/* Back Button and Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.backButton}>←</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Password Reset</Text>
+        </View>
+
+        {/* Main Content - Centered in the middle of the screen */}
+        <View style={styles.mainContentContainer}>
+          <View style={styles.semiTransparentBlock}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.subHeaderText}>Please enter your email</Text>
+              
+              <TextInput
+                style={[styles.input, styles.marginBottom]}
+                placeholder="Enter your email"
+                placeholderTextColor="rgba(79, 70, 229, 0.6)"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              
+              <CustomButton 
+                title="Continue" 
+                onPress={handleSendOtp}
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -94,7 +108,31 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    color: '#FFFFFF', 
+    fontSize: 28,
+    marginRight: 15,
+    marginBottom: 6,
+    fontWeight: 'bold',
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  mainContentContainer: {
+    flex: 1,
+    justifyContent: 'center', // Centers content vertically
+    paddingBottom: 100
+    , 
+    marginBottom:50,// Offset to account for the header
   },
   semiTransparentBlock: {
     marginHorizontal: 20,
