@@ -55,7 +55,7 @@ const MenuBar: React.FC = () => {
       <Ionicons 
         name={iconName}
         size={24} 
-        color={focused ? '#FF9500' : 'black'} 
+        color={focused ? '#FF9500' : 'white'} 
       />
     );
   };
