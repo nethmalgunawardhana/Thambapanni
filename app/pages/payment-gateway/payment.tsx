@@ -52,6 +52,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
           navigation.goBack();
           return;
         }
+        console.log('Retrieved auth token:', token);
         setAuthToken(token);
       } catch (error) {
         console.error('Error retrieving auth token:', error);
@@ -73,12 +74,23 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
       if (!authToken) {
         throw new Error('Authentication token not available');
       }
-
+  
+      // Calculate the amount in cents
+      const amountInCents = Math.round(amount * 100);
+  
       // Log the request details for debugging
       console.log('Initiating payment request:', {
-        amount: Math.round(amount * 100),
+        amount: amountInCents,
         tripId,
       });
+      
+      // Explicitly create the request body object
+      const requestBody = {
+        tripId,
+        amount: amountInCents // Convert to cents
+      };
+      
+      console.log('Request body being sent:', JSON.stringify(requestBody));
       
       // Call your backend to create the payment intent
       const response = await fetch(`${API_URL}/api/payments/create-payment-intent`, {
@@ -88,10 +100,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
           'Accept': 'application/json',
           'Authorization': `Bearer ${authToken}`,
         },
-        body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to cents
-          tripId,
-        }),
+        body: JSON.stringify(requestBody), // Use the explicit requestBody object
       });
       
       console.log('Backend response status:', response.status);
@@ -101,7 +110,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         throw new Error(`Server responded with status ${response.status}: ${errorData}`);
       }
       
-      let jsonResponse: any;
+      let jsonResponse;
       
       try {
         jsonResponse = await response.json();
@@ -109,7 +118,6 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = ({ route, naviga
         console.error('JSON parse error:', parseError);
         throw new Error('Invalid response format from server');
       }
-      
       // Validate response data
       const { paymentIntent, ephemeralKey, customer, paymentIntentId: intentId } = jsonResponse;
       if (!paymentIntent || !ephemeralKey || !customer || !intentId) {
