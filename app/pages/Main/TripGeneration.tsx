@@ -32,6 +32,12 @@ type TripData = {
   tripId: string; 
   tripTitle: string;
   days: DayData[];
+  searchParams?: {
+    members: number;
+    budgetRange: string;
+    destinations: string[];
+    categoryType: string;
+  };
 };
 
 // Navigation types
@@ -95,9 +101,20 @@ const TripGenerationScreen: React.FC<Props> = ({ route, navigation }) => {
             throw new Error('Invalid trip plan format');
           }
 
+          // Add searchParams to the trip plan for later use
+          const enhancedTripPlan = {
+            ...response.data.tripPlan,
+            searchParams: {
+              members: requestData.members,
+              budgetRange: requestData.budgetRange,
+              destinations: requestData.destinations,
+              categoryType: requestData.categoryType
+            }
+          };
+
           navigation.replace('TripResult', {
             success: true,
-            tripPlan: response.data.tripPlan
+            tripPlan: enhancedTripPlan
           });
         } else {
           throw new Error('Invalid response format');

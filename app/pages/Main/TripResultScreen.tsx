@@ -41,6 +41,12 @@ type TripData = {
       distanceKm: number;
     }[];
   };
+  searchParams?: {
+    members: number;
+    budgetRange: string;
+    destinations: string[];
+    categoryType: string;
+  };
 };
 
 type RootStackParamList = {
