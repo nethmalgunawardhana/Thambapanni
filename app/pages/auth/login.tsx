@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { FontAwesome } from '@expo/vector-icons';
 import { login } from '../../../services/auth/loginService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -71,17 +70,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     try {
       setLoading(true);
       await login(email, password);
-      Alert.alert(
-              'Success',
-              ' Signed in successfully!',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => navigation.navigate('MenuBar'),
-                },
-              ]
-            );
-     
+      // Navigate directly to MenuBar without showing success alert
+      navigation.navigate('MenuBar');
     } catch (error) {
       Alert.alert('Login Error', error instanceof Error ? error.message : 'Failed to login');
     } finally {
@@ -89,53 +79,38 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  // Handle social login (Google/Facebook)
-  const handleSocialLogin = async (platform: 'Google' | 'Facebook') => {
-    try {
-      setLoading(true);
-      if (platform === 'Google') {
-        if (Platform.OS !== 'web') {
-          Alert.alert('Error', 'Google login is only available in web browser environments');
-          return;
-        }
-        // assuming loginWithGoogle is defined elsewhere
-        // await loginWithGoogle();
-      } else {
-        if (Platform.OS !== 'web') {
-          Alert.alert('Error', 'Facebook login is only available in web browser environments');
-          return;
-        }
-        // assuming loginWithFacebook is defined elsewhere
-        // await loginWithFacebook();
-      }
-      navigation.navigate('MenuBar');
-    } catch (error) {
-      Alert.alert('Social Login Error', error instanceof Error ? error.message : 'Failed to login');
-    } finally {
-      setLoading(false);
+  // Safe back navigation that checks if we can go back
+  const handleGoBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      // Navigate to a default screen instead of trying to go back
+      // You can replace 'Home' with your main/initial screen name
+      navigation.navigate('Home');
+      
+      // Alternatively, you can do nothing if there's no suitable screen
+      // or show a message to the user
+      // Alert.alert('Navigation', 'You are already at the main screen');
     }
   };
 
   return (
-    <ImageBackground source={backgroundImage} style={styles.background}>
-      <StatusBar style="light" />
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+    <>
+      <StatusBar style="light" translucent backgroundColor="transparent" />
+      <ImageBackground 
+        source={backgroundImage} 
+        style={styles.background}
+        resizeMode="cover"
       >
         <View style={styles.overlay}>
           <View style={styles.contentContainer}>
             <View style={styles.header}>
-              <TouchableOpacity 
-                onPress={() => navigation.goBack()}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Text style={styles.backButton}>←</Text>
-              </TouchableOpacity>
+               <TouchableOpacity onPress={handleGoBack}>
+                  <Text style={styles.backButton}>←</Text>
+               </TouchableOpacity>
               <Text style={styles.headerTitle}>Welcome Back</Text>
             </View>
 
-            {/* Form container without ScrollView */}
             <View style={styles.formContainer}>
               <InputField
                 placeholder="Email"
@@ -172,83 +147,49 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                   <Text style={styles.loginButtonText}>Sign In</Text>
                 )}
               </TouchableOpacity>
-
-              {Platform.OS === 'web' && (
-                <>
-                  <Text style={styles.orText}>or continue with</Text>
-
-                  <View style={styles.socialButtonsContainer}>
-                    <TouchableOpacity 
-                      style={styles.socialButton}
-                      onPress={() => handleSocialLogin('Google')}
-                      disabled={loading}
-                    >
-                      <FontAwesome name="google" size={24} color="#db4a39" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                      style={styles.socialButton}
-                      onPress={() => handleSocialLogin('Facebook')}
-                      disabled={loading}
-                    >
-                      <FontAwesome name="facebook" size={24} color="#3b5998" />
-                    </TouchableOpacity>
-                  </View>
-                </>
-              )}
             </View>
           </View>
         </View>
-      </KeyboardAvoidingView>
-    </ImageBackground>
+      </ImageBackground>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    
-    flex: 1,
-  },
   background: {
     flex: 1,
-    resizeMode: 'cover',
     width: '100%',
     height: '100%',
   },
   overlay: {
     flex: 1,
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   contentContainer: {
-    marginTop: SCREEN_HEIGHT * 0.15,
     flex: 1,
-    justifyContent: 'flex-start',
+    paddingTop: Platform.OS === 'ios' ? 60 : 60,
     paddingHorizontal: 24,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 40,
-    paddingTop: Platform.OS === 'ios' ? 50 : 50,
   },
   backButton: {
     color: '#FFFFFF',
     fontSize: 28,
     marginRight: 15,
-    marginBottom: 6,
     fontWeight: 'bold',
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    letterSpacing: 0.5,
   },
   formContainer: {
     width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
+    flex: 0.6,
+    justifyContent: 'center',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -263,7 +204,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
-    paddingHorizontal: 4,
   },
   link: {
     color: '#FFFFFF',
@@ -275,7 +215,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
-    marginBottom: 4,
     shadowColor: '#f97316',
     shadowOffset: {
       width: 0,
@@ -289,37 +228,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  orText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginVertical: 20,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  socialButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  socialButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    marginHorizontal: 10,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   loginButtonDisabled: {
     opacity: 0.7,

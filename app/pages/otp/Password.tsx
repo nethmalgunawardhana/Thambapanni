@@ -12,6 +12,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { resetPassword } from "../../../services/otp/resetpasswordService"; // Ensure this function exists
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { CommonActions } from "@react-navigation/native"; // Import CommonActions
 
 interface Props {
   navigation: NativeStackNavigationProp<any>;
@@ -67,8 +68,27 @@ const Password: React.FC<Props> = ({ navigation, route }) => {
     try {
       setIsSubmitting(true);
       await resetPassword(email, otp, newPassword); // Call backend API to reset the password
-      Alert.alert("Success", "Password reset successfully!");
-      navigation.navigate("Login");
+      
+      // Success message with automatic navigation
+      Alert.alert(
+        "Success", 
+        "Password reset successfully!", 
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Reset navigation to Login screen
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: "Login" }],
+                })
+              );
+            }
+          }
+        ],
+        { cancelable: false } // Prevent dismissing by tapping outside
+      );
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to reset password");
     } finally {
