@@ -55,21 +55,21 @@ const MenuBar: React.FC = () => {
       <Ionicons 
         name={iconName}
         size={24} 
-        color={focused ? '#FF9500' : 'white'} 
+        color={focused ? '#FF9500' : 'black'} 
       />
     );
   };
 
   return (
     <Tab.Navigator
-    id={undefined}
-  initialRouteName="Home"
-  screenOptions={{
-    tabBarShowLabel: false,
-    tabBarStyle: styles.tabBarStyle,
-    headerShown: false
-  }}
->
+      id={undefined}
+      initialRouteName="Home"
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBarStyle,
+        headerShown: false
+      }}
+    >
       <Tab.Screen 
         name="Home" 
         component={Dashboard} 
@@ -96,7 +96,7 @@ const MenuBar: React.FC = () => {
                 <Ionicons 
                   name="add" 
                   size={40} 
-                  color={focused ? '#1E1E1E' : 'white'} 
+                  color="white" 
                 />
               </View>
             </View>
@@ -130,22 +130,23 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: '#4F46E5',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    height: 50,
-    paddingBottom: 5,
+    backgroundColor: 'rgb(60, 130, 127)', // Updated to purple/indigo color
+    height: 60,
     borderTopWidth: 0,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
   },
   customTabBarButton: {
     position: 'absolute',
-    top: -40,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    top: -30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: ' #FF9500', // Orange color for the add button
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -153,10 +154,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   customButtonBackground: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#FF9500',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: ' #FF9500', // Orange color for the add button
     justifyContent: 'center',
     alignItems: 'center',
   },
