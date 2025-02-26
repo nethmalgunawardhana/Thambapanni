@@ -49,7 +49,7 @@ interface ProfileData {
 const { width } = Dimensions.get('window');
 const defaultImage: ImageSourcePropType = require('../../../assets/images/tripplan-cover.jpg');
 const defaultProfileImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
-
+const defaultProfileImage2: ImageSourcePropType = require('../../../assets/images/profile_image.png');
 const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,25 +98,21 @@ const UserProfile = () => {
   }
 
   return (
-    <View style={styles.profileContainer}>
-      <View style={styles.profilePhotoContainer}>
-        {profile.profilePhoto ? (
-          <Image source={{ uri: profile.profilePhoto }} style={styles.profilePhoto} />
-        ) : (
-          <View style={[styles.profilePhoto, styles.placeholderPhoto]}>
-            <Text style={styles.placeholderText}>
-              {profile.firstName?.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.profileInfo}>
-        <Text style={styles.welcomeText}>
-          Hi {profile.firstName} {profile.lastName}
-        </Text>
-      </View>
+  <View style={styles.profileContainer}>
+    <View style={styles.profilePhotoContainer}>
+      {profile.profilePhoto ? (
+        <Image source={{ uri: profile.profilePhoto }} style={styles.profilePhoto} />
+      ) : (
+        <Image source={defaultProfileImage2} style={styles.profilePhoto} />
+      )}
     </View>
-  );
+    <View style={styles.profileInfo}>
+      <Text style={styles.welcomeText}>
+        Hi {profile.firstName} {profile.lastName}
+      </Text>
+    </View>
+  </View>
+);
 };
 
 const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void; isBookmarked: boolean }> = ({ 
@@ -366,7 +362,7 @@ export default function Dashboard() {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Upcoming trips</Text>
+          <Text style={styles.sectionTitle}>Upcoming Trips</Text>
           <TouchableOpacity 
             style={styles.seeMoreButton}
             onPress={() => navigation.navigate("TripPlans")}
@@ -543,6 +539,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
+    marginBottom: 12,
+
   },
   guideImage: {
     width: 80,
