@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   detailsButton: {
-    backgroundColor: ' #34D399',
+    backgroundColor: '#34D399',
     padding: 10,
     borderRadius: 6,
     alignItems: 'center',

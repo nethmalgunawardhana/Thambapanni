@@ -1,5 +1,5 @@
 {
-  "name": "thambapanni_v1",
+  "name": "thambapanni-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -76,6 +76,10 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
+        "exclude": [
+          "@stripe/stripe-react-native",
+          "react-native-maps"
+        ],
         "listUnknownPackages": false
       }
     }

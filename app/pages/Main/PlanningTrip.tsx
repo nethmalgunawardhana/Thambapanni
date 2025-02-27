@@ -602,12 +602,12 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   buttonContainer: {
-    paddingHorizontal: 16,
-    marginTop: 32,
+    paddingHorizontal: 13,
+    marginTop: 5,
     marginBottom: 40,
   },
   planTripButton: {
-    backgroundColor: " #34D399",
+    backgroundColor: "#34D399",
     borderRadius: 16,
     height: 56,
     justifyContent: "center",
@@ -617,6 +617,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
+    marginBottom: 30,
   },
   planTripButtonText: {
     color: "#FFFFFF",
