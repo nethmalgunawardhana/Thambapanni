@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     left: 36,
     right: 36,
     height: 3,
-    backgroundColor: '#00BFA6',
+    backgroundColor: 'rgb(255, 166, 0)',
     
   },
   activeIndicator2: {
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     left: 12,
     right: 12,
     height: 3,
-    backgroundColor: '#00BFA6',
+    backgroundColor: 'rgb(255, 166, 0)',
     
   },
   tabText: {
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   activeTabText: {
-    color: '#00BFA6',
+    color: 'rgb(255, 166, 0)',
     fontWeight: '700',
   },
   contentContainer: {
