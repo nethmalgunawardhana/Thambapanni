@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: 'rgb(60, 130, 127)', // Updated to purple/indigo color
+    backgroundColor: 'rgb(26, 156, 89)', // Updated to purple/indigo color
     height: 60,
     borderTopWidth: 0,
     borderTopRightRadius: 20,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: ' #FF9500', // Orange color for the add button
+    backgroundColor: 'rgb(255, 166, 0)', // Orange color for the add button
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
