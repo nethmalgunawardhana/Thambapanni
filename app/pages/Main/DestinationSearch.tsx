@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   selectedDestination: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#2E7D32",
+    backgroundColor: "#34D399",
+    
   },
   destinationText: {
     color: "#1E3A2F",
