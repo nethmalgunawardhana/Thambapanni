@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: 'rgb(26, 156, 89)', // Updated to purple/indigo color
+    backgroundColor: '#34D399', // Updated to purple/indigo color
     height: 60,
     borderTopWidth: 0,
     borderTopRightRadius: 20,

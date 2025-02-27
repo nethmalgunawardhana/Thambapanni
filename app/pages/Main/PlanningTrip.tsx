@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   planTripButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: " #34D399",
     borderRadius: 16,
     height: 56,
     justifyContent: "center",

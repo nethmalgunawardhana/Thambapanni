@@ -48,8 +48,18 @@ interface ProfileData {
 
 const { width } = Dimensions.get('window');
 const defaultImage: ImageSourcePropType = require('../../../assets/images/tripplan-cover.jpg');
+
+// Define different trip images
+const tripImages: ImageSourcePropType[] = [
+  require('../../../assets/images/up1.jpg'),
+  require('../../../assets/images/up2.jpg'),
+  require('../../../assets/images/up3.jpg'),
+  
+];
+
 const defaultProfileImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
 const defaultProfileImage2: ImageSourcePropType = require('../../../assets/images/profile_image.png');
+
 const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,12 +125,38 @@ const UserProfile = () => {
 );
 };
 
-const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void; isBookmarked: boolean }> = ({ 
+const TripCard: React.FC<{ 
+  tripPlan: TripPlan; 
+  onBookmark: (id: string) => void; 
+  isBookmarked: boolean;
+  customImage?: ImageSourcePropType;
+  index?: number;
+}> = ({ 
   tripPlan, 
   onBookmark,
-  isBookmarked 
+  isBookmarked,
+  customImage,
+  index 
 }) => {
   const navigation = useNavigation<any>();
+  
+  // Determine the image source
+  const imageSource = () => {
+    // Use server image if available
+    if (tripPlan.coverImage) {
+      return { uri: tripPlan.coverImage };
+    }
+    // Use custom image if provided
+    if (customImage) {
+      return customImage;
+    }
+    // Use image from array based on index
+    if (index !== undefined && index < tripImages.length) {
+      return tripImages[index];
+    }
+    // Fall back to default image
+    return defaultImage;
+  };
 
   return (
     <View style={styles.tripCard}>
@@ -138,7 +174,7 @@ const TripCard: React.FC<{ tripPlan: TripPlan; onBookmark: (id: string) => void;
       </View>
       
       <Image
-        source={tripPlan.coverImage ? { uri: tripPlan.coverImage } : defaultImage}
+        source={imageSource()}
         style={styles.tripImage}
       />
       
@@ -375,12 +411,13 @@ export default function Dashboard() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalScrollContent}
         >
-          {upcomingTrips.map((trip) => (
+          {upcomingTrips.map((trip, index) => (
             <View key={trip.id} style={styles.horizontalTripCard}>
               <TripCard 
                 tripPlan={trip} 
                 onBookmark={handleBookmark}
                 isBookmarked={bookmarkedTrips.has(trip.id)}
+                index={index} // Pass the index to use different images
               />
             </View>
           ))}
@@ -515,7 +552,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   detailsButton: {
-    backgroundColor: '#34D399',
+    backgroundColor: ' #34D399',
     padding: 10,
     borderRadius: 6,
     alignItems: 'center',
