@@ -5,6 +5,7 @@ import Guides from '../components/GuideSelect';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { API_URL } from '../../../services/config'; // Ensure this is correctly set
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo
 
 type RootStackParamList = {
   TripResult: { success: boolean; tripPlan: any };
@@ -85,8 +86,7 @@ const SelectGuideScreen: React.FC<SelectGuideScreenProps> = ({ navigation, route
 
   const handleGuideSelect = async (guide: any) => {
     try {
-      // Display loading state to user
-      Alert.alert('Processing', 'Sending guide request...');
+      
       
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
@@ -161,9 +161,18 @@ const SelectGuideScreen: React.FC<SelectGuideScreenProps> = ({ navigation, route
     navigation.navigate('BudgetReport', { tripPlan, selectedVehicle });
   };
 
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select a Guide</Text>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Select a Guide</Text>
+      </View>
       <Guides onGuideSelect={handleGuideSelect} tripPlan={tripPlan} />
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
         <Text style={styles.skipButtonText}>Skip</Text>
@@ -178,10 +187,22 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40, // Balance the layout since we have back button on the left
+  },
+  backButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   skipButton: {
     marginTop: 20,

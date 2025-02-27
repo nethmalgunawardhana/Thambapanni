@@ -50,10 +50,10 @@ const MenuBar: React.FC = () => {
     };
   }, [navigation]);
   
-  const renderTabIcon = (iconName: keyof typeof Ionicons.glyphMap, focused: boolean) => {
+  const renderTabIcon = (iconName: keyof typeof Ionicons.glyphMap, focusedIconName: keyof typeof Ionicons.glyphMap, focused: boolean) => {
     return (
       <Ionicons 
-        name={iconName}
+        name={focused ? focusedIconName : iconName}
         size={24} 
         color={focused ? '#FF9500' : 'white'} 
       />
@@ -74,7 +74,7 @@ const MenuBar: React.FC = () => {
         name="Home" 
         component={Dashboard} 
         options={{
-          tabBarIcon: ({ focused }) => renderTabIcon('home-outline', focused),
+          tabBarIcon: ({ focused }) => renderTabIcon('home-outline', 'home', focused),
         }} 
       />
       
@@ -82,7 +82,7 @@ const MenuBar: React.FC = () => {
         name="Search" 
         component={Search} 
         options={{
-          tabBarIcon: ({ focused }) => renderTabIcon('search-outline', focused),
+          tabBarIcon: ({ focused }) => renderTabIcon('search-outline', 'search', focused),
         }} 
       />
       
@@ -108,7 +108,7 @@ const MenuBar: React.FC = () => {
         name="Bookmark" 
         component={BookmarkedTripsScreen} 
         options={{
-          tabBarIcon: ({ focused }) => renderTabIcon('bookmark-outline', focused),
+          tabBarIcon: ({ focused }) => renderTabIcon('bookmark-outline', 'bookmark', focused),
         }} 
       />
       
@@ -116,7 +116,7 @@ const MenuBar: React.FC = () => {
         name="Profile" 
         component={ProfileCard} 
         options={{
-          tabBarIcon: ({ focused }) => renderTabIcon('person-outline', focused),
+          tabBarIcon: ({ focused }) => renderTabIcon('person-outline', 'person', focused),
         }} 
       />
     </Tab.Navigator>
@@ -125,12 +125,14 @@ const MenuBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBarStyle: {
+    marginTop: 30,
     position: 'absolute',
+   marginBottom: 0,
     bottom: 0,
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: '#34D399', // Updated to purple/indigo color
+    backgroundColor: '#34D399',
     height: 60,
     borderTopWidth: 0,
     borderTopRightRadius: 20,
@@ -139,6 +141,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   customTabBarButton: {
+    
     position: 'absolute',
     top: -30,
     width: 60,
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgb(255, 166, 0)', // Orange color for the add button
+    backgroundColor: 'rgb(255, 166, 0)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -154,10 +157,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   customButtonBackground: {
+   
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: ' #FF9500', // Orange color for the add button
+    backgroundColor: '#FF9500',
     justifyContent: 'center',
     alignItems: 'center',
   },

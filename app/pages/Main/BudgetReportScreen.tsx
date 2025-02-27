@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon2 from 'react-native-vector-icons/Ionicons';
@@ -100,6 +100,19 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
     }
   }, [selectedGuide, tripPlan.tripId]);
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return '#FF9800'; // Orange
+      case 'confirmed':
+        return '#4CAF50'; // Green
+      case 'rejected':
+        return '#FF0000'; // Red
+      default:
+        return '#333'; // Default color
+    }
+  };
+
   const totalDistanceKm = tripPlan.distanceInfo?.totalDistanceKm || 0;
   const totalEstimatedCost = tripPlan.days.reduce((total, day) => {
     const cost = parseFloat(day.estimatedCost.replace(/[^0-9.]/g, ''));
@@ -125,7 +138,7 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
   };
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+     
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
@@ -139,7 +152,7 @@ const BudgetReportScreen: React.FC<BudgetReportScreenProps> = ({ navigation, rou
         {selectedGuide && (
           <View style={styles.confirmationStatusContainer}>
             <Text style={styles.confirmationStatusText}>
-              Guide Confirmation Status: {confirmationStatus}
+              Guide Confirmation Status: <Text style={{ color: getStatusColor(confirmationStatus) }}>{confirmationStatus}</Text>
             </Text>
             {confirmationStatus === 'rejected' && (
               <View style={styles.rejectedContainer}>
@@ -290,7 +303,7 @@ const styles = StyleSheet.create({
   confirmationStatusText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    
   },
   rejectedText: {
     fontSize: 14,

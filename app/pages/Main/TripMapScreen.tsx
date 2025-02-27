@@ -6,7 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import polyline from '@mapbox/polyline'; // For decoding polyline geometry
-
+import LottieView from 'lottie-react-native';
 type TripData = {
   tripId: string; 
   tripTitle: string;
@@ -140,7 +140,13 @@ const TripMapScreen: React.FC<Props> = ({ route, navigation }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <Text>Loading map...</Text>
+        <LottieView
+          source={require('../../../assets/animations/Animation - 1740659369426.json')}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+       
       </SafeAreaView>
     );
   }
@@ -206,17 +212,23 @@ const TripMapScreen: React.FC<Props> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  loadingAnimation: {
+    width: 250,
+    height: 250,
+  },
   container: {
     flex: 1,
   },
   map: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  
   backButton: {
     position: 'absolute',
     top: 16,

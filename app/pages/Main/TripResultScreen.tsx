@@ -13,6 +13,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { API_URL } from '../../../services/config';
+
+// Types remain the same as in your original code
 type Activity = {
   time: string;
   destination: string;
@@ -27,7 +29,7 @@ type DayData = {
   transportation: string;
   accommodation: string;
   estimatedCost: string;
-  distanceKm?: number; // Add distance information
+  distanceKm?: number;
 };
 
 type TripData = {
@@ -53,16 +55,14 @@ type RootStackParamList = {
   TripResult: { success: boolean; tripPlan: TripData };
   BudgetReport: { tripPlan: TripData };
   SelectGuide: { tripPlan: TripData };
-  TripMap: { tripPlan: TripData }; // Add TripMap screen
-  SelectVehicle: { tripPlan: TripData }; // Add SelectVehicle screen
+  TripMap: { tripPlan: TripData };
+  SelectVehicle: { tripPlan: TripData };
 };
 
 type Props = {
   route: RouteProp<RootStackParamList, 'TripResult'>;
   navigation: StackNavigationProp<RootStackParamList>;
 };
-
-
 
 const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
   const [selectedDay, setSelectedDay] = useState(0);
@@ -196,12 +196,23 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text style={styles.headerTitle}>{tripPlan.tripTitle}</Text>
           <Text style={styles.headerSubtitle}>Day {selectedDay + 1} of {tripPlan.days.length}</Text>
         </View>
+        {/* Add View Map button to the header */}
+        <TouchableOpacity 
+          style={styles.floatingMapButton}
+          onPress={() => navigation.navigate('TripMap', { tripPlan })}
+        >
+          <Icon name="location-outline" size={20} color="#FFF" />
+          <Text style={styles.floatingMapButtonText}>Map</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Day Selector */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daySelector}>
-        {tripPlan.days.map(day => renderDayTab(day))}
-      </ScrollView>
+      {/* Day Selector with Map Button */}
+      <View style={styles.daySelectorContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.daySelector}>
+          {tripPlan.days.map(day => renderDayTab(day))}
+        </ScrollView>
+      
+      </View>
 
       {/* Activities */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -226,23 +237,14 @@ const TripResultScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text style={styles.infoText}>Estimated Cost: {currentDay.estimatedCost}</Text>
         </View>
 
-        {/* View Map Button */}
-        <TouchableOpacity 
-          style={styles.viewMapButton}
-          onPress={() => navigation.navigate('TripMap', { tripPlan })}
-        >
-          <Text style={styles.viewMapButtonText}>View Map</Text>
-          <Icon name="map-outline" size={24} color="#FFF" />
-        </TouchableOpacity>
-
         {/* Next Button */}
         <TouchableOpacity
-  style={styles.nextButton}
-  onPress={() => navigation.navigate('SelectVehicle', { tripPlan })}
->
-  <Text style={styles.nextButtonText}>Next: Select Vehicle</Text>
-  <Icon name="arrow-forward" size={24} color="#FFF" />
-</TouchableOpacity>
+          style={styles.nextButton}
+          onPress={() => navigation.navigate('SelectVehicle', { tripPlan })}
+        >
+          <Text style={styles.nextButtonText}>Next: Select Vehicle</Text>
+          <Icon name="arrow-forward" size={24} color="#FFF" />
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -252,26 +254,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  nextButton: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FF9800',
-    margin: 16,
-    padding: 16,
-    borderRadius: 8,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  nextButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '600',
-    marginRight: 8,
   },
   header: {
     flexDirection: 'row',
@@ -291,11 +273,40 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
+  headerMapButton: {
+    padding: 8,
+  },
+  daySelectorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   daySelector: {
     flexGrow: 0,
+    flexBasis: '100%',
+  },
+  floatingMapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#34D399',
+    padding: 8,
+    borderRadius: 20,
+    marginRight: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+  },
+  floatingMapButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
+    marginRight: 6,
   },
   dayTab: {
-    marginRight: 24,
+    marginLeft: 16,
+    marginRight: 16,
     paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
@@ -387,12 +398,13 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 8,
   },
-  viewMapButton: {
+  nextButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    margin: 16,
+    backgroundColor: '#FF9800',
+  
+    marginBottom:40,
     padding: 16,
     borderRadius: 8,
     elevation: 4,
@@ -401,7 +413,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
-  viewMapButtonText: {
+  nextButtonText: {
     color: '#FFF',
     fontSize: 18,
     fontWeight: '600',

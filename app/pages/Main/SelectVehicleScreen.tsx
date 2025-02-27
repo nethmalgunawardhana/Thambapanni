@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } fr
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-
+import { Ionicons } from '@expo/vector-icons';
 type Vehicle = {
   type: string;
   pricePerKm: number;
@@ -50,12 +50,15 @@ const SelectVehicleScreen: React.FC<SelectVehicleScreenProps> = ({ navigation, r
   const handleSkip = () => {
     navigation.navigate('SelectGuide', { tripPlan });
   };
+  const handleBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#000" />
+      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Select Vehicle</Text>
       </View>
@@ -107,6 +110,11 @@ const SelectVehicleScreen: React.FC<SelectVehicleScreenProps> = ({ navigation, r
 };
 
 const styles = StyleSheet.create({
+  backButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -119,9 +127,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: '600',
-    marginLeft: 16,
+    marginLeft: 70,
+   
   },
   totalDistanceContainer: {
     flexDirection: 'row',
