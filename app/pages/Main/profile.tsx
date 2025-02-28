@@ -12,9 +12,7 @@ import {
   ScrollView,
   ImageSourcePropType,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import NationalityDisplay from "../components/NationalityDisplay";
 import * as ImagePicker from "expo-image-picker";
 import {
   fetchUserProfile,
@@ -259,17 +257,9 @@ const ProfileScreen: React.FC = () => {
           )}
 
           {profileData.nationality && (
-            <View style={styles.countryContainer}>
-              <Image
-                source={{
-                  uri: `https://flagcdn.com/w20/${profileData.nationality
-                    ?.toLowerCase()
-                    .slice(0, 2)}.png`,
-                }}
-                style={styles.flag}
-              />
-              <Text style={styles.countryText}>{profileData.nationality}</Text>
-            </View>
+          
+              <NationalityDisplay nationality={profileData.nationality} />
+             
           )}
         </View>
 

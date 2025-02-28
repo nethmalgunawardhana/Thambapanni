@@ -158,8 +158,8 @@ const TripMapScreen: React.FC<Props> = ({ route, navigation }) => {
         initialRegion={{
           latitude: coordinates[0]?.latitude || 7.8731,
           longitude: coordinates[0]?.longitude || 80.7718,
-          latitudeDelta: 0.5,
-          longitudeDelta: 0.5,
+          latitudeDelta: 0.6,
+          longitudeDelta: 0.6,
         }}
       >
         {/* Markers for each destination */}

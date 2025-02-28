@@ -70,9 +70,8 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [categoryType, setCategoryType] = useState<CategoryType>("");
-  const [selectedDestinations, setSelectedDestinations] = useState<
-    DestinationType[]
-  >([]);
+  // Changed from array to single string to allow only one selection
+  const [selectedDestination, setSelectedDestination] = useState<DestinationType | "">("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [savedDestinationNames, setSavedDestinationNames] = useState<string[]>(
     []
@@ -84,12 +83,6 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
   const [selectedPopupDestination, setSelectedPopupDestination] =
     useState<SavedDestination | null>(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  // const destinationImages: Record<DestinationType, any> = {
-  //   Hiking: require("../../../assets/images/hiking1.png"),
-  //   Nature: require("../../../assets/images/nature1.png"),
-  //   Historical: require("../../../assets/images/historical1.png"),
-  //   Beach: require("../../../assets/images/beach1.png"),
-  // };
   const [tripDays, setTripDays] = useState<string>("");
   const [tripMembers, setTripMembers] = useState<string>("");
   const [budgetRange, setBudgetRange] = useState<string>("");
@@ -118,12 +111,9 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
     };
   }, []);
 
-  const toggleDestination = (destination: DestinationType) => {
-    setSelectedDestinations((prev) =>
-      prev.includes(destination)
-        ? prev.filter((d) => d !== destination)
-        : [...prev, destination]
-    );
+  // Updated to set only one destination at a time
+  const selectDestination = (destination: DestinationType) => {
+    setSelectedDestination(destination);
   };
 
   const handleSaveDestination = (
@@ -161,8 +151,8 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
 
   const handleGenerateTripPlan = async () => {
     // Validate inputs
-    if (selectedDestinations.length === 0) {
-      Alert.alert("Error", "Please select at least one destination type");
+    if (!selectedDestination) {
+      Alert.alert("Error", "Please select a destination type");
       return;
     }
     if (!categoryType) {
@@ -239,7 +229,7 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
                   <Icon name="location-outline" size={32} color="#9E9E9E" />
                   <Text style={styles.emptyDestinationText}>
                     No destinations selected yet. Choose your preferred
-                    destination types below and explore options.
+                    destination type below and explore options.
                   </Text>
                 </View>
               ) : (
@@ -282,20 +272,16 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
                     key={destination}
                     style={[
                       styles.destinationButton,
-                      selectedDestinations.includes(
-                        destination as DestinationType
-                      ) && styles.selectedDestination,
+                      selectedDestination === destination && styles.selectedDestination,
                     ]}
                     onPress={() =>
-                      toggleDestination(destination as DestinationType)
+                      selectDestination(destination as DestinationType)
                     }
                   >
                     <Text
                       style={[
                         styles.destinationText,
-                        selectedDestinations.includes(
-                          destination as DestinationType
-                        ) && styles.selectedDestinationText,
+                        selectedDestination === destination && styles.selectedDestinationText,
                       ]}
                     >
                       {destination}
@@ -304,22 +290,20 @@ const PlanningTripScreen: React.FC<PlanningTripScreenProps> = ({
                 ))}
               </View>
 
-              {!keyboardVisible && selectedDestinations.length > 0 && (
+              {!keyboardVisible && selectedDestination && (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   style={styles.destinationGalleryContainer}
                 >
-                  {selectedDestinations.map((destinationType) => (
-                    <View key={destinationType} style={styles.carouselItem}>
-                      <DestinationGallery
-                        destinationType={destinationType}
-                        onSaveDestination={(name) =>
-                          handleSaveDestination(name, destinationType)
-                        }
-                      />
-                    </View>
-                  ))}
+                  <View key={selectedDestination} style={styles.carouselItem}>
+                    <DestinationGallery
+                      destinationType={selectedDestination}
+                      onSaveDestination={(name) =>
+                        handleSaveDestination(name, selectedDestination)
+                      }
+                    />
+                  </View>
                 </ScrollView>
               )}
             </View>
@@ -543,8 +527,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   selectedDestination: {
-    backgroundColor: "#4CAF50",
-    borderColor: "#2E7D32",
+    backgroundColor: "#34D399",
+    
   },
   destinationText: {
     color: "#1E3A2F",
