@@ -12,13 +12,14 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  ScrollView
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { login } from '../../../services/auth/loginService';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface Props {
   navigation: NativeStackNavigationProp<any>;
@@ -84,30 +85,29 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      // Navigate to a default screen instead of trying to go back
-      // You can replace 'Home' with your main/initial screen name
       navigation.navigate('Home');
-      
-      // Alternatively, you can do nothing if there's no suitable screen
-      // or show a message to the user
-      // Alert.alert('Navigation', 'You are already at the main screen');
     }
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <StatusBar style="light" translucent backgroundColor="transparent" />
       <ImageBackground 
         source={backgroundImage} 
-        style={styles.background}
+        style={styles.backgroundImage}
         resizeMode="cover"
+        imageStyle={styles.backgroundImageStyle}
       >
         <View style={styles.overlay}>
-          <View style={styles.contentContainer}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.keyboardAvoidView}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+          >
             <View style={styles.header}>
-               <TouchableOpacity onPress={handleGoBack}>
-                  <Text style={styles.backButton}>←</Text>
-               </TouchableOpacity>
+              <TouchableOpacity onPress={handleGoBack} style={styles.backButtonContainer}>
+                <Text style={styles.backButton}>←</Text>
+              </TouchableOpacity>
               <Text style={styles.headerTitle}>Welcome Back</Text>
             </View>
 
@@ -148,32 +148,56 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </View>
       </ImageBackground>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+  },
+  backgroundImageStyle: {
     width: '100%',
     height: '100%',
   },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
   },
-  contentContainer: {
+  keyboardAvoidView: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 60 : 60,
+    width: '100%',
     paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 60,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
+  },
+  backButtonContainer: {
+    padding: 5,
   },
   backButton: {
     color: '#FFFFFF',
@@ -188,8 +212,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    flex: 0.6,
-    justifyContent: 'center',
+    marginTop: 40,
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -204,6 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    width: '100%',
   },
   link: {
     color: '#FFFFFF',
@@ -223,6 +247,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 6,
+    width: '100%',
   },
   loginButtonText: {
     color: '#FFFFFF',

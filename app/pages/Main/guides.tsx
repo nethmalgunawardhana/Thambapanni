@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   joinButton: {
-    backgroundColor: '#00BFA6',
+    backgroundColor: '#34D399',
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E8E8E8',
+    borderBottomColor: '#34D399',
   },
   modalTitle: {
     fontSize: 26,
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   submitButton: {
-    backgroundColor: '#00BFA6',
+    backgroundColor: '#34D399',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',

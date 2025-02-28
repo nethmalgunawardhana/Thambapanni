@@ -169,7 +169,9 @@ const TripCard: React.FC<{
               color="#FF9800" 
             />
           </TouchableOpacity>
-          <Text style={styles.tripName}>{tripPlan.tripTitle}</Text>
+          <Text style={styles.tripName} numberOfLines={1} ellipsizeMode="tail">
+            {tripPlan.tripTitle}
+          </Text>
         </View>
       </View>
       
@@ -198,7 +200,7 @@ const GuideCard: React.FC<{ guide: Guide; navigation: any }> = ({ guide, navigat
       style={styles.guideImage}
     />
     <View style={styles.guideInfo}>
-      <Text style={styles.guideName}>{guide.fullName}</Text>
+      <Text style={styles.guideName} numberOfLines={1} ellipsizeMode="tail">{guide.fullName}</Text>
       <View style={styles.ratingContainer}>
         {[...Array(5)].map((_, i) => (
           <Ionicons 
@@ -210,8 +212,8 @@ const GuideCard: React.FC<{ guide: Guide; navigation: any }> = ({ guide, navigat
         ))}
         <Text style={styles.tripCount}>{guide.trips} Trips</Text>
       </View>
-      <Text style={styles.guideLocation}>{guide.location}</Text>
-      <Text style={styles.guideLanguages}>{guide.languages}</Text>
+      <Text style={styles.guideLocation} numberOfLines={1} ellipsizeMode="tail">{guide.location}</Text>
+      <Text style={styles.guideLanguages} numberOfLines={1} ellipsizeMode="tail">{guide.languages}</Text>
     </View>
     <TouchableOpacity 
       style={styles.hireButton}
@@ -517,6 +519,7 @@ const styles = StyleSheet.create({
   horizontalTripCard: {
     width: width - 64,
     marginRight: 16,
+    marginBottom:8,
   },
   // Trip card styles
   tripCard: {
@@ -540,10 +543,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
   },
   tripName: {
     fontSize: 16,
     fontWeight: 'bold',
+    flex: 1,
   },
   tripImage: {
     width: '100%',
@@ -596,6 +601,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
     textAlign: 'center',
+    width: '100%',
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -613,12 +619,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 4,
     textAlign: 'center',
+    width: '100%',
   },
   guideLanguages: {
     color: '#666',
     fontSize: 14,
     marginTop: 2,
     textAlign: 'center',
+    width: '100%',
   },
   hireButton: {
     backgroundColor: '#34D399',

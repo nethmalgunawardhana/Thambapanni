@@ -153,7 +153,7 @@ const Register: React.FC<Props> = ({ navigation }) => {
       // Register using the imported register function
       await register(userData, password);
 
-      Alert.alert('Success', 'Account created successfully! Please verify your email before login', [
+      Alert.alert('Success', 'Please verify your email before login\nLink expires in 10 minutes.', [
         {
           text: 'OK',
           onPress: () => navigation.navigate('Login'),

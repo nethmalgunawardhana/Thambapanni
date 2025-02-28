@@ -54,7 +54,7 @@ const Search: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={styles.tabButton1}
+          style={styles.tabButton}
           onPress={() => setActiveTab('destination')}
         >
           <Text style={[
@@ -63,10 +63,10 @@ const Search: React.FC = () => {
           ]}>
             Destination
           </Text>
-          {activeTab === 'destination' && <View style={styles.activeIndicator1} />}
+          {activeTab === 'destination' && <View style={styles.activeIndicator} />}
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.tabButton2}
+          style={styles.tabButton}
           onPress={() => setActiveTab('topGuides')}
         >
           <Text style={[
@@ -75,7 +75,7 @@ const Search: React.FC = () => {
           ]}>
             Top Guides
           </Text>
-          {activeTab === 'topGuides' && <View style={styles.activeIndicator2} />}
+          {activeTab === 'topGuides' && <View style={styles.activeIndicator} />}
         </TouchableOpacity>
       </View>
 
@@ -105,37 +105,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     backgroundColor: '#FFFFFF',
   },
-  tabButton1: {
+  tabButton: {
     paddingVertical: 16,
-    paddingHorizontal: 48,
+    paddingHorizontal: 32,
     position: 'relative',
     alignItems: 'center',
     minWidth: width * 0.35,
   },
-  tabButton2: {
-    paddingVertical: 16,
-    paddingHorizontal: 22,
-    position: 'relative',
-    alignItems: 'center',
-    minWidth: width * 0.35,
-  },
-  activeIndicator1: {
+  activeIndicator: {
     position: 'absolute',
     bottom: -2,
-    left: 36,
-    right: 36,
+    left: 20,
+    right: 20,
     height: 3,
     backgroundColor: 'rgb(255, 166, 0)',
-    
-  },
-  activeIndicator2: {
-    position: 'absolute',
-    bottom: -2,
-    left: 12,
-    right: 12,
-    height: 3,
-    backgroundColor: 'rgb(255, 166, 0)',
-    
   },
   tabText: {
     fontSize: 18,

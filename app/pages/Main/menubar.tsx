@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { DeviceEventEmitter } from 'react-native';
 import Dashboard from './dashboard';
 import PlanningTripScreen from './PlanningTrip';
@@ -20,35 +19,26 @@ type RootStackParamList = {
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
-interface TabIconProps {
-  focused: boolean;
-  color: string;
-  size: number;
-}
-
 const MenuBar: React.FC = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+  // Create a global navigation handler for the tab switching
   useEffect(() => {
+    // This will be our custom event for switching tabs in MenuBar
     const subscription = DeviceEventEmitter.addListener(
       'switchTab', 
-      (data: { screen: keyof RootStackParamList }) => {
-        if (data?.screen) {
-          const currentRoute = navigation.getState().routes[navigation.getState().index];
-          if (currentRoute.name !== data.screen) {
-            try {
-              navigation.navigate(data.screen);
-            } catch (error) {
-              console.error('Navigation error:', error);
-            }
-          }
+      (data: { tabName: keyof RootStackParamList }) => {
+        if (data?.tabName) {
+          console.log('Tab switch received for:', data.tabName);
+          // Just broadcast the selected tab name
+          // We'll handle this in each individual tab screen
+          DeviceEventEmitter.emit('tabSelected', data.tabName);
         }
-    });
+      }
+    );
 
     return () => {
       subscription.remove();
     };
-  }, [navigation]);
+  }, []);
   
   const renderTabIcon = (iconName: keyof typeof Ionicons.glyphMap, focusedIconName: keyof typeof Ionicons.glyphMap, focused: boolean) => {
     return (
@@ -76,6 +66,12 @@ const MenuBar: React.FC = () => {
         options={{
           tabBarIcon: ({ focused }) => renderTabIcon('home-outline', 'home', focused),
         }} 
+        listeners={{
+          tabPress: e => {
+            // When tab is pressed directly, update other screens
+            DeviceEventEmitter.emit('tabSelected', 'Home');
+          }
+        }}
       />
       
       <Tab.Screen 
@@ -83,7 +79,12 @@ const MenuBar: React.FC = () => {
         component={Search} 
         options={{
           tabBarIcon: ({ focused }) => renderTabIcon('search-outline', 'search', focused),
-        }} 
+        }}
+        listeners={{
+          tabPress: e => {
+            DeviceEventEmitter.emit('tabSelected', 'Search');
+          }
+        }}
       />
       
       <Tab.Screen
@@ -102,6 +103,11 @@ const MenuBar: React.FC = () => {
             </View>
           ),
         }}
+        listeners={{
+          tabPress: e => {
+            DeviceEventEmitter.emit('tabSelected', 'PlanningTrip');
+          }
+        }}
       />
       
       <Tab.Screen 
@@ -109,7 +115,12 @@ const MenuBar: React.FC = () => {
         component={BookmarkedTripsScreen} 
         options={{
           tabBarIcon: ({ focused }) => renderTabIcon('bookmark-outline', 'bookmark', focused),
-        }} 
+        }}
+        listeners={{
+          tabPress: e => {
+            DeviceEventEmitter.emit('tabSelected', 'Bookmark');
+          }
+        }}
       />
       
       <Tab.Screen 
@@ -117,7 +128,12 @@ const MenuBar: React.FC = () => {
         component={ProfileCard} 
         options={{
           tabBarIcon: ({ focused }) => renderTabIcon('person-outline', 'person', focused),
-        }} 
+        }}
+        listeners={{
+          tabPress: e => {
+            DeviceEventEmitter.emit('tabSelected', 'Profile');
+          }
+        }}
       />
     </Tab.Navigator>
   );
@@ -127,7 +143,7 @@ const styles = StyleSheet.create({
   tabBarStyle: {
     marginTop: 30,
     position: 'absolute',
-   marginBottom: 0,
+    marginBottom: 0,
     bottom: 0,
     left: 0,
     right: 0,
@@ -141,7 +157,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   customTabBarButton: {
-    
     position: 'absolute',
     top: -30,
     width: 60,
@@ -157,7 +172,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   customButtonBackground: {
-   
     width: 60,
     height: 60,
     borderRadius: 30,
