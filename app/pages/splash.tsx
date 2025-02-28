@@ -21,7 +21,7 @@ const CustomButton: React.FC<ButtonProps> = ({ title, onPress, style }) => (
 
 const App: React.FC<Props> = ({ navigation }) => {
   const backgroundImage: ImageSourcePropType = require('../../assets/images/splash.png');
-  const logoImage: ImageSourcePropType = require('../../assets/images/icon.png');
+  const logoImage: ImageSourcePropType = require('../../assets/images/Thambapanni.png');
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
@@ -39,7 +39,7 @@ const App: React.FC<Props> = ({ navigation }) => {
 
         <View style={styles.contentContainer}>
           <Text style={styles.titleText}>
-            Your One Stop for{'\n'}Sri Lankan Travel
+            Welcome to Thambapanni{'\n'}Your Gateway to Sri Lanka
           </Text>
 
           <CustomButton 

@@ -21,12 +21,14 @@ import {
 } from "../../../services/profile/profileservices";
 import { ProfileData, Stats } from "../../../services/profile/types/profile";
 
-
-
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface ProfileState extends ProfileData {
   stats: Stats;
+}
+
+interface ProfileScreenProps {
+  navigation?: any;
 }
 
 const defaultStats: Stats = {
@@ -46,7 +48,7 @@ const defaultProfileData: ProfileState = {
   stats: defaultStats,
 };
 
-const ProfileScreen: React.FC = () => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [profileData, setProfileData] =
     useState<ProfileState>(defaultProfileData);
@@ -172,6 +174,41 @@ const ProfileScreen: React.FC = () => {
     } finally {
       setUploadingPhoto(false);
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          onPress: () => {
+            // Here you would typically call your logout service
+            // Example: logoutUser();
+            
+            // For now, let's just simulate the logout
+            console.log("User logged out");
+            
+            // You might want to dispatch an event or navigate to login screen
+            DeviceEventEmitter.emit("userLoggedOut");
+            
+            // If you have navigation props, navigate to login
+            if (navigation) {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              });
+            }
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
 
   const renderStats = (): JSX.Element => (
@@ -342,9 +379,19 @@ const ProfileScreen: React.FC = () => {
                 <Text style={styles.infoLabel}>Date of Birth</Text>
                 <Text style={styles.infoValue}>{profileData.dateOfBirth}</Text>
               </View>
+               {/* Logout Button */}
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={handleLogout}
+        >
+          <MaterialIcons name="logout" size={24} color="#FF3B30" style={styles.logoutIcon} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
             </View>
           )}
         </View>
+
+       
       </View>
     </ScrollView>
   );
@@ -494,7 +541,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 4,
-    marginBottom: 90,
+    marginBottom: 24, // Reduced to make space for logout button
     borderWidth: 1,
     borderColor: "#e2e8f0",
   },
@@ -564,6 +611,35 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  // Logout button styles
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginBottom: 40,
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FF3B30",
   },
 });
 
