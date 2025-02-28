@@ -46,7 +46,7 @@ const Email: React.FC<Props> = ({ navigation }) => {
 
     try {
       await sendOtp(email);
-      Alert.alert('Success', 'OTP sent to your email');
+    
       navigation.navigate('Otp', { email });
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to send OTP');

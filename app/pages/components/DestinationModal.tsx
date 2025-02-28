@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
       },
       saveButton: {
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#34D399',
         padding: 12,
         borderRadius: 8,
         flex: 1,

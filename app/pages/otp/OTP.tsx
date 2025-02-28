@@ -75,7 +75,7 @@ const Otp: React.FC<Props> = ({ navigation, route }) => {
       // Call the backend API to verify OTP
       await verifyOtp(email, otp); // Replace this with your verifyOtp service function
 
-      Alert.alert("Success", "OTP verified successfully!");
+    
       navigation.navigate("Password", { email, otp }); // Navigate to the Password screen
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to verify OTP");

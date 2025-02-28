@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 24,
     fontWeight: '600',
-    marginLeft: 90,
+    marginLeft: 65,
   },
   listContainer: {
     padding: 16,
