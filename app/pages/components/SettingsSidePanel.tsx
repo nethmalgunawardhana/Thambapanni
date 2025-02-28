@@ -23,7 +23,7 @@ interface SettingsPopupProps {
 
 const { width, height } = Dimensions.get('window');
 const POPUP_WIDTH = width; // Full width
-const POPUP_HEIGHT = height * 0.93; // 93% of screen height
+const POPUP_HEIGHT = height * 0.77; // 93% of screen height
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isVisible,
@@ -97,26 +97,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
     onPress: () => void;
     color?: string;
   }> = [
-    { 
-      icon: 'search-outline', 
-      label: 'Search',
-      onPress: () => navigateToMenuBarTab('Search')
-    },
-    { 
-      icon: 'bookmark-outline', 
-      label: 'Bookmark',
-      onPress: () => navigateToMenuBarTab('Bookmark') 
-    },
-    { 
-      icon: 'person-outline', 
-      label: 'Profile Settings',
-      onPress: () => navigateToMenuBarTab('Profile')
-    },
-    { 
-      icon: 'add-circle-outline', 
-      label: 'Planning Trip',
-      onPress: () => navigateToMenuBarTab('PlanningTrip')
-    },
+   
     { 
       icon: 'map-outline', 
       label: 'Trip Plans',
@@ -132,13 +113,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       label: 'Pending Payments',
       onPress: () => {
         onClose();
-        if (navigation) {
-          try {
-            navigation.navigate('PendingPayments');
-          } catch (error) {
-            console.log('Navigation error:', error);
-          }
-        }
+        
       }
     },
     { 
@@ -156,8 +131,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       label: 'Notifications',
       onPress: () => {
         onClose();
-        console.log('Notifications pressed');
-        // Add navigation when you have a Notifications screen
+       
       }
     },
     { 
@@ -165,8 +139,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       label: 'Privacy',
       onPress: () => {
         onClose();
-        console.log('Privacy pressed');
-        // Add navigation when you have a Privacy screen
+       
+        if (navigation) {
+          navigation.navigate('Privacy');
+        }
       }
     },
     { 
@@ -174,8 +150,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       label: 'Help & Support',
       onPress: () => {
         onClose();
-        console.log('Help & Support pressed');
-        // Add navigation when you have a Help & Support screen
+        
+        if (navigation) {
+          navigation.navigate('HelpSupport');
+        }
       }
     },
     { 
@@ -183,8 +161,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       label: 'About',
       onPress: () => {
         onClose();
-        console.log('About pressed');
-        // Add navigation when you have an About screen
+       
+        if (navigation) {
+          navigation.navigate('About');
+        }
       }
     },
   ];

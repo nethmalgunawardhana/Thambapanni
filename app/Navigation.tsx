@@ -19,6 +19,9 @@ import SelectGuideScreen from './pages/Main/SelectGuideScreen';
 import TripMapScreen        from './pages/Main/TripMapScreen';
 import SelectVehicleScreen from './pages/Main/SelectVehicleScreen';
 import PaymentHistoryScreen from './pages/payment-gateway/paymenthistory';
+import PrivacyScreen from './pages/screens/PrivacyScreen';
+import HelpSupportScreen from './pages/screens/HelpSupportScreen';
+import AboutScreen from './pages/screens/AboutScreen';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
@@ -42,6 +45,9 @@ const NewStack = () => {
             <Stack.Screen name="TripMap" component={TripMapScreen} />
             <Stack.Screen name="SelectVehicle" component={SelectVehicleScreen} />
             <Stack.Screen name="PaymentHistory" component={PaymentHistoryScreen} />
+            <Stack.Screen name="Privacy" component={PrivacyScreen} />
+            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
             
         </Stack.Navigator>
       
