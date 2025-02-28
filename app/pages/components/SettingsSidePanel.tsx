@@ -12,17 +12,18 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CommonActions } from '@react-navigation/native';
 
 interface SettingsPopupProps {
   isVisible: boolean;
   onClose: () => void;
   onLogout: () => void;
-  navigation?: any; // Add navigation prop for routing
+  navigation?: any; // Navigation prop for routing
 }
 
 const { width, height } = Dimensions.get('window');
 const POPUP_WIDTH = width; // Full width
-const POPUP_HEIGHT = height * 0.89; // 95% of screen height
+const POPUP_HEIGHT = height * 0.93; // 93% of screen height
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isVisible,
@@ -64,31 +65,128 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
     }
   }, [isVisible, slideAnim, fadeAnim, height]);
 
-  // Add payment history to menu items
+  // Simplified function to navigate to MenuBar tab
+  const navigateToMenuBarTab = (tabName: string) => {
+    onClose();
+    
+    if (navigation) {
+      console.log('Navigating to MenuBar with tab:', tabName);
+      
+      // Use CommonActions for reliable nested navigation
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'MenuBar',
+              state: {
+                routes: [{ name: tabName }],
+                index: 0,
+              }
+            },
+          ],
+        })
+      );
+    }
+  };
+
+  // Updated menu items with proper navigation
   const menuItems: Array<{ 
     icon: keyof typeof Ionicons.glyphMap; 
     label: string;
-    onPress?: () => void;
+    onPress: () => void;
+    color?: string;
   }> = [
-    { icon: 'person-outline', label: 'Account Settings' },
-    { icon: 'notifications-outline', label: 'Notifications' },
-    { icon: 'shield-outline', label: 'Privacy' },
-    { icon: 'language-outline', label: 'Language' },
-    { icon: 'color-palette-outline', label: 'Appearance' },
-    { icon: 'cloud-download-outline', label: 'Offline Mode' },
+    { 
+      icon: 'search-outline', 
+      label: 'Search',
+      onPress: () => navigateToMenuBarTab('Search')
+    },
+    { 
+      icon: 'bookmark-outline', 
+      label: 'Bookmark',
+      onPress: () => navigateToMenuBarTab('Bookmark') 
+    },
+    { 
+      icon: 'person-outline', 
+      label: 'Profile Settings',
+      onPress: () => navigateToMenuBarTab('Profile')
+    },
+    { 
+      icon: 'add-circle-outline', 
+      label: 'Planning Trip',
+      onPress: () => navigateToMenuBarTab('PlanningTrip')
+    },
+    { 
+      icon: 'map-outline', 
+      label: 'Trip Plans',
+      onPress: () => {
+        onClose();
+        if (navigation) {
+          navigation.navigate('TripPlans');
+        }
+      }
+    },
+    { 
+      icon: 'time-outline', 
+      label: 'Pending Payments',
+      onPress: () => {
+        onClose();
+        if (navigation) {
+          try {
+            navigation.navigate('PendingPayments');
+          } catch (error) {
+            console.log('Navigation error:', error);
+          }
+        }
+      }
+    },
     { 
       icon: 'card-outline', 
       label: 'Payment History',
       onPress: () => {
-        onClose(); // Close the settings popup
+        onClose();
         if (navigation) {
-          // Navigate to the Payment History screen
           navigation.navigate('PaymentHistory');
         }
       }
     },
-    { icon: 'help-circle-outline', label: 'Help & Support' },
-    { icon: 'information-circle-outline', label: 'About' },
+    { 
+      icon: 'notifications-outline', 
+      label: 'Notifications',
+      onPress: () => {
+        onClose();
+        console.log('Notifications pressed');
+        // Add navigation when you have a Notifications screen
+      }
+    },
+    { 
+      icon: 'shield-outline', 
+      label: 'Privacy',
+      onPress: () => {
+        onClose();
+        console.log('Privacy pressed');
+        // Add navigation when you have a Privacy screen
+      }
+    },
+    { 
+      icon: 'help-circle-outline', 
+      label: 'Help & Support',
+      onPress: () => {
+        onClose();
+        console.log('Help & Support pressed');
+        // Add navigation when you have a Help & Support screen
+      }
+    },
+    { 
+      icon: 'information-circle-outline', 
+      label: 'About',
+      onPress: () => {
+        onClose();
+        console.log('About pressed');
+        // Add navigation when you have an About screen
+      }
+    },
   ];
 
   if (!isVisible) return null;
@@ -131,35 +229,44 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
           </View>
 
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Settings</Text>
+            <Text style={styles.headerTitle}>Main Menu</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color="#000" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.content}>
-            {menuItems.map((item, index) => (
+          {/* Main Content Container with Flex Layout */}
+          <View style={styles.contentContainer}>
+            {/* Scrollable Menu Items */}
+            <ScrollView style={styles.scrollContent}>
+              {menuItems.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.menuItem}
+                  onPress={item.onPress}
+                >
+                  <Ionicons name={item.icon} size={24} color={item.color || "#333"} />
+                  <Text style={[styles.menuItemText, item.color ? {color: item.color} : null]}>
+                    {item.label}
+                  </Text>
+                  <Ionicons name="chevron-forward-outline" size={20} color="#CCCCCC" style={styles.rightIcon} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            {/* Fixed Logout Button */}
+            <View style={styles.logoutWrapper}>
               <TouchableOpacity
-                key={index}
-                style={styles.menuItem}
-                onPress={item.onPress || (() => {
-                  console.log(`Selected: ${item.label}`);
-                  // Don't close popup when an item is selected unless specified
-                })}
+                style={styles.logoutContainer}
+                onPress={onLogout}
               >
-                <Ionicons name={item.icon} size={24} color="#333" />
-                <Text style={styles.menuItemText}>{item.label}</Text>
-                <Ionicons name="chevron-forward-outline" size={20} color="#CCCCCC" style={styles.rightIcon} />
+                <View style={styles.logoutButton}>
+                  <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+                  <Text style={styles.logoutText}>Logout</Text>
+                </View>
+                
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-          
-          {/* Logout button appears at the bottom */}
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-              <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -233,7 +340,12 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 8,
   },
-  content: {
+  contentContainer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  scrollContent: {
     flex: 1,
   },
   menuItem: {
@@ -253,22 +365,29 @@ const styles = StyleSheet.create({
   rightIcon: {
     marginLeft: 'auto',
   },
-  footer: {
+  logoutWrapper: {
     borderTopWidth: 1,
     borderTopColor: '#E5E5E5',
-    backgroundColor: '#f8f8f8',
+    width: '100%',
+  },
+  logoutContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingVertical: 18,
+    marginBottom: 16,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    paddingVertical: 24,
+    flex: 1,
   },
   logoutText: {
     marginLeft: 16,
-    fontSize: 18,
+    fontSize: 16,
     color: '#FF3B30',
-    fontWeight: '500',
+    fontWeight: '400',
+    
   },
 });
 
