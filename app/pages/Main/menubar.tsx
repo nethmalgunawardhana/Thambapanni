@@ -42,11 +42,13 @@ const MenuBar: React.FC = () => {
   
   const renderTabIcon = (iconName: keyof typeof Ionicons.glyphMap, focusedIconName: keyof typeof Ionicons.glyphMap, focused: boolean) => {
     return (
+      <View style={{ marginBottom: -16 }}> 
       <Ionicons 
         name={focused ? focusedIconName : iconName}
         size={24} 
         color={focused ? '#FF9500' : 'white'} 
       />
+      </View>
     );
   };
 
@@ -141,15 +143,14 @@ const MenuBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    marginTop: 30,
     position: 'absolute',
-    marginBottom: 0,
     bottom: 0,
     left: 0,
     right: 0,
     elevation: 0,
-    backgroundColor: '#34D399',
+    backgroundColor: 'rgb(21, 125, 87)',
     height: 60,
+    paddingBottom: 10,
     borderTopWidth: 0,
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
