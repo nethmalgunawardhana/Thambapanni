@@ -22,11 +22,14 @@ import PaymentHistoryScreen from './pages/payment-gateway/paymenthistory';
 import PrivacyScreen from './pages/screens/PrivacyScreen';
 import HelpSupportScreen from './pages/screens/HelpSupportScreen';
 import AboutScreen from './pages/screens/AboutScreen';
+import AuthLoadingScreen from './pages/auth/AuthLoadingScreen';
+import PlanningTripScreen from './pages/Main/PlanningTrip';
 const Stack = createStackNavigator();
 const NewStack = () => {
     return (
         
         <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="AuthLoading" component={AuthLoadingScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Splash" component={App} />
             <Stack.Screen name="Register" component={RegistrationScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
@@ -48,6 +51,7 @@ const NewStack = () => {
             <Stack.Screen name="Privacy" component={PrivacyScreen} />
             <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="PlanningTrip" component={PlanningTripScreen} />
             
         </Stack.Navigator>
       

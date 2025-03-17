@@ -9,6 +9,7 @@ import { API_URL } from '../../../services/config';
 import { fetchVerifiedGuides } from '../../../services/guides/request';
 import { useNavigation } from '@react-navigation/native';
 import SettingsSidePanel from '../components/SettingsSidePanel';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 interface Trip {
   name: string;
@@ -57,8 +58,9 @@ const tripImages: ImageSourcePropType[] = [
   
 ];
 
-const defaultProfileImage: ImageSourcePropType = require('../../../assets/images/defaultimage.png');
-const defaultProfileImage2: ImageSourcePropType = require('../../../assets/images/profile_image.png');
+const maleDefaultAvatar: ImageSourcePropType = require("../../../assets/images/profile_image.png");
+const femaleDefaultAvatar: ImageSourcePropType = require("../../../assets/images/female_profile_image.png");
+  
 
 const UserProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -90,6 +92,13 @@ const UserProfile = () => {
       subscription.remove();
     };
   }, [fetchUserProfile]);
+  const getDefaultAvatar = (): ImageSourcePropType => {
+    const gender = profile.gender?.toLowerCase();
+    if (gender === "female") {
+      return femaleDefaultAvatar;
+    }
+    return maleDefaultAvatar; 
+  };
 
   if (loading) {
     return (
@@ -113,7 +122,7 @@ const UserProfile = () => {
       {profile.profilePhoto ? (
         <Image source={{ uri: profile.profilePhoto }} style={styles.profilePhoto} />
       ) : (
-        <Image source={defaultProfileImage2} style={styles.profilePhoto} />
+        <Image source={getDefaultAvatar()} style={styles.profilePhoto} />
       )}
     </View>
     <View style={styles.profileInfo}>
@@ -196,7 +205,7 @@ const TripCard: React.FC<{
 const GuideCard: React.FC<{ guide: Guide; navigation: any }> = ({ guide, navigation }) => (
   <View style={styles.guideCard}>
     <Image 
-      source={guide.profilePhoto ? { uri: guide.profilePhoto } : defaultProfileImage} 
+      source={guide.profilePhoto ? { uri: guide.profilePhoto } : maleDefaultAvatar } 
       style={styles.guideImage}
     />
     <View style={styles.guideInfo}>
@@ -386,17 +395,28 @@ export default function Dashboard() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Current Trip</Text>
-        {currentTrip && (
-          <View style={styles.currentTripContainer}>
-            <TripCard 
-              tripPlan={currentTrip} 
-              onBookmark={handleBookmark}
-              isBookmarked={bookmarkedTrips.has(currentTrip.id)}
-            />
-          </View>
-        )}
-      </View>
+  <Text style={styles.sectionTitle}>Current Trip</Text>
+  {currentTrip ? (
+    <View style={styles.currentTripContainer}>
+      <TripCard 
+        tripPlan={currentTrip} 
+        onBookmark={handleBookmark}
+        isBookmarked={bookmarkedTrips.has(currentTrip.id)}
+      />
+    </View>
+  ) : (
+    <View style={styles.emptyTripContainer}>
+      <Ionicons name="airplane-outline" size={40} color="#D1D1D1" />
+      <Text style={styles.emptyTripText}>No current trips</Text>
+      <TouchableOpacity 
+        style={styles.planTripButton}
+        onPress={() => navigation.navigate('PlanningTrip')}
+      >
+        <Text style={styles.planTripButtonText}>Plan a Trip</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
@@ -680,5 +700,32 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 16,
     color: '#666',
+  },
+  emptyTripContainer: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 200,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#eaeaea',
+  },
+  emptyTripText: {
+    fontSize: 16,
+    color: '#757575',
+    marginVertical: 10,
+  },
+  planTripButton: {
+    backgroundColor: '#FF9800',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  planTripButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

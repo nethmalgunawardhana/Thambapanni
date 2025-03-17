@@ -238,8 +238,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     );
   }
 
-  const defaultAvatar: ImageSourcePropType = require("../../../assets/images/profile_image.png");
-
+  
+  const maleDefaultAvatar: ImageSourcePropType = require("../../../assets/images/profile_image.png");
+  const femaleDefaultAvatar: ImageSourcePropType = require("../../../assets/images/female_profile_image.png");
+  const getDefaultAvatar = (): ImageSourcePropType => {
+    const gender = profileData.gender?.toLowerCase();
+    if (gender === "female") {
+      return femaleDefaultAvatar;
+    }
+    return maleDefaultAvatar; 
+  };
   return (
     <ScrollView showsVerticalScrollIndicator={false}
       style={styles.scrollContainer}
@@ -257,7 +265,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               source={
                 profileData.profilePhoto
                   ? { uri: profileData.profilePhoto }
-                  : defaultAvatar
+                  : getDefaultAvatar()
               }
               style={styles.profileImage}
             />

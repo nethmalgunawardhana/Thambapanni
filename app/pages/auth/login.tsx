@@ -85,7 +85,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      navigation.navigate('Home');
+      navigation.navigate('Splash');
     }
   };
 
